@@ -1,16 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Superhero Quiz Clash</title>
-<link rel="stylesheet" href="styles/main.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superhero Quiz Clash</title>
+  <link rel="stylesheet" href="./styles/main.css" />
 </head>
-
 <body>
+  <div class="container">
+    <h1>Superhero Quiz Clash</h1>
+    <p class="subtitle">Register your hero or log in to battle.</p>
 
-<h1>Superhero Quiz Clash</h1>
-<p>Game setup successful</p>
+    <div class="auth-wrapper">
+      <!-- Register Section -->
+      <section class="card">
+        <h2>Register</h2>
 
-<script src="js/app.js"></script>
+        <label for="registerUsername">Username</label>
+        <input type="text" id="registerUsername" placeholder="Enter username" />
 
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" placeholder="Enter password" />
+
+        <h3>Choose Your Hero Avatar</h3>
+        <div class="avatar-grid" id="avatarGrid">
+          <div class="avatar-option" data-avatar="🦸">🦸</div>
+          <div class="avatar-option" data-avatar="🦹">🦹</div>
+          <div class="avatar-option" data-avatar="⚡">⚡</div>
+          <div class="avatar-option" data-avatar="🔥">🔥</div>
+          <div class="avatar-option" data-avatar="🛡️">🛡️</div>
+          <div class="avatar-option" data-avatar="🌟">🌟</div>
+          <div class="avatar-option" data-avatar="💥">💥</div>
+          <div class="avatar-option" data-avatar="🌪️">🌪️</div>
+        </div>
+
+        <button id="registerBtn">Register Hero</button>
+      </section>
+
+      <!-- Login Section -->
+      <section class="card">
+        <h2>Login</h2>
+
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username" />
+
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" />
+
+        <button id="loginBtn">Login</button>
+      </section>
+    </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- Logged In Hero Preview -->
+    <section class="card hidden" id="profileCard">
+      <h2>Hero Profile</h2>
+      <div class="hero-preview">
+        <div class="hero-avatar" id="profileAvatar">🦸</div>
+        <div>
+          <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+          <p><strong>Total Points:</strong> <span id="profilePoints">0</span></p>
+          <p><strong>Total Wins:</strong> <span id="profileWins">0</span></p>
+          <p><strong>Matches Played:</strong> <span id="profileMatches">0</span></p>
+        </div>
+      </div>
+
+      <button id="logoutBtn">Logout</button>
+    </section>
+  </div>
+
+  <script src="./js/app.js"></script>
 </body>
 </html>

@@ -1,6 +1,148 @@
-body{
-    font-family: Arial;
-    background:#0f172a;
-    color:white;
-    text-align:center;
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  min-height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px 20px 50px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #cbd5e1;
+}
+
+.auth-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+button {
+  margin-top: 15px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #facc15;
+  color: #111827;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.avatar-option {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 18px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 2rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.avatar-option:hover {
+  border-color: #facc15;
+}
+
+.avatar-option.selected {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.message-box {
+  margin: 20px 0;
+  padding: 14px;
+  border-radius: 10px;
+  display: none;
+  font-weight: bold;
+}
+
+.message-box.success {
+  display: block;
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid #22c55e;
+}
+
+.message-box.error {
+  display: block;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+}
+
+.hero-preview {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.hero-avatar {
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .auth-wrapper {
+    grid-template-columns: 1fr;
+  }
 }
