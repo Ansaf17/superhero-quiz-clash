@@ -27,7 +27,42 @@
         </div>
       </div>
 
-      <button id="logoutBtn">Logout</button>
+      <div class="profile-actions">
+        <button id="openBattleLobbyBtn">Open Battle Lobby</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </section>
+
+    <!-- Battle Lobby -->
+    <section class="card hidden" id="battleLobbyCard">
+      <h2>Battle Lobby</h2>
+      <p>Player 2 must log in to begin the battle.</p>
+
+      <label for="player2Username">Player 2 Username</label>
+      <input type="text" id="player2Username" placeholder="Enter Player 2 username" />
+
+      <label for="player2Password">Player 2 Password</label>
+      <input type="password" id="player2Password" placeholder="Enter Player 2 password" />
+
+      <button id="confirmPlayer2Btn">Confirm Player 2</button>
+
+      <div class="battle-preview">
+        <div class="player-card">
+          <h3>Player 1</h3>
+          <div class="hero-avatar" id="battlePlayer1Avatar">🦸</div>
+          <p id="battlePlayer1Name">-</p>
+        </div>
+
+        <div class="vs-text">VS</div>
+
+        <div class="player-card">
+          <h3>Player 2</h3>
+          <div class="hero-avatar" id="battlePlayer2Avatar">❔</div>
+          <p id="battlePlayer2Name">-</p>
+        </div>
+      </div>
+
+      <button id="startBattleBtn">Start Battle</button>
     </section>
 
     <div class="auth-wrapper">
