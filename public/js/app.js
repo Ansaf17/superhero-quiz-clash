@@ -7,6 +7,7 @@ window.onload = function () {
   const openBattleLobbyBtn = document.getElementById("openBattleLobbyBtn");
   const confirmPlayer2Btn = document.getElementById("confirmPlayer2Btn");
   const startBattleBtn = document.getElementById("startBattleBtn");
+  const submitAnswerBtn = document.getElementById("submitAnswerBtn");
 
   const registerUsername = document.getElementById("registerUsername");
   const registerPassword = document.getElementById("registerPassword");
@@ -32,8 +33,27 @@ window.onload = function () {
   const battlePlayer2Avatar = document.getElementById("battlePlayer2Avatar");
   const battlePlayer2Name = document.getElementById("battlePlayer2Name");
 
+  const matchArena = document.getElementById("matchArena");
+  const arenaPlayer1Name = document.getElementById("arenaPlayer1Name");
+  const arenaPlayer2Name = document.getElementById("arenaPlayer2Name");
+  const arenaPlayer1Avatar = document.getElementById("arenaPlayer1Avatar");
+  const arenaPlayer2Avatar = document.getElementById("arenaPlayer2Avatar");
+  const arenaScore1 = document.getElementById("arenaScore1");
+  const arenaScore2 = document.getElementById("arenaScore2");
+  const turnIndicator = document.getElementById("turnIndicator");
+  const questionText = document.getElementById("questionText");
+  const answerInput = document.getElementById("answerInput");
+  const roundNumber = document.getElementById("roundNumber");
+
   let selectedAvatar = "";
   let selectedPlayer2 = null;
+
+  let player1Score = 0;
+  let player2Score = 0;
+  let currentTurn = "player1";
+  let currentRound = 1;
+  const totalRounds = 3;
+  let currentCorrectAnswer = 0;
 
   function showMessage(text, type) {
     messageBox.textContent = text;
@@ -88,6 +108,75 @@ window.onload = function () {
 
     resetBattleLobby();
     battleLobbyCard.classList.remove("hidden");
+  }
+
+  function generateQuestion() {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    const operators = ["+", "-", "*"];
+    const operator = operators[Math.floor(Math.random() * operators.length)];
+
+    let question = "";
+    let answer = 0;
+
+    if (operator === "+") {
+      question = `${num1} + ${num2}`;
+      answer = num1 + num2;
+    } else if (operator === "-") {
+      question = `${num1} - ${num2}`;
+      answer = num1 - num2;
+    } else {
+      question = `${num1} × ${num2}`;
+      answer = num1 * num2;
+    }
+
+    currentCorrectAnswer = answer;
+    questionText.textContent = `Question: ${question}`;
+  }
+
+  function updateTurnUI() {
+    const currentUser = getCurrentUser();
+    if (!currentUser || !selectedPlayer2) return;
+
+    if (currentTurn === "player1") {
+      turnIndicator.textContent = `Turn: ${currentUser.username}`;
+    } else {
+      turnIndicator.textContent = `Turn: ${selectedPlayer2.username}`;
+    }
+
+    arenaScore1.textContent = player1Score;
+    arenaScore2.textContent = player2Score;
+    roundNumber.textContent = currentRound;
+  }
+
+  function startMatch() {
+    const currentUser = getCurrentUser();
+
+    player1Score = 0;
+    player2Score = 0;
+    currentTurn = "player1";
+    currentRound = 1;
+
+    arenaPlayer1Name.textContent = currentUser.username;
+    arenaPlayer2Name.textContent = selectedPlayer2.username;
+    arenaPlayer1Avatar.textContent = currentUser.avatar;
+    arenaPlayer2Avatar.textContent = selectedPlayer2.avatar;
+
+    matchArena.classList.remove("hidden");
+    updateTurnUI();
+    generateQuestion();
+  }
+
+  function finishMatch() {
+    const currentUser = getCurrentUser();
+
+    if (player1Score > player2Score) {
+      showMessage(`${currentUser.username} wins the battle!`, "success");
+    } else if (player2Score > player1Score) {
+      showMessage(`${selectedPlayer2.username} wins the battle!`, "success");
+    } else {
+      showMessage("The battle ended in a draw!", "success");
+    }
   }
 
   avatarOptions.forEach(function (option) {
@@ -167,6 +256,7 @@ window.onload = function () {
     localStorage.removeItem("currentUser");
     hideProfile();
     battleLobbyCard.classList.add("hidden");
+    matchArena.classList.add("hidden");
     showMessage("Logged out.", "success");
   };
 
@@ -231,7 +321,47 @@ window.onload = function () {
     };
 
     localStorage.setItem("battlePlayers", JSON.stringify(battlePlayers));
-    showMessage(`Battle ready: ${currentUser.username} vs ${selectedPlayer2.username}`, "success");
+    showMessage(`Battle started: ${currentUser.username} vs ${selectedPlayer2.username}`, "success");
+
+    startMatch();
+  };
+
+  submitAnswerBtn.onclick = function () {
+    const userAnswer = Number(answerInput.value.trim());
+
+    if (answerInput.value.trim() === "") {
+      showMessage("Please enter an answer.", "error");
+      return;
+    }
+
+    if (userAnswer === currentCorrectAnswer) {
+      if (currentTurn === "player1") {
+        player1Score += 10;
+      } else {
+        player2Score += 10;
+      }
+      showMessage("Correct answer!", "success");
+    } else {
+      showMessage(`Wrong answer. Correct answer was ${currentCorrectAnswer}.`, "error");
+    }
+
+    answerInput.value = "";
+
+    if (currentTurn === "player1") {
+      currentTurn = "player2";
+    } else {
+      currentTurn = "player1";
+      currentRound++;
+    }
+
+    if (currentRound > totalRounds) {
+      updateTurnUI();
+      finishMatch();
+      return;
+    }
+
+    updateTurnUI();
+    generateQuestion();
   };
 
   const currentUser = getCurrentUser();

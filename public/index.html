@@ -64,7 +64,37 @@
 
       <button id="startBattleBtn">Start Battle</button>
     </section>
+<!-- Match Arena -->
+<section class="card hidden" id="matchArena">
+  <h2>Battle Arena</h2>
 
+  <div class="battle-preview">
+    <div class="player-card">
+      <h3 id="arenaPlayer1Name">Player 1</h3>
+      <div class="hero-avatar" id="arenaPlayer1Avatar">🦸</div>
+      <p>Score: <span id="arenaScore1">0</span></p>
+    </div>
+
+    <div class="vs-text">VS</div>
+
+    <div class="player-card">
+      <h3 id="arenaPlayer2Name">Player 2</h3>
+      <div class="hero-avatar" id="arenaPlayer2Avatar">🦹</div>
+      <p>Score: <span id="arenaScore2">0</span></p>
+    </div>
+  </div>
+
+  <h3 id="turnIndicator">Turn: Player 1</h3>
+
+  <div class="question-box">
+    <p id="questionText">Question appears here</p>
+  </div>
+
+  <input type="text" id="answerInput" placeholder="Enter your answer" />
+  <button id="submitAnswerBtn">Submit Answer</button>
+
+  <p>Round: <span id="roundNumber">1</span></p>
+</section>
     <div class="auth-wrapper">
       <!-- Register Section -->
       <section class="card">
