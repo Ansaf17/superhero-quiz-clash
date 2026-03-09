@@ -11,6 +11,25 @@
     <h1>Superhero Quiz Clash</h1>
     <p class="subtitle">Register your hero or log in to battle.</p>
 
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- Logged In Hero Preview -->
+    <section class="card hidden" id="profileCard">
+      <h2>Hero Profile</h2>
+      <div class="hero-preview">
+        <div class="hero-avatar" id="profileAvatar">🦸</div>
+        <div>
+          <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+          <p><strong>Total Points:</strong> <span id="profilePoints">0</span></p>
+          <p><strong>Total Wins:</strong> <span id="profileWins">0</span></p>
+          <p><strong>Matches Played:</strong> <span id="profileMatches">0</span></p>
+        </div>
+      </div>
+
+      <button id="logoutBtn">Logout</button>
+    </section>
+
     <div class="auth-wrapper">
       <!-- Register Section -->
       <section class="card">
@@ -50,25 +69,6 @@
         <button id="loginBtn">Login</button>
       </section>
     </div>
-
-    <!-- Message Box -->
-    <div id="messageBox" class="message-box"></div>
-
-    <!-- Logged In Hero Preview -->
-    <section class="card hidden" id="profileCard">
-      <h2>Hero Profile</h2>
-      <div class="hero-preview">
-        <div class="hero-avatar" id="profileAvatar">🦸</div>
-        <div>
-          <p><strong>Username:</strong> <span id="profileUsername"></span></p>
-          <p><strong>Total Points:</strong> <span id="profilePoints">0</span></p>
-          <p><strong>Total Wins:</strong> <span id="profileWins">0</span></p>
-          <p><strong>Matches Played:</strong> <span id="profileMatches">0</span></p>
-        </div>
-      </div>
-
-      <button id="logoutBtn">Logout</button>
-    </section>
   </div>
 
   <script src="./js/app.js"></script>
