@@ -200,3 +200,19 @@ button:hover {
   margin-top: 20px;
   color: #facc15;
 }
+
+#resultCard {
+  text-align: center;
+}
+
+#winnerText {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #facc15;
+  margin-bottom: 10px;
+}
+
+#finalScoreText {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}

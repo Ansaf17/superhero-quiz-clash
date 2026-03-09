@@ -8,6 +8,7 @@ window.onload = function () {
   const confirmPlayer2Btn = document.getElementById("confirmPlayer2Btn");
   const startBattleBtn = document.getElementById("startBattleBtn");
   const submitAnswerBtn = document.getElementById("submitAnswerBtn");
+  const backToLobbyBtn = document.getElementById("backToLobbyBtn");
 
   const registerUsername = document.getElementById("registerUsername");
   const registerPassword = document.getElementById("registerPassword");
@@ -45,6 +46,10 @@ window.onload = function () {
   const answerInput = document.getElementById("answerInput");
   const roundNumber = document.getElementById("roundNumber");
 
+  const resultCard = document.getElementById("resultCard");
+  const winnerText = document.getElementById("winnerText");
+  const finalScoreText = document.getElementById("finalScoreText");
+
   let selectedAvatar = "";
   let selectedPlayer2 = null;
 
@@ -52,7 +57,7 @@ window.onload = function () {
   let player2Score = 0;
   let currentTurn = "player1";
   let currentRound = 1;
-  const totalRounds = 3;
+  const totalRounds = 5;
   let currentCorrectAnswer = 0;
 
   function showMessage(text, type) {
@@ -72,6 +77,24 @@ window.onload = function () {
   function getCurrentUser() {
     const raw = localStorage.getItem("currentUser");
     return raw ? JSON.parse(raw) : null;
+  }
+
+  function getMatches() {
+    const raw = localStorage.getItem("matches");
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  function saveMatches(matches) {
+    localStorage.setItem("matches", JSON.stringify(matches));
+  }
+
+  function getH2H() {
+    const raw = localStorage.getItem("h2h");
+    return raw ? JSON.parse(raw) : {};
+  }
+
+  function saveH2H(h2h) {
+    localStorage.setItem("h2h", JSON.stringify(h2h));
   }
 
   function showProfile(user) {
@@ -156,27 +179,125 @@ window.onload = function () {
     player2Score = 0;
     currentTurn = "player1";
     currentRound = 1;
+    currentCorrectAnswer = 0;
 
     arenaPlayer1Name.textContent = currentUser.username;
     arenaPlayer2Name.textContent = selectedPlayer2.username;
     arenaPlayer1Avatar.textContent = currentUser.avatar;
     arenaPlayer2Avatar.textContent = selectedPlayer2.avatar;
 
+    answerInput.value = "";
+    resultCard.classList.add("hidden");
     matchArena.classList.remove("hidden");
+
     updateTurnUI();
     generateQuestion();
+  }
+
+  function updateUserStats(winnerUsername, finalPlayer1Score, finalPlayer2Score) {
+    const currentUser = getCurrentUser();
+    const users = getUsers();
+
+    const player1 = users.find((u) => u.username === currentUser.username);
+    const player2 = users.find((u) => u.username === selectedPlayer2.username);
+
+    if (!player1 || !player2) return;
+
+    player1.totalPoints += finalPlayer1Score;
+    player2.totalPoints += finalPlayer2Score;
+
+    player1.matchesPlayed += 1;
+    player2.matchesPlayed += 1;
+
+    if (winnerUsername === player1.username) {
+      player1.totalWins += 1;
+      player2.totalLosses += 1;
+    } else if (winnerUsername === player2.username) {
+      player2.totalWins += 1;
+      player1.totalLosses += 1;
+    }
+
+    saveUsers(users);
+
+    const updatedCurrentUser = users.find((u) => u.username === currentUser.username);
+    localStorage.setItem("currentUser", JSON.stringify(updatedCurrentUser));
+    showProfile(updatedCurrentUser);
+  }
+
+  function saveMatchRecord(winnerUsername, finalPlayer1Score, finalPlayer2Score) {
+    const currentUser = getCurrentUser();
+    const matches = getMatches();
+
+    matches.push({
+      player1: currentUser.username,
+      player2: selectedPlayer2.username,
+      player1Score: finalPlayer1Score,
+      player2Score: finalPlayer2Score,
+      winner: winnerUsername,
+      date: new Date().toLocaleString()
+    });
+
+    saveMatches(matches);
+  }
+
+  function saveHeadToHead(winnerUsername, finalPlayer1Score, finalPlayer2Score) {
+    const currentUser = getCurrentUser();
+    const h2h = getH2H();
+
+    const names = [currentUser.username, selectedPlayer2.username].sort();
+    const key = `${names[0]}__${names[1]}`;
+
+    if (!h2h[key]) {
+      h2h[key] = {
+        matches: 0,
+        [currentUser.username]: 0,
+        [selectedPlayer2.username]: 0,
+        [`${currentUser.username}Points`]: 0,
+        [`${selectedPlayer2.username}Points`]: 0
+      };
+    }
+
+    h2h[key].matches += 1;
+    h2h[key][`${currentUser.username}Points`] += finalPlayer1Score;
+    h2h[key][`${selectedPlayer2.username}Points`] += finalPlayer2Score;
+
+    if (winnerUsername === currentUser.username) {
+      h2h[key][currentUser.username] += 1;
+    } else if (winnerUsername === selectedPlayer2.username) {
+      h2h[key][selectedPlayer2.username] += 1;
+    }
+
+    saveH2H(h2h);
   }
 
   function finishMatch() {
     const currentUser = getCurrentUser();
 
-    if (player1Score > player2Score) {
-      showMessage(`${currentUser.username} wins the battle!`, "success");
-    } else if (player2Score > player1Score) {
-      showMessage(`${selectedPlayer2.username} wins the battle!`, "success");
-    } else {
-      showMessage("The battle ended in a draw!", "success");
+    const finalPlayer1Score = player1Score;
+    const finalPlayer2Score = player2Score;
+
+    let winnerUsername = "draw";
+    let winnerMessage = "🤝 The battle ended in a draw!";
+
+    if (finalPlayer1Score > finalPlayer2Score) {
+      winnerUsername = currentUser.username;
+      winnerMessage = `🏆 ${currentUser.username} wins the battle!`;
+    } else if (finalPlayer2Score > finalPlayer1Score) {
+      winnerUsername = selectedPlayer2.username;
+      winnerMessage = `🏆 ${selectedPlayer2.username} wins the battle!`;
     }
+
+    winnerText.textContent = winnerMessage;
+    finalScoreText.textContent = `Final Score: ${currentUser.username} ${finalPlayer1Score} - ${finalPlayer2Score} ${selectedPlayer2.username}`;
+
+    updateUserStats(winnerUsername, finalPlayer1Score, finalPlayer2Score);
+    saveMatchRecord(winnerUsername, finalPlayer1Score, finalPlayer2Score);
+    saveHeadToHead(winnerUsername, finalPlayer1Score, finalPlayer2Score);
+
+    matchArena.classList.add("hidden");
+    resultCard.classList.remove("hidden");
+
+    showMessage("Match completed successfully.", "success");
   }
 
   avatarOptions.forEach(function (option) {
@@ -257,6 +378,7 @@ window.onload = function () {
     hideProfile();
     battleLobbyCard.classList.add("hidden");
     matchArena.classList.add("hidden");
+    resultCard.classList.add("hidden");
     showMessage("Logged out.", "success");
   };
 
@@ -327,12 +449,14 @@ window.onload = function () {
   };
 
   submitAnswerBtn.onclick = function () {
-    const userAnswer = Number(answerInput.value.trim());
+    const trimmedValue = answerInput.value.trim();
 
-    if (answerInput.value.trim() === "") {
+    if (trimmedValue === "") {
       showMessage("Please enter an answer.", "error");
       return;
     }
+
+    const userAnswer = Number(trimmedValue);
 
     if (userAnswer === currentCorrectAnswer) {
       if (currentTurn === "player1") {
@@ -349,19 +473,28 @@ window.onload = function () {
 
     if (currentTurn === "player1") {
       currentTurn = "player2";
-    } else {
-      currentTurn = "player1";
-      currentRound++;
+      updateTurnUI();
+      generateQuestion();
+      return;
     }
 
-    if (currentRound > totalRounds) {
+    if (currentRound === totalRounds) {
       updateTurnUI();
       finishMatch();
       return;
     }
 
+    currentTurn = "player1";
+    currentRound += 1;
+
     updateTurnUI();
     generateQuestion();
+  };
+
+  backToLobbyBtn.onclick = function () {
+    resultCard.classList.add("hidden");
+    battleLobbyCard.classList.remove("hidden");
+    showMessage("Returned to battle lobby.", "success");
   };
 
   const currentUser = getCurrentUser();
