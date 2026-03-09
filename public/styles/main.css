@@ -189,6 +189,14 @@ button:hover {
   color: #facc15;
 }
 
+#timerText {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #38bdf8;
+  margin-bottom: 10px;
+}
+
 #resultCard {
   text-align: center;
 }
@@ -233,6 +241,11 @@ button:hover {
 
 .answer-btn.wrong {
   background: #ef4444;
+}
+
+.answer-btn:disabled {
+  opacity: 0.85;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

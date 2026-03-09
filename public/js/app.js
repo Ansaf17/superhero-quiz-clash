@@ -42,6 +42,7 @@ window.onload = function () {
   const arenaScore1 = document.getElementById("arenaScore1");
   const arenaScore2 = document.getElementById("arenaScore2");
   const turnIndicator = document.getElementById("turnIndicator");
+  const timerText = document.getElementById("timerText");
   const questionText = document.getElementById("questionText");
   const roundNumber = document.getElementById("roundNumber");
 
@@ -63,6 +64,10 @@ window.onload = function () {
 
   let correctIndex = 0;
   let turnLocked = false;
+
+  let timerInterval = null;
+  const turnTimeLimit = 10;
+  let timeLeft = turnTimeLimit;
 
   function showMessage(text, type) {
     messageBox.textContent = text;
@@ -184,35 +189,80 @@ window.onload = function () {
     roundNumber.textContent = currentRound;
   }
 
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  function startTimer() {
+    stopTimer();
+    timeLeft = turnTimeLimit;
+    timerText.textContent = `Time Left: ${timeLeft}s`;
+
+    timerInterval = setInterval(() => {
+      timeLeft -= 1;
+      timerText.textContent = `Time Left: ${timeLeft}s`;
+
+      if (timeLeft <= 0) {
+        stopTimer();
+        handleTimeUp();
+      }
+    }, 1000);
+  }
+
+  function handleTimeUp() {
+    if (turnLocked) return;
+    turnLocked = true;
+
+    answerButtons.forEach((btn) => {
+      btn.disabled = true;
+    });
+
+    answerButtons[correctIndex].classList.add("correct");
+    showMessage("Time is up! Turn skipped.", "error");
+
+    setTimeout(() => {
+      nextTurn();
+    }, 1200);
+  }
+
   async function generateQuestion() {
     resetAnswerButtons();
 
     try {
       if (selectedCategory === "math") {
         generateMathQuestion();
+        startTimer();
         return;
       }
 
       if (selectedCategory === "banana") {
         await generateBananaQuestion();
+        startTimer();
         return;
       }
 
       if (selectedCategory === "general") {
         await generateGeneralQuestion();
+        startTimer();
         return;
       }
 
       if (selectedCategory === "programming") {
         await generateProgrammingQuestion();
+        startTimer();
         return;
       }
 
       generateMathQuestion();
+      startTimer();
     } catch (error) {
       console.error("Question generation failed:", error);
       showMessage("Question API failed. Falling back to math question.", "error");
       generateMathQuestion();
+      startTimer();
     }
   }
 
@@ -402,6 +452,8 @@ window.onload = function () {
   }
 
   function finishMatch() {
+    stopTimer();
+
     const currentUser = getCurrentUser();
 
     const finalPlayer1Score = player1Score;
@@ -457,6 +509,7 @@ window.onload = function () {
   async function handleAnswerClick(index) {
     if (turnLocked) return;
     turnLocked = true;
+    stopTimer();
 
     const correctBtn = answerButtons[correctIndex];
     correctBtn.classList.add("correct");
@@ -570,6 +623,7 @@ window.onload = function () {
   };
 
   logoutBtn.onclick = function () {
+    stopTimer();
     localStorage.removeItem("currentUser");
     hideProfile();
     battleLobbyCard.classList.add("hidden");
@@ -646,6 +700,7 @@ window.onload = function () {
   };
 
   backToLobbyBtn.onclick = function () {
+    stopTimer();
     resultCard.classList.add("hidden");
     battleLobbyCard.classList.remove("hidden");
     showMessage("Returned to battle lobby.", "success");
