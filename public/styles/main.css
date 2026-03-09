@@ -50,7 +50,8 @@ label {
   font-weight: bold;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 12px;
   border-radius: 10px;
@@ -141,12 +142,6 @@ button:hover {
   display: none;
 }
 
-@media (max-width: 768px) {
-  .auth-wrapper {
-    grid-template-columns: 1fr;
-  }
-}
-
 .profile-actions {
   display: flex;
   gap: 12px;
@@ -185,14 +180,7 @@ button:hover {
   margin: 20px 0;
   font-size: 1.2rem;
   text-align: center;
-}
-
-#answerInput {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  margin-bottom: 10px;
+  min-height: 90px;
 }
 
 #turnIndicator {
@@ -215,4 +203,44 @@ button:hover {
 #finalScoreText {
   font-size: 1.1rem;
   margin-bottom: 20px;
+}
+
+.answers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.answer-btn {
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #334155;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  min-height: 60px;
+}
+
+.answer-btn:hover {
+  background: #475569;
+}
+
+.answer-btn.correct {
+  background: #22c55e;
+}
+
+.answer-btn.wrong {
+  background: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .auth-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .answers-grid {
+    grid-template-columns: 1fr;
+  }
 }

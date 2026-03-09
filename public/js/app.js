@@ -7,7 +7,6 @@ window.onload = function () {
   const openBattleLobbyBtn = document.getElementById("openBattleLobbyBtn");
   const confirmPlayer2Btn = document.getElementById("confirmPlayer2Btn");
   const startBattleBtn = document.getElementById("startBattleBtn");
-  const submitAnswerBtn = document.getElementById("submitAnswerBtn");
   const backToLobbyBtn = document.getElementById("backToLobbyBtn");
 
   const registerUsername = document.getElementById("registerUsername");
@@ -19,6 +18,7 @@ window.onload = function () {
   const player2Password = document.getElementById("player2Password");
 
   const avatarOptions = document.querySelectorAll(".avatar-option");
+  const answerButtons = document.querySelectorAll(".answer-btn");
   const messageBox = document.getElementById("messageBox");
 
   const profileCard = document.getElementById("profileCard");
@@ -43,7 +43,6 @@ window.onload = function () {
   const arenaScore2 = document.getElementById("arenaScore2");
   const turnIndicator = document.getElementById("turnIndicator");
   const questionText = document.getElementById("questionText");
-  const answerInput = document.getElementById("answerInput");
   const roundNumber = document.getElementById("roundNumber");
 
   const resultCard = document.getElementById("resultCard");
@@ -61,7 +60,9 @@ window.onload = function () {
   let currentTurn = "player1";
   let currentRound = 1;
   const totalRounds = 5;
-  let currentCorrectAnswer = "";
+
+  let correctIndex = 0;
+  let turnLocked = false;
 
   function showMessage(text, type) {
     messageBox.textContent = text;
@@ -98,6 +99,38 @@ window.onload = function () {
 
   function saveH2H(h2h) {
     localStorage.setItem("h2h", JSON.stringify(h2h));
+  }
+
+  function decodeHtml(text) {
+    const parser = new DOMParser();
+    return parser.parseFromString(text, "text/html").body.textContent;
+  }
+
+  function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function resetAnswerButtons() {
+    answerButtons.forEach((btn) => {
+      btn.classList.remove("correct", "wrong");
+      btn.disabled = false;
+    });
+  }
+
+  function setAnswerOptions(options, correctValue) {
+    const shuffled = shuffleArray(options);
+    correctIndex = shuffled.indexOf(correctValue);
+
+    answerButtons.forEach((btn, index) => {
+      btn.textContent = shuffled[index];
+      btn.disabled = false;
+      btn.classList.remove("correct", "wrong");
+    });
   }
 
   function showProfile(user) {
@@ -152,6 +185,8 @@ window.onload = function () {
   }
 
   async function generateQuestion() {
+    resetAnswerButtons();
+
     try {
       if (selectedCategory === "math") {
         generateMathQuestion();
@@ -201,14 +236,22 @@ window.onload = function () {
       answer = num1 * num2;
     }
 
-    currentCorrectAnswer = answer;
     questionText.textContent = `Question: ${question}`;
-    answerInput.placeholder = "Enter your answer";
+
+    const optionSet = new Set([answer]);
+    while (optionSet.size < 4) {
+      const offset = Math.floor(Math.random() * 6) - 3;
+      optionSet.add(answer + offset);
+    }
+
+    setAnswerOptions(Array.from(optionSet), answer);
   }
 
   async function generateBananaQuestion() {
     const response = await fetch("https://marcconrad.com/uob/banana/api.php");
     const data = await response.json();
+
+    const solution = Number(data.solution);
 
     questionText.innerHTML = `
       <div>
@@ -217,8 +260,13 @@ window.onload = function () {
       </div>
     `;
 
-    currentCorrectAnswer = Number(data.solution);
-    answerInput.placeholder = "Enter the puzzle answer";
+    const optionSet = new Set([solution]);
+    while (optionSet.size < 4) {
+      const offset = Math.floor(Math.random() * 6) - 3;
+      optionSet.add(solution + offset);
+    }
+
+    setAnswerOptions(Array.from(optionSet), solution);
   }
 
   async function generateGeneralQuestion() {
@@ -230,13 +278,12 @@ window.onload = function () {
     }
 
     const q = data.results[0];
-    const parser = new DOMParser();
-    const decodedQuestion = parser.parseFromString(q.question, "text/html").body.textContent;
-    const decodedAnswer = parser.parseFromString(q.correct_answer, "text/html").body.textContent;
+    const question = decodeHtml(q.question);
+    const correct = decodeHtml(q.correct_answer);
+    const incorrect = q.incorrect_answers.map((ans) => decodeHtml(ans));
 
-    questionText.textContent = `Question: ${decodedQuestion}`;
-    currentCorrectAnswer = decodedAnswer.toLowerCase().trim();
-    answerInput.placeholder = "Type the correct answer exactly";
+    questionText.textContent = `Question: ${question}`;
+    setAnswerOptions([correct, ...incorrect], correct);
   }
 
   async function generateProgrammingQuestion() {
@@ -248,13 +295,12 @@ window.onload = function () {
     }
 
     const q = data.results[0];
-    const parser = new DOMParser();
-    const decodedQuestion = parser.parseFromString(q.question, "text/html").body.textContent;
-    const decodedAnswer = parser.parseFromString(q.correct_answer, "text/html").body.textContent;
+    const question = decodeHtml(q.question);
+    const correct = decodeHtml(q.correct_answer);
+    const incorrect = q.incorrect_answers.map((ans) => decodeHtml(ans));
 
-    questionText.textContent = `Question: ${decodedQuestion}`;
-    currentCorrectAnswer = decodedAnswer.toLowerCase().trim();
-    answerInput.placeholder = "Type the correct answer exactly";
+    questionText.textContent = `Question: ${question}`;
+    setAnswerOptions([correct, ...incorrect], correct);
   }
 
   function startMatch() {
@@ -264,14 +310,13 @@ window.onload = function () {
     player2Score = 0;
     currentTurn = "player1";
     currentRound = 1;
-    currentCorrectAnswer = "";
+    turnLocked = false;
 
     arenaPlayer1Name.textContent = currentUser.username;
     arenaPlayer2Name.textContent = selectedPlayer2.username;
     arenaPlayer1Avatar.textContent = currentUser.avatar;
     arenaPlayer2Avatar.textContent = selectedPlayer2.avatar;
 
-    answerInput.value = "";
     resultCard.classList.add("hidden");
     matchArena.classList.remove("hidden");
 
@@ -386,6 +431,59 @@ window.onload = function () {
     showMessage("Match completed successfully.", "success");
   }
 
+  async function nextTurn() {
+    resetAnswerButtons();
+    turnLocked = false;
+
+    if (currentTurn === "player1") {
+      currentTurn = "player2";
+      updateTurnUI();
+      await generateQuestion();
+      return;
+    }
+
+    if (currentRound === totalRounds) {
+      finishMatch();
+      return;
+    }
+
+    currentTurn = "player1";
+    currentRound += 1;
+
+    updateTurnUI();
+    await generateQuestion();
+  }
+
+  async function handleAnswerClick(index) {
+    if (turnLocked) return;
+    turnLocked = true;
+
+    const correctBtn = answerButtons[correctIndex];
+    correctBtn.classList.add("correct");
+
+    if (index === correctIndex) {
+      if (currentTurn === "player1") {
+        player1Score += 10;
+      } else {
+        player2Score += 10;
+      }
+      showMessage("Correct answer!", "success");
+    } else {
+      answerButtons[index].classList.add("wrong");
+      showMessage("Wrong answer!", "error");
+    }
+
+    updateTurnUI();
+
+    answerButtons.forEach((btn) => {
+      btn.disabled = true;
+    });
+
+    setTimeout(() => {
+      nextTurn();
+    }, 1200);
+  }
+
   if (categorySelect) {
     categorySelect.onchange = function () {
       selectedCategory = categorySelect.value;
@@ -399,6 +497,12 @@ window.onload = function () {
       });
       option.classList.add("selected");
       selectedAvatar = option.getAttribute("data-avatar");
+    };
+  });
+
+  answerButtons.forEach((btn, index) => {
+    btn.onclick = function () {
+      handleAnswerClick(index);
     };
   });
 
@@ -539,56 +643,6 @@ window.onload = function () {
     showMessage(`Battle started: ${currentUser.username} vs ${selectedPlayer2.username} [${selectedCategory}]`, "success");
 
     startMatch();
-  };
-
-  submitAnswerBtn.onclick = function () {
-    const trimmedValue = answerInput.value.trim();
-
-    if (trimmedValue === "") {
-      showMessage("Please enter an answer.", "error");
-      return;
-    }
-
-    let isCorrect = false;
-
-    if (selectedCategory === "math" || selectedCategory === "banana") {
-      const userAnswer = Number(trimmedValue);
-      isCorrect = userAnswer === Number(currentCorrectAnswer);
-    } else {
-      isCorrect = trimmedValue.toLowerCase().trim() === String(currentCorrectAnswer).toLowerCase().trim();
-    }
-
-    if (isCorrect) {
-      if (currentTurn === "player1") {
-        player1Score += 10;
-      } else {
-        player2Score += 10;
-      }
-      showMessage("Correct answer!", "success");
-    } else {
-      showMessage(`Wrong answer. Correct answer was ${currentCorrectAnswer}.`, "error");
-    }
-
-    answerInput.value = "";
-
-    if (currentTurn === "player1") {
-      currentTurn = "player2";
-      updateTurnUI();
-      generateQuestion();
-      return;
-    }
-
-    if (currentRound === totalRounds) {
-      updateTurnUI();
-      finishMatch();
-      return;
-    }
-
-    currentTurn = "player1";
-    currentRound += 1;
-
-    updateTurnUI();
-    generateQuestion();
   };
 
   backToLobbyBtn.onclick = function () {

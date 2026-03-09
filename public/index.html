@@ -1,185 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Superhero Quiz Clash</title>
-<link rel="stylesheet" href="./styles/main.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superhero Quiz Clash</title>
+  <link rel="stylesheet" href="./styles/main.css" />
 </head>
-
 <body>
-
-<div class="container">
-
-<h1>Superhero Quiz Clash</h1>
-<p class="subtitle">Register your hero or log in to battle.</p>
-
-<div id="messageBox" class="message-box"></div>
-
-<section class="card hidden" id="profileCard">
-
-<h2>Hero Profile</h2>
-
-<div class="hero-preview">
-
-<div class="hero-avatar" id="profileAvatar">🦸</div>
-
-<div>
-<p><strong>Username:</strong> <span id="profileUsername"></span></p>
-<p><strong>Total Points:</strong> <span id="profilePoints">0</span></p>
-<p><strong>Total Wins:</strong> <span id="profileWins">0</span></p>
-<p><strong>Matches Played:</strong> <span id="profileMatches">0</span></p>
-</div>
-
-</div>
-
-<div class="profile-actions">
-<button id="openBattleLobbyBtn">Open Battle Lobby</button>
-<button id="logoutBtn">Logout</button>
-</div>
-
-</section>
-
-<section class="card hidden" id="battleLobbyCard">
-
-<h2>Battle Lobby</h2>
-
-<label>Player 2 Username</label>
-<input type="text" id="player2Username">
-
-<label>Player 2 Password</label>
-<input type="password" id="player2Password">
-
-<button id="confirmPlayer2Btn">Confirm Player 2</button>
-
-<h3>Select Question Category</h3>
-
-<select id="categorySelect">
-<option value="math">Math</option>
-<option value="banana">Banana API</option>
-<option value="general">General Knowledge</option>
-<option value="programming">Programming</option>
-</select>
-
-<div class="battle-preview">
-
-<div class="player-card">
-<h3>Player 1</h3>
-<div class="hero-avatar" id="battlePlayer1Avatar">🦸</div>
-<p id="battlePlayer1Name">-</p>
-</div>
-
-<div class="vs-text">VS</div>
-
-<div class="player-card">
-<h3>Player 2</h3>
-<div class="hero-avatar" id="battlePlayer2Avatar">❔</div>
-<p id="battlePlayer2Name">-</p>
-</div>
-
-</div>
-
-<button id="startBattleBtn">Start Battle</button>
-
-</section>
-
-<section class="card hidden" id="matchArena">
-
-<h2>Battle Arena</h2>
-
-<div class="battle-preview">
-
-<div class="player-card">
-<h3 id="arenaPlayer1Name">Player 1</h3>
-<div class="hero-avatar" id="arenaPlayer1Avatar">🦸</div>
-<p>Score: <span id="arenaScore1">0</span></p>
-</div>
-
-<div class="vs-text">VS</div>
-
-<div class="player-card">
-<h3 id="arenaPlayer2Name">Player 2</h3>
-<div class="hero-avatar" id="arenaPlayer2Avatar">🦹</div>
-<p>Score: <span id="arenaScore2">0</span></p>
-</div>
-
-</div>
-
-<h3 id="turnIndicator">Turn: Player</h3>
-
-<div class="question-box">
-<p id="questionText"></p>
-</div>
-
-<input id="answerInput">
-
-<button id="submitAnswerBtn">Submit Answer</button>
-
-<p>Round: <span id="roundNumber">1</span></p>
-
-</section>
-
-<section class="card hidden" id="resultCard">
-
-<h2>Battle Result</h2>
-
-<p id="winnerText"></p>
-<p id="finalScoreText"></p>
-
-<button id="backToLobbyBtn">Back to Lobby</button>
-
-</section>
-
-<div class="auth-wrapper">
-
-<section class="card">
-
-<h2>Register</h2>
-
-<label>Username</label>
-<input id="registerUsername">
-
-<label>Password</label>
-<input type="password" id="registerPassword">
-
-<h3>Choose Avatar</h3>
-
-<div class="avatar-grid">
-
-<div class="avatar-option" data-avatar="🦸">🦸</div>
-<div class="avatar-option" data-avatar="🦹">🦹</div>
-<div class="avatar-option" data-avatar="⚡">⚡</div>
-<div class="avatar-option" data-avatar="🔥">🔥</div>
-<div class="avatar-option" data-avatar="🛡️">🛡️</div>
-<div class="avatar-option" data-avatar="🌟">🌟</div>
-<div class="avatar-option" data-avatar="💥">💥</div>
-<div class="avatar-option" data-avatar="🌪️">🌪️</div>
-
-</div>
-
-<button id="registerBtn">Register Hero</button>
-
-</section>
-
-<section class="card">
-
-<h2>Login</h2>
-
-<label>Username</label>
-<input id="loginUsername">
-
-<label>Password</label>
-<input type="password" id="loginPassword">
-
-<button id="loginBtn">Login</button>
-
-</section>
-
-</div>
-
-</div>
-
-<script src="./js/app.js"></script>
-
+  <div class="container">
+    <h1>Superhero Quiz Clash</h1>
+    <p class="subtitle">Register your hero or log in to battle.</p>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- Logged In Hero Preview -->
+    <section class="card hidden" id="profileCard">
+      <h2>Hero Profile</h2>
+      <div class="hero-preview">
+        <div class="hero-avatar" id="profileAvatar">🦸</div>
+        <div>
+          <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+          <p><strong>Total Points:</strong> <span id="profilePoints">0</span></p>
+          <p><strong>Total Wins:</strong> <span id="profileWins">0</span></p>
+          <p><strong>Matches Played:</strong> <span id="profileMatches">0</span></p>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button id="openBattleLobbyBtn">Open Battle Lobby</button>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </section>
+
+    <!-- Battle Lobby -->
+    <section class="card hidden" id="battleLobbyCard">
+      <h2>Battle Lobby</h2>
+      <p>Player 2 must log in to begin the battle.</p>
+
+      <label for="player2Username">Player 2 Username</label>
+      <input type="text" id="player2Username" placeholder="Enter Player 2 username" />
+
+      <label for="player2Password">Player 2 Password</label>
+      <input type="password" id="player2Password" placeholder="Enter Player 2 password" />
+
+      <button id="confirmPlayer2Btn">Confirm Player 2</button>
+
+      <h3>Select Question Category</h3>
+      <select id="categorySelect">
+        <option value="math">Maths</option>
+        <option value="banana">Banana API</option>
+        <option value="general">General Knowledge</option>
+        <option value="programming">Programming</option>
+      </select>
+
+      <div class="battle-preview">
+        <div class="player-card">
+          <h3>Player 1</h3>
+          <div class="hero-avatar" id="battlePlayer1Avatar">🦸</div>
+          <p id="battlePlayer1Name">-</p>
+        </div>
+
+        <div class="vs-text">VS</div>
+
+        <div class="player-card">
+          <h3>Player 2</h3>
+          <div class="hero-avatar" id="battlePlayer2Avatar">❔</div>
+          <p id="battlePlayer2Name">-</p>
+        </div>
+      </div>
+
+      <button id="startBattleBtn">Start Battle</button>
+    </section>
+
+    <!-- Match Arena -->
+    <section class="card hidden" id="matchArena">
+      <h2>Battle Arena</h2>
+
+      <div class="battle-preview">
+        <div class="player-card">
+          <h3 id="arenaPlayer1Name">Player 1</h3>
+          <div class="hero-avatar" id="arenaPlayer1Avatar">🦸</div>
+          <p>Score: <span id="arenaScore1">0</span></p>
+        </div>
+
+        <div class="vs-text">VS</div>
+
+        <div class="player-card">
+          <h3 id="arenaPlayer2Name">Player 2</h3>
+          <div class="hero-avatar" id="arenaPlayer2Avatar">🦹</div>
+          <p>Score: <span id="arenaScore2">0</span></p>
+        </div>
+      </div>
+
+      <h3 id="turnIndicator">Turn: Player 1</h3>
+
+      <div class="question-box">
+        <p id="questionText">Question appears here</p>
+      </div>
+
+      <div class="answers-grid" id="answersGrid">
+        <button class="answer-btn" data-index="0">Option 1</button>
+        <button class="answer-btn" data-index="1">Option 2</button>
+        <button class="answer-btn" data-index="2">Option 3</button>
+        <button class="answer-btn" data-index="3">Option 4</button>
+      </div>
+
+      <p>Round: <span id="roundNumber">1</span></p>
+    </section>
+
+    <!-- Match Result -->
+    <section class="card hidden" id="resultCard">
+      <h2>Battle Result</h2>
+      <p id="winnerText">Winner appears here</p>
+      <p id="finalScoreText">Final score appears here</p>
+      <button id="backToLobbyBtn">Back to Lobby</button>
+    </section>
+
+    <div class="auth-wrapper">
+      <!-- Register Section -->
+      <section class="card">
+        <h2>Register</h2>
+
+        <label for="registerUsername">Username</label>
+        <input type="text" id="registerUsername" placeholder="Enter username" />
+
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" placeholder="Enter password" />
+
+        <h3>Choose Your Hero Avatar</h3>
+        <div class="avatar-grid" id="avatarGrid">
+          <div class="avatar-option" data-avatar="🦸">🦸</div>
+          <div class="avatar-option" data-avatar="🦹">🦹</div>
+          <div class="avatar-option" data-avatar="⚡">⚡</div>
+          <div class="avatar-option" data-avatar="🔥">🔥</div>
+          <div class="avatar-option" data-avatar="🛡️">🛡️</div>
+          <div class="avatar-option" data-avatar="🌟">🌟</div>
+          <div class="avatar-option" data-avatar="💥">💥</div>
+          <div class="avatar-option" data-avatar="🌪️">🌪️</div>
+        </div>
+
+        <button id="registerBtn">Register Hero</button>
+      </section>
+
+      <!-- Login Section -->
+      <section class="card">
+        <h2>Login</h2>
+
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username" />
+
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" />
+
+        <button id="loginBtn">Login</button>
+      </section>
+    </div>
+  </div>
+
+  <script src="./js/app.js"></script>
 </body>
 </html>
