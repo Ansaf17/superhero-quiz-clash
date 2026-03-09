@@ -136,6 +136,7 @@ button:hover {
   font-size: 3rem;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
+  margin: 0 auto;
 }
 
 .hidden {
@@ -180,7 +181,14 @@ button:hover {
   margin: 20px 0;
   font-size: 1.2rem;
   text-align: center;
-  min-height: 90px;
+  min-height: 120px;
+}
+
+#questionText img {
+  display: block;
+  margin: 12px auto 0;
+  max-width: 220px;
+  border-radius: 12px;
 }
 
 #turnIndicator {
@@ -246,6 +254,22 @@ button:hover {
 .answer-btn:disabled {
   opacity: 0.85;
   cursor: not-allowed;
+}
+
+.history-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.history-item {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.history-item p {
+  margin: 6px 0;
 }
 
 @media (max-width: 768px) {

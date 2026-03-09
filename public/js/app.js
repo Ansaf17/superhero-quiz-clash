@@ -5,6 +5,8 @@ window.onload = function () {
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const openBattleLobbyBtn = document.getElementById("openBattleLobbyBtn");
+  const viewHistoryBtn = document.getElementById("viewHistoryBtn");
+  const closeHistoryBtn = document.getElementById("closeHistoryBtn");
   const confirmPlayer2Btn = document.getElementById("confirmPlayer2Btn");
   const startBattleBtn = document.getElementById("startBattleBtn");
   const backToLobbyBtn = document.getElementById("backToLobbyBtn");
@@ -49,6 +51,9 @@ window.onload = function () {
   const resultCard = document.getElementById("resultCard");
   const winnerText = document.getElementById("winnerText");
   const finalScoreText = document.getElementById("finalScoreText");
+
+  const historyCard = document.getElementById("historyCard");
+  const historyList = document.getElementById("historyList");
 
   const categorySelect = document.getElementById("categorySelect");
 
@@ -172,6 +177,43 @@ window.onload = function () {
 
     resetBattleLobby();
     battleLobbyCard.classList.remove("hidden");
+  }
+
+  function openHistory() {
+    const currentUser = getCurrentUser();
+
+    if (!currentUser) {
+      showMessage("Please log in first.", "error");
+      return;
+    }
+
+    const matches = getMatches();
+    const userMatches = matches.filter(
+      (match) =>
+        match.player1 === currentUser.username || match.player2 === currentUser.username
+    );
+
+    historyList.innerHTML = "";
+
+    if (userMatches.length === 0) {
+      historyList.innerHTML = `<div class="history-item"><p>No match history yet.</p></div>`;
+    } else {
+      const reversed = [...userMatches].reverse();
+      reversed.forEach((match) => {
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.innerHTML = `
+          <p><strong>${match.player1}</strong> vs <strong>${match.player2}</strong></p>
+          <p>Score: ${match.player1Score} - ${match.player2Score}</p>
+          <p>Winner: ${match.winner}</p>
+          <p>Category: ${match.category}</p>
+          <p>Date: ${match.date}</p>
+        `;
+        historyList.appendChild(item);
+      });
+    }
+
+    historyCard.classList.remove("hidden");
   }
 
   function updateTurnUI() {
@@ -306,7 +348,7 @@ window.onload = function () {
     questionText.innerHTML = `
       <div>
         <p>Solve the Banana Puzzle</p>
-        <img src="${data.question}" alt="Banana Question" style="max-width:220px; border-radius:12px;">
+        <img src="${data.question}" alt="Banana Question">
       </div>
     `;
 
@@ -368,6 +410,7 @@ window.onload = function () {
     arenaPlayer2Avatar.textContent = selectedPlayer2.avatar;
 
     resultCard.classList.add("hidden");
+    historyCard.classList.add("hidden");
     matchArena.classList.remove("hidden");
 
     updateTurnUI();
@@ -629,12 +672,27 @@ window.onload = function () {
     battleLobbyCard.classList.add("hidden");
     matchArena.classList.add("hidden");
     resultCard.classList.add("hidden");
+    historyCard.classList.add("hidden");
     showMessage("Logged out.", "success");
   };
 
   openBattleLobbyBtn.onclick = function () {
+    historyCard.classList.add("hidden");
     showBattleLobby();
     showMessage("Battle lobby opened.", "success");
+  };
+
+  viewHistoryBtn.onclick = function () {
+    battleLobbyCard.classList.add("hidden");
+    resultCard.classList.add("hidden");
+    matchArena.classList.add("hidden");
+    openHistory();
+    showMessage("Match history opened.", "success");
+  };
+
+  closeHistoryBtn.onclick = function () {
+    historyCard.classList.add("hidden");
+    showMessage("Match history closed.", "success");
   };
 
   confirmPlayer2Btn.onclick = function () {
