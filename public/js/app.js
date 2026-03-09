@@ -50,15 +50,18 @@ window.onload = function () {
   const winnerText = document.getElementById("winnerText");
   const finalScoreText = document.getElementById("finalScoreText");
 
+  const categorySelect = document.getElementById("categorySelect");
+
   let selectedAvatar = "";
   let selectedPlayer2 = null;
+  let selectedCategory = "math";
 
   let player1Score = 0;
   let player2Score = 0;
   let currentTurn = "player1";
   let currentRound = 1;
   const totalRounds = 5;
-  let currentCorrectAnswer = 0;
+  let currentCorrectAnswer = "";
 
   function showMessage(text, type) {
     messageBox.textContent = text;
@@ -133,7 +136,52 @@ window.onload = function () {
     battleLobbyCard.classList.remove("hidden");
   }
 
-  function generateQuestion() {
+  function updateTurnUI() {
+    const currentUser = getCurrentUser();
+    if (!currentUser || !selectedPlayer2) return;
+
+    if (currentTurn === "player1") {
+      turnIndicator.textContent = `Turn: ${currentUser.username}`;
+    } else {
+      turnIndicator.textContent = `Turn: ${selectedPlayer2.username}`;
+    }
+
+    arenaScore1.textContent = player1Score;
+    arenaScore2.textContent = player2Score;
+    roundNumber.textContent = currentRound;
+  }
+
+  async function generateQuestion() {
+    try {
+      if (selectedCategory === "math") {
+        generateMathQuestion();
+        return;
+      }
+
+      if (selectedCategory === "banana") {
+        await generateBananaQuestion();
+        return;
+      }
+
+      if (selectedCategory === "general") {
+        await generateGeneralQuestion();
+        return;
+      }
+
+      if (selectedCategory === "programming") {
+        await generateProgrammingQuestion();
+        return;
+      }
+
+      generateMathQuestion();
+    } catch (error) {
+      console.error("Question generation failed:", error);
+      showMessage("Question API failed. Falling back to math question.", "error");
+      generateMathQuestion();
+    }
+  }
+
+  function generateMathQuestion() {
     const num1 = Math.floor(Math.random() * 10) + 1;
     const num2 = Math.floor(Math.random() * 10) + 1;
     const operators = ["+", "-", "*"];
@@ -155,21 +203,58 @@ window.onload = function () {
 
     currentCorrectAnswer = answer;
     questionText.textContent = `Question: ${question}`;
+    answerInput.placeholder = "Enter your answer";
   }
 
-  function updateTurnUI() {
-    const currentUser = getCurrentUser();
-    if (!currentUser || !selectedPlayer2) return;
+  async function generateBananaQuestion() {
+    const response = await fetch("https://marcconrad.com/uob/banana/api.php");
+    const data = await response.json();
 
-    if (currentTurn === "player1") {
-      turnIndicator.textContent = `Turn: ${currentUser.username}`;
-    } else {
-      turnIndicator.textContent = `Turn: ${selectedPlayer2.username}`;
+    questionText.innerHTML = `
+      <div>
+        <p>Solve the Banana Puzzle</p>
+        <img src="${data.question}" alt="Banana Question" style="max-width:220px; border-radius:12px;">
+      </div>
+    `;
+
+    currentCorrectAnswer = Number(data.solution);
+    answerInput.placeholder = "Enter the puzzle answer";
+  }
+
+  async function generateGeneralQuestion() {
+    const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple");
+    const data = await response.json();
+
+    if (!data.results || !data.results.length) {
+      throw new Error("No general question returned");
     }
 
-    arenaScore1.textContent = player1Score;
-    arenaScore2.textContent = player2Score;
-    roundNumber.textContent = currentRound;
+    const q = data.results[0];
+    const parser = new DOMParser();
+    const decodedQuestion = parser.parseFromString(q.question, "text/html").body.textContent;
+    const decodedAnswer = parser.parseFromString(q.correct_answer, "text/html").body.textContent;
+
+    questionText.textContent = `Question: ${decodedQuestion}`;
+    currentCorrectAnswer = decodedAnswer.toLowerCase().trim();
+    answerInput.placeholder = "Type the correct answer exactly";
+  }
+
+  async function generateProgrammingQuestion() {
+    const response = await fetch("https://opentdb.com/api.php?amount=1&category=18&type=multiple");
+    const data = await response.json();
+
+    if (!data.results || !data.results.length) {
+      throw new Error("No programming question returned");
+    }
+
+    const q = data.results[0];
+    const parser = new DOMParser();
+    const decodedQuestion = parser.parseFromString(q.question, "text/html").body.textContent;
+    const decodedAnswer = parser.parseFromString(q.correct_answer, "text/html").body.textContent;
+
+    questionText.textContent = `Question: ${decodedQuestion}`;
+    currentCorrectAnswer = decodedAnswer.toLowerCase().trim();
+    answerInput.placeholder = "Type the correct answer exactly";
   }
 
   function startMatch() {
@@ -179,7 +264,7 @@ window.onload = function () {
     player2Score = 0;
     currentTurn = "player1";
     currentRound = 1;
-    currentCorrectAnswer = 0;
+    currentCorrectAnswer = "";
 
     arenaPlayer1Name.textContent = currentUser.username;
     arenaPlayer2Name.textContent = selectedPlayer2.username;
@@ -234,6 +319,7 @@ window.onload = function () {
       player1Score: finalPlayer1Score,
       player2Score: finalPlayer2Score,
       winner: winnerUsername,
+      category: selectedCategory,
       date: new Date().toLocaleString()
     });
 
@@ -298,6 +384,12 @@ window.onload = function () {
     resultCard.classList.remove("hidden");
 
     showMessage("Match completed successfully.", "success");
+  }
+
+  if (categorySelect) {
+    categorySelect.onchange = function () {
+      selectedCategory = categorySelect.value;
+    };
   }
 
   avatarOptions.forEach(function (option) {
@@ -439,11 +531,12 @@ window.onload = function () {
 
     const battlePlayers = {
       player1: currentUser,
-      player2: selectedPlayer2
+      player2: selectedPlayer2,
+      category: selectedCategory
     };
 
     localStorage.setItem("battlePlayers", JSON.stringify(battlePlayers));
-    showMessage(`Battle started: ${currentUser.username} vs ${selectedPlayer2.username}`, "success");
+    showMessage(`Battle started: ${currentUser.username} vs ${selectedPlayer2.username} [${selectedCategory}]`, "success");
 
     startMatch();
   };
@@ -456,9 +549,16 @@ window.onload = function () {
       return;
     }
 
-    const userAnswer = Number(trimmedValue);
+    let isCorrect = false;
 
-    if (userAnswer === currentCorrectAnswer) {
+    if (selectedCategory === "math" || selectedCategory === "banana") {
+      const userAnswer = Number(trimmedValue);
+      isCorrect = userAnswer === Number(currentCorrectAnswer);
+    } else {
+      isCorrect = trimmedValue.toLowerCase().trim() === String(currentCorrectAnswer).toLowerCase().trim();
+    }
+
+    if (isCorrect) {
       if (currentTurn === "player1") {
         player1Score += 10;
       } else {
