@@ -32,6 +32,7 @@ let correctIndex = 0;
 let turnLocked = false;
 let timerInterval = null;
 let timeLeft = turnTimeLimit;
+let botThinkingTimeout = null;
 
 function showMessage(text, type) {
   messageBox.textContent = text;
@@ -53,6 +54,13 @@ function stopTimer() {
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
+  }
+}
+
+function stopBotThinking() {
+  if (botThinkingTimeout) {
+    clearTimeout(botThinkingTimeout);
+    botThinkingTimeout = null;
   }
 }
 
@@ -189,8 +197,49 @@ async function generateQuestion() {
   }
 }
 
+function getBotAccuracy() {
+  if (config.category === "math") return 0.8;
+  if (config.category === "banana") return 0.65;
+  if (config.category === "general") return 0.6;
+  if (config.category === "programming") return 0.7;
+  return 0.65;
+}
+
+function getBotThinkingTime() {
+  if (config.category === "math") return 1500 + Math.floor(Math.random() * 2000);
+  if (config.category === "banana") return 2500 + Math.floor(Math.random() * 3000);
+  if (config.category === "general") return 1800 + Math.floor(Math.random() * 3000);
+  if (config.category === "programming") return 2000 + Math.floor(Math.random() * 2800);
+  return 2000 + Math.floor(Math.random() * 2500);
+}
+
+function getBotChoiceIndex() {
+  const shouldBeCorrect = Math.random() < getBotAccuracy();
+
+  if (shouldBeCorrect) {
+    return correctIndex;
+  }
+
+  const wrongIndexes = [0, 1, 2, 3].filter(index => index !== correctIndex);
+  return wrongIndexes[Math.floor(Math.random() * wrongIndexes.length)];
+}
+
+function triggerBotTurn() {
+  if (!(config.mode === "pc" && config.player2.isBot && currentTurn === "player2")) {
+    return;
+  }
+
+  const botDelay = getBotThinkingTime();
+
+  botThinkingTimeout = setTimeout(() => {
+    const botPick = getBotChoiceIndex();
+    handleAnswerClick(botPick);
+  }, botDelay);
+}
+
 function finishMatch() {
   stopTimer();
+  stopBotThinking();
 
   let winner = "draw";
   let resultText = "🤝 The battle ended in a draw!";
@@ -219,11 +268,17 @@ function finishMatch() {
   } else {
     const users = state.getUsers();
     const p1 = users.find(u => u.username === config.player1.username);
+
     if (p1) {
       p1.totalPoints += player1Score;
       p1.matchesPlayed += 1;
-      if (winner === p1.username) p1.totalWins += 1;
-      else if (winner !== "draw") p1.totalLosses += 1;
+
+      if (winner === p1.username) {
+        p1.totalWins += 1;
+      } else if (winner !== "draw") {
+        p1.totalLosses += 1;
+      }
+
       state.saveUsers(users);
       state.setCurrentUser(p1);
 
@@ -249,6 +304,7 @@ function finishMatch() {
 async function nextTurn() {
   resetAnswers();
   turnLocked = false;
+  stopBotThinking();
 
   if (currentTurn === "player1") {
     currentTurn = "player2";
@@ -256,10 +312,7 @@ async function nextTurn() {
     await generateQuestion();
 
     if (config.mode === "pc" && config.player2.isBot) {
-      setTimeout(() => {
-        const botPick = Math.floor(Math.random() * 4);
-        handleAnswerClick(botPick);
-      }, 1500);
+      triggerBotTurn();
     }
 
     return;
@@ -279,6 +332,7 @@ async function nextTurn() {
 function handleTimeUp() {
   if (turnLocked) return;
   turnLocked = true;
+  stopBotThinking();
 
   answerButtons.forEach(btn => {
     btn.disabled = true;
@@ -294,6 +348,7 @@ function handleAnswerClick(index) {
   if (turnLocked) return;
   turnLocked = true;
   stopTimer();
+  stopBotThinking();
 
   const correctBtn = answerButtons[correctIndex];
   correctBtn.classList.add("correct");
