@@ -8,79 +8,81 @@
 </head>
 <body>
   <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 class="title" style="text-align:left; margin:0;">DAMON</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Modern multiplayer quiz battles</p>
-      </div>
+    <div class="home-topbar">
+      <div></div>
 
-      <section class="card compact-auth-card" id="sessionCard">
-        <div id="loggedOutView">
-          <h3 style="margin-top:0;">Quick Access</h3>
+      <div class="profile-menu-wrapper">
+        <button id="profileToggleBtn" class="profile-toggle-btn" type="button">
+          <span id="profileToggleAvatar">👤</span>
+        </button>
 
-          <label for="loginUsername">Username</label>
-          <input id="loginUsername" type="text" placeholder="Enter username">
+        <div id="profileDropdown" class="profile-dropdown hidden">
+          <div id="loggedOutPanel">
+            <h3 style="margin-top:0;">Account</h3>
 
-          <label for="loginPassword">Password</label>
-          <input id="loginPassword" type="password" placeholder="Enter password">
+            <label for="loginUsername">Username</label>
+            <input id="loginUsername" type="text" placeholder="Enter username">
 
-          <div class="compact-auth-actions">
-            <button id="loginBtn" type="button">Login</button>
-            <button id="toggleRegisterBtn" class="secondary" type="button">Register</button>
-          </div>
-        </div>
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" type="password" placeholder="Enter password">
 
-        <div id="loggedInView" class="hidden">
-          <div class="profile-mini">
-            <div class="profile-mini-avatar" id="miniAvatar">🦸</div>
-            <div>
-              <p style="margin:0; font-weight:700;" id="miniUsername">User</p>
-              <p style="margin:4px 0 0; color:#cbd5e1; font-size:0.92rem;">Logged in</p>
+            <div class="compact-auth-actions">
+              <button id="loginBtn" type="button">Login</button>
+              <button id="showRegisterBtn" class="secondary" type="button">Register</button>
+            </div>
+
+            <div id="registerArea" class="hidden" style="margin-top:16px;">
+              <label for="registerUsername">New Username</label>
+              <input id="registerUsername" type="text" placeholder="Enter username">
+
+              <label for="registerPassword">New Password</label>
+              <input id="registerPassword" type="password" placeholder="Enter password">
+
+              <h4>Choose Avatar</h4>
+              <div class="avatar-grid compact-avatar-grid" id="avatarGrid">
+                <div class="avatar-option" data-avatar="🦸">🦸</div>
+                <div class="avatar-option" data-avatar="🦹">🦹</div>
+                <div class="avatar-option" data-avatar="⚡">⚡</div>
+                <div class="avatar-option" data-avatar="🔥">🔥</div>
+                <div class="avatar-option" data-avatar="🛡️">🛡️</div>
+                <div class="avatar-option" data-avatar="🌟">🌟</div>
+                <div class="avatar-option" data-avatar="💥">💥</div>
+                <div class="avatar-option" data-avatar="🌪️">🌪️</div>
+              </div>
+
+              <div class="compact-auth-actions" style="margin-top:12px;">
+                <button id="registerBtn" type="button">Create Account</button>
+                <button id="hideRegisterBtn" class="secondary" type="button">Close</button>
+              </div>
             </div>
           </div>
 
-          <div class="compact-auth-actions" style="margin-top:14px;">
-            <button id="logoutBtn" class="secondary" type="button">Logout</button>
+          <div id="loggedInPanel" class="hidden">
+            <div class="profile-mini">
+              <div class="profile-mini-avatar" id="miniAvatar">🦸</div>
+              <div>
+                <p style="margin:0; font-weight:700;" id="miniUsername">User</p>
+                <p style="margin:4px 0 0; color:#cbd5e1; font-size:0.92rem;">Logged in</p>
+              </div>
+            </div>
+
+            <div class="compact-auth-actions" style="margin-top:14px;">
+              <a href="profile.html" class="secondary button-link">Profile</a>
+              <button id="logoutBtn" class="secondary" type="button">Logout</button>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
 
     <div id="messageBox" class="message-box"></div>
 
-    <section class="card hidden" id="registerCard" style="max-width:700px; margin:0 auto 24px;">
-      <h2>Register</h2>
-
-      <div class="grid-2">
-        <div>
-          <label for="registerUsername">Username</label>
-          <input id="registerUsername" type="text" placeholder="Enter username">
-        </div>
-        <div>
-          <label for="registerPassword">Password</label>
-          <input id="registerPassword" type="password" placeholder="Enter password">
-        </div>
-      </div>
-
-      <h3>Choose Avatar</h3>
-      <div class="avatar-grid" id="avatarGrid">
-        <div class="avatar-option" data-avatar="🦸">🦸</div>
-        <div class="avatar-option" data-avatar="🦹">🦹</div>
-        <div class="avatar-option" data-avatar="⚡">⚡</div>
-        <div class="avatar-option" data-avatar="🔥">🔥</div>
-        <div class="avatar-option" data-avatar="🛡️">🛡️</div>
-        <div class="avatar-option" data-avatar="🌟">🌟</div>
-        <div class="avatar-option" data-avatar="💥">💥</div>
-        <div class="avatar-option" data-avatar="🌪️">🌪️</div>
-      </div>
-
-      <div class="compact-auth-actions" style="margin-top:16px;">
-        <button id="registerBtn" type="button">Create Account</button>
-        <button id="closeRegisterBtn" class="secondary" type="button">Close</button>
-      </div>
+    <section class="home-hero">
+      <h1 class="title home-main-title">DAMON</h1>
+      <p class="subtitle home-main-subtitle">Modern multiplayer quiz battles</p>
     </section>
 
-    <section class="grid-3">
+    <section class="grid-3 home-main-grid">
       <a class="card hero-button" href="leaderboard.html">
         <h3>Leaderboard</h3>
         <p>See top players and stats</p>

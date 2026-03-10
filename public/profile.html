@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAMON - Profile</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <div>
+        <h1 style="margin:0;">Player Profile</h1>
+        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Your DAMON account overview</p>
+      </div>
+      <a class="card" href="home.html">Back Home</a>
+    </div>
+
+    <section class="card profile-page-card">
+      <div class="profile-page-header">
+        <div class="profile-page-avatar" id="profileAvatar">🦸</div>
+        <div>
+          <h2 id="profileUsername" style="margin:0 0 8px;">Username</h2>
+          <p style="margin:0; color:#cbd5e1;">Your personal DAMON stats</p>
+        </div>
+      </div>
+
+      <div class="grid-2 profile-stats-grid">
+        <div class="profile-stat-box">
+          <h3>Total Points</h3>
+          <p id="profilePoints">0</p>
+        </div>
+
+        <div class="profile-stat-box">
+          <h3>Total Wins</h3>
+          <p id="profileWins">0</p>
+        </div>
+
+        <div class="profile-stat-box">
+          <h3>Total Losses</h3>
+          <p id="profileLosses">0</p>
+        </div>
+
+        <div class="profile-stat-box">
+          <h3>Matches Played</h3>
+          <p id="profileMatches">0</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/app-state.js"></script>
+  <script src="./js/profile.js"></script>
+</body>
+</html>

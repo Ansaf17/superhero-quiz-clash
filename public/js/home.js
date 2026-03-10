@@ -1,17 +1,21 @@
 const state = window.DamonState;
 
-const registerBtn = document.getElementById("registerBtn");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const registerBtn = document.getElementById("registerBtn");
 const pcBtn = document.getElementById("pcBtn");
 const pvpBtn = document.getElementById("pvpBtn");
 
-const toggleRegisterBtn = document.getElementById("toggleRegisterBtn");
-const closeRegisterBtn = document.getElementById("closeRegisterBtn");
+const profileToggleBtn = document.getElementById("profileToggleBtn");
+const profileDropdown = document.getElementById("profileDropdown");
+const profileToggleAvatar = document.getElementById("profileToggleAvatar");
 
-const registerCard = document.getElementById("registerCard");
-const loggedOutView = document.getElementById("loggedOutView");
-const loggedInView = document.getElementById("loggedInView");
+const loggedOutPanel = document.getElementById("loggedOutPanel");
+const loggedInPanel = document.getElementById("loggedInPanel");
+
+const showRegisterBtn = document.getElementById("showRegisterBtn");
+const hideRegisterBtn = document.getElementById("hideRegisterBtn");
+const registerArea = document.getElementById("registerArea");
 
 const miniAvatar = document.getElementById("miniAvatar");
 const miniUsername = document.getElementById("miniUsername");
@@ -30,22 +34,41 @@ function refreshSessionUI() {
   const currentUser = state.getCurrentUser();
 
   if (currentUser) {
-    loggedOutView.classList.add("hidden");
-    loggedInView.classList.remove("hidden");
+    loggedOutPanel.classList.add("hidden");
+    loggedInPanel.classList.remove("hidden");
     miniAvatar.textContent = currentUser.avatar;
     miniUsername.textContent = currentUser.username;
+    profileToggleAvatar.textContent = currentUser.avatar;
   } else {
-    loggedOutView.classList.remove("hidden");
-    loggedInView.classList.add("hidden");
+    loggedOutPanel.classList.remove("hidden");
+    loggedInPanel.classList.add("hidden");
+    profileToggleAvatar.textContent = "👤";
   }
 }
 
-toggleRegisterBtn.onclick = () => {
-  registerCard.classList.remove("hidden");
+function closeDropdown() {
+  profileDropdown.classList.add("hidden");
+}
+
+profileToggleBtn.onclick = (event) => {
+  event.stopPropagation();
+  profileDropdown.classList.toggle("hidden");
 };
 
-closeRegisterBtn.onclick = () => {
-  registerCard.classList.add("hidden");
+profileDropdown.onclick = (event) => {
+  event.stopPropagation();
+};
+
+document.addEventListener("click", () => {
+  closeDropdown();
+});
+
+showRegisterBtn.onclick = () => {
+  registerArea.classList.remove("hidden");
+};
+
+hideRegisterBtn.onclick = () => {
+  registerArea.classList.add("hidden");
 };
 
 avatarOptions.forEach(option => {
@@ -84,13 +107,14 @@ registerBtn.onclick = () => {
   });
 
   state.saveUsers(users);
-  showMessage("Registered successfully. You can now log in.", "success");
 
   document.getElementById("registerUsername").value = "";
   document.getElementById("registerPassword").value = "";
   selectedAvatar = "";
   avatarOptions.forEach(i => i.classList.remove("selected"));
-  registerCard.classList.add("hidden");
+  registerArea.classList.add("hidden");
+
+  showMessage("Registered successfully. You can now log in.", "success");
 };
 
 loginBtn.onclick = () => {
@@ -107,6 +131,7 @@ loginBtn.onclick = () => {
 
   state.setCurrentUser(user);
   refreshSessionUI();
+  closeDropdown();
   showMessage("Login successful.", "success");
 };
 
@@ -115,6 +140,7 @@ logoutBtn.onclick = () => {
   state.clearBattleConfig();
   state.clearPvpDraft();
   refreshSessionUI();
+  closeDropdown();
   showMessage("Logged out successfully.", "success");
 };
 
