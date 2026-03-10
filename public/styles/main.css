@@ -255,3 +255,48 @@ animation: pulseGlow 2.2s ease-in-out forwards;
 .vs-layout, .score-grid { grid-template-columns: 1fr; }
 .vs-text { text-align: center; }
 }
+.compact-auth-card {
+  width: 320px;
+  padding: 18px;
+}
+
+.compact-auth-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.profile-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-mini-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.h2h-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.h2h-item {
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+@media (max-width: 900px) {
+  .compact-auth-card {
+    width: 100%;
+  }
+}

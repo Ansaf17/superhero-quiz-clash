@@ -1,12 +1,23 @@
 const state = window.DamonState;
+
 const registerBtn = document.getElementById("registerBtn");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const pcBtn = document.getElementById("pcBtn");
 const pvpBtn = document.getElementById("pvpBtn");
+
+const toggleRegisterBtn = document.getElementById("toggleRegisterBtn");
+const closeRegisterBtn = document.getElementById("closeRegisterBtn");
+
+const registerCard = document.getElementById("registerCard");
+const loggedOutView = document.getElementById("loggedOutView");
+const loggedInView = document.getElementById("loggedInView");
+
+const miniAvatar = document.getElementById("miniAvatar");
+const miniUsername = document.getElementById("miniUsername");
+
 const avatarOptions = document.querySelectorAll(".avatar-option");
 const messageBox = document.getElementById("messageBox");
-const sessionText = document.getElementById("sessionText");
 
 let selectedAvatar = "";
 
@@ -17,14 +28,25 @@ function showMessage(text, type) {
 
 function refreshSessionUI() {
   const currentUser = state.getCurrentUser();
+
   if (currentUser) {
-    sessionText.textContent = `Logged in as ${currentUser.username} ${currentUser.avatar}`;
-    logoutBtn.style.display = "inline-block";
+    loggedOutView.classList.add("hidden");
+    loggedInView.classList.remove("hidden");
+    miniAvatar.textContent = currentUser.avatar;
+    miniUsername.textContent = currentUser.username;
   } else {
-    sessionText.textContent = "Not logged in";
-    logoutBtn.style.display = "none";
+    loggedOutView.classList.remove("hidden");
+    loggedInView.classList.add("hidden");
   }
 }
+
+toggleRegisterBtn.onclick = () => {
+  registerCard.classList.remove("hidden");
+};
+
+closeRegisterBtn.onclick = () => {
+  registerCard.classList.add("hidden");
+};
 
 avatarOptions.forEach(option => {
   option.onclick = () => {
@@ -68,6 +90,7 @@ registerBtn.onclick = () => {
   document.getElementById("registerPassword").value = "";
   selectedAvatar = "";
   avatarOptions.forEach(i => i.classList.remove("selected"));
+  registerCard.classList.add("hidden");
 };
 
 loginBtn.onclick = () => {
