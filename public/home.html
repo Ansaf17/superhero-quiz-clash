@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DAMON - Home</title>
+<link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+<div class="page">
+<h1 class="title">DAMON</h1>
+<p class="subtitle">Modern multiplayer quiz battles</p>
+<div id="messageBox" class="message-box"></div>
+<section class="card" style="margin-bottom:20px;">
+<h2>Register</h2>
+<div class="grid-2">
+<div>
+<label for="registerUsername">Username</label>
+<input id="registerUsername" type="text" placeholder="Enter username">
+</div>
+<div>
+<label for="registerPassword">Password</label>
+<input id="registerPassword" type="password" placeholder="Enter
+password">
+</div>
+</div>
+<h3>Choose Avatar</h3>
+<div class="avatar-grid" id="avatarGrid">
+<div class="avatar-option" data-avatar=" "> </div>
+<div class="avatar-option" data-avatar=" "> </div>
+<div class="avatar-option" data-avatar=" "> </div>
+<div class="avatar-option" data-avatar=" "> </div>
+<div class="avatar-option" data-avatar=" "> </div>
+<div class="avatar-option" data-avatar=" "> </div>
+<div class="avatar-option" data-avatar=" "> </div>
+<div class="avatar-option" data-avatar=" "> </div>
+</div>
+<button id="registerBtn">Register</button>
+</section><section class="card" style="margin-bottom:24px;">
+<h2>Login</h2>
+<div class="grid-2">
+<div>
+<label for="loginUsername">Username</label>
+<input id="loginUsername" type="text" placeholder="Enter username">
+</div>
+<div>
+<label for="loginPassword">Password</label>
+<input id="loginPassword" type="password" placeholder="Enter
+password">
+</div>
+</div>
+<button id="loginBtn">Login</button>
+</section>
+<section class="grid-3">
+<a class="card hero-button" href="leaderboard.html">
+<h3>Leaderboard</h3>
+<p>See top players and stats</p>
+</a>
+<button class="card hero-button" id="pcBtn" type="button">
+<h3>Game Lobby</h3>
+<p>Player vs PC</p>
+</button>
+<button class="card hero-button" id="pvpBtn" type="button">
+<h3>PVP</h3>
+<p>Multiplayer same-screen</p>
+</button>
+</section>
+</div>
+<script src="./js/app-state.js"></script>
+<script src="./js/home.js"></script>
+</body>
+</html>

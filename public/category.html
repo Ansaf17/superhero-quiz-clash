@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DAMON - Categories</title>
+<link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+<div class="page">
+<div class="top-bar">
+<div>
+<h1 style="margin:0;">Choose Category</h1>
+<p class="subtitle" style="text-align:left; margin:6px 0 0;">Select the
+battle type before entering the arena.</p>
+</div>
+<a class="card" href="home.html">Back Home</a>
+</div>
+<div id="messageBox" class="message-box"></div>
+<section class="grid-2">
+<button class="card category-tile active" data-category="math">
+<h3> Maths</h3>
+<p>Fast calculation rounds</p>
+</button>
+<button class="card category-tile" data-category="banana">
+<h3> Banana API</h3>
+<p>Visual banana puzzle questions</p>
+</button>
+<button class="card category-tile" data-category="general">
+<h3> General Knowledge</h3>
+<p>Open trivia questions</p>
+</button>
+<button class="card category-tile" data-category="programming">
+<h3> Programming</h3>
+<p>Computer science questions</p>
+</button>
+</section>
+<section class="card" style="margin-top:20px; text-align:center;">
+<button id="startGameBtn">Enter Arena</button>
+</section>
+</div>
+<script src="./js/app-state.js"></script>
+<script src="./js/category.js"></script>
+</body>
+</html>

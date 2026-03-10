@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DAMON - PVP Lobby</title>
+<link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+<div class="page">
+<div class="top-bar">
+<div>
+<h1 style="margin:0;">PVP Lobby</h1>
+<p class="subtitle" style="text-align:left; margin:6px 0 0;">Player 1
+waits while Player 2 logs in.</p>
+</div>
+<a class="card" href="home.html">Back Home</a>
+</div>
+<div id="messageBox" class="message-box"></div>
+<div class="vs-layout">
+<section class="card">
+<h2>Player 1</h2>
+<div class="hero-pill" id="p1Avatar"> </div>
+<p><strong id="p1Name">-</strong></p>
+<p>This player is already logged in.</p>
+</section>
+<div class="vs-text">VS</div>
+<section class="card">
+<h2>Player 2 Login</h2>
+<label for="player2Username">Username</label>
+<input id="player2Username" type="text" placeholder="Enter Player 2
+username">
+<label for="player2Password">Password</label>
+<input id="player2Password" type="password" placeholder="Enter Player 2
+password">
+<button id="confirmPlayer2Btn">Confirm Player 2</button>
+<div style="margin-top:18px; text-align:center;">
+<div class="hero-pill" id="p2Avatar"> </div>
+<p><strong id="p2Name">Waiting...</strong></p>
+</div>
+</section>
+</div>
+<section class="card" style="margin-top:20px; text-align:center;">
+<button id="continueBtn" disabled>Continue to Categories</button>
+</section>
+</div>
+<script src="./js/app-state.js"></script>
+<script src="./js/lobby.js"></script>
+</body>
+</html>
