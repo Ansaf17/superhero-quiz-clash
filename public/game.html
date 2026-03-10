@@ -1,62 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DAMON - Arena</title>
-<link rel="stylesheet" href="./styles/main.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAMON - Arena</title>
+  <link rel="stylesheet" href="./styles/main.css" />
 </head>
 <body>
-<div class="page">
-<div class="top-bar">
-<div>
-<h1 style="margin:0;">Battle Arena</h1>
-<p class="subtitle" style="text-align:left; margin:6px 0 0;">Turn-based
-same-screen quiz battle</p>
-</div>
-<a class="card" href="home.html">Exit Arena</a>
-</div>
-<div id="messageBox" class="message-box"></div>
-<section class="card">
-<div class="score-grid">
-<div class="score-card">
-<div class="hero-pill" id="p1Avatar"> </div>
-<h3 id="p1Name">Player 1</h3>
-<p>Score: <span id="p1Score">0</span></p>
-</div>
-<div class="vs-text">VS</div>
-<div class="score-card">
-<div class="hero-pill" id="p2Avatar"> </div>
-<h3 id="p2Name">Player 2</h3>
-<p>Score: <span id="p2Score">0</span></p>
-</div>
-</div>
-<h3 id="turnIndicator" style="text-align:center; margin-top:22px;">Turn:</
-h3>
-<p class="timer" id="timerText">Time Left: 10s</p>
-<p style="text-align:center;">Round: <span id="roundNumber">1</span> / 5</
-p>
-<div class="question-box">
-<div id="questionText">Loading question...</div>
-</div>
-<div class="answers-grid">
-<button class="answer-btn" data-index="0"></button>
-<button class="answer-btn" data-index="1"></button>
-<button class="answer-btn" data-index="2"></button>
-<button class="answer-btn" data-index="3"></button>
-</div>
-</section>
-<section class="card hidden" id="resultCard" style="text-align:center;">
-<h2>Battle Result</h2>
-<p id="winnerText"></p>
-<p id="finalScoreText"></p>
-<div class="row-between" style="justify-content:center; margin-top:12px;">
-<button id="playAgainBtn">Back to Categories</button>
-<button id="historyBtn">View History</button>
-</div>
-</section>
-</div>
-<script src="./js/app-state.js"></script>
-<script src="./js/game.js"></script>
+  <div class="page">
+    <div class="top-bar">
+      <div>
+        <h1 style="margin:0;">Battle Arena</h1>
+        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Turn-based same-screen quiz battle</p>
+      </div>
+      <a class="card" href="home.html">Exit Arena</a>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <section class="card">
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="hero-pill" id="p1Avatar">🦸</div>
+          <h3 id="p1Name">Player 1</h3>
+          <p>Score: <span id="p1Score">0</span></p>
+        </div>
+
+        <div class="vs-text">VS</div>
+
+        <div class="score-card">
+          <div class="hero-pill" id="p2Avatar">🦹</div>
+          <h3 id="p2Name">Player 2</h3>
+          <p>Score: <span id="p2Score">0</span></p>
+        </div>
+      </div>
+
+      <h3 id="turnIndicator" style="text-align:center; margin-top:22px;">Turn:</h3>
+      <p class="timer" id="timerText">Time Left: 10s</p>
+      <p style="text-align:center;">Round: <span id="roundNumber">1</span> / 5</p>
+
+      <div class="question-box">
+        <div id="questionText">Loading question...</div>
+      </div>
+
+      <div class="answers-grid">
+        <button class="answer-btn" data-index="0" type="button">Option 1</button>
+        <button class="answer-btn" data-index="1" type="button">Option 2</button>
+        <button class="answer-btn" data-index="2" type="button">Option 3</button>
+        <button class="answer-btn" data-index="3" type="button">Option 4</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="resultCard" style="text-align:center;">
+      <h2>Battle Result</h2>
+      <p id="winnerText"></p>
+      <p id="finalScoreText"></p>
+      <div class="row-between" style="justify-content:center; margin-top:12px;">
+        <button id="playAgainBtn" type="button">Back to Categories</button>
+        <button id="historyBtn" type="button">View History</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/app-state.js"></script>
+  <script src="./js/game.js"></script>
 </body>
 </html>
