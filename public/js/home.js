@@ -24,10 +24,31 @@ const avatarOptions = document.querySelectorAll(".avatar-option");
 const messageBox = document.getElementById("messageBox");
 
 let selectedAvatar = "";
+let dropdownOpen = false;
 
 function showMessage(text, type) {
   messageBox.textContent = text;
   messageBox.className = `message-box ${type}`;
+}
+
+function openDropdown() {
+  profileDropdown.classList.remove("profile-dropdown-hidden");
+  profileDropdown.classList.add("profile-dropdown-visible");
+  dropdownOpen = true;
+}
+
+function closeDropdown() {
+  profileDropdown.classList.remove("profile-dropdown-visible");
+  profileDropdown.classList.add("profile-dropdown-hidden");
+  dropdownOpen = false;
+}
+
+function toggleDropdown() {
+  if (dropdownOpen) {
+    closeDropdown();
+  } else {
+    openDropdown();
+  }
 }
 
 function refreshSessionUI() {
@@ -46,13 +67,9 @@ function refreshSessionUI() {
   }
 }
 
-function closeDropdown() {
-  profileDropdown.classList.add("hidden");
-}
-
 profileToggleBtn.onclick = (event) => {
   event.stopPropagation();
-  profileDropdown.classList.toggle("hidden");
+  toggleDropdown();
 };
 
 profileDropdown.onclick = (event) => {
@@ -177,3 +194,4 @@ pvpBtn.onclick = () => {
 };
 
 refreshSessionUI();
+closeDropdown();

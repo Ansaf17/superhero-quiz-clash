@@ -81,6 +81,7 @@ if (!currentUser) {
         <p>${nameB} Wins: ${record[nameB] || 0}</p>
         <p>${nameA} Total Points: ${record[`${nameA}Points`] || 0}</p>
         <p>${nameB} Total Points: ${record[`${nameB}Points`] || 0}</p>
+        <a href="h2h.html?key=${encodeURIComponent(key)}" class="button-link" style="margin-top:10px;">View Details</a>
       `;
       h2hList.appendChild(item);
     });
