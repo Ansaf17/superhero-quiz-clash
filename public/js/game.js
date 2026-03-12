@@ -303,7 +303,8 @@ function finishMatch() {
   }
 
   resultCard.classList.remove("hidden");
-  showMessage("Match completed successfully.", "success");
+showMessage("Match completed successfully.", "success");
+if (window.DamonFX && winner !== "draw") window.DamonFX.playWin();
 }
 
 async function nextTurn() {
@@ -345,6 +346,7 @@ function handleTimeUp() {
 
   answerButtons[correctIndex].classList.add("correct");
   showMessage("Time is up! Turn skipped.", "error");
+if (window.DamonFX) window.DamonFX.playTimeout();
 
   setTimeout(() => nextTurn(), 1200);
 }
@@ -359,13 +361,15 @@ function handleAnswerClick(index) {
   correctBtn.classList.add("correct");
 
   if (index === correctIndex) {
-    if (currentTurn === "player1") player1Score += 10;
-    else player2Score += 10;
-    showMessage("Correct answer!", "success");
-  } else {
-    answerButtons[index].classList.add("wrong");
-    showMessage("Wrong answer!", "error");
-  }
+  if (currentTurn === "player1") player1Score += 10;
+  else player2Score += 10;
+  showMessage("Correct answer!", "success");
+  if (window.DamonFX) window.DamonFX.playCorrect();
+} else {
+  answerButtons[index].classList.add("wrong");
+  showMessage("Wrong answer!", "error");
+  if (window.DamonFX) window.DamonFX.playWrong();
+}
 
   updateHeader();
   answerButtons.forEach(btn => btn.disabled = true);
@@ -378,15 +382,18 @@ answerButtons.forEach((btn, idx) => {
 });
 
 document.getElementById("sameCategoryRematchBtn").onclick = () => {
-  window.location.href = "game.html";
+  if (window.DamonFX) window.DamonFX.navigate("game.html");
+  else window.location.href = "game.html";
 };
 
 document.getElementById("newCategoryBtn").onclick = () => {
-  window.location.href = "category.html";
+  if (window.DamonFX) window.DamonFX.navigate("category.html");
+  else window.location.href = "category.html";
 };
 
 document.getElementById("historyBtn").onclick = () => {
-  window.location.href = "leaderboard.html";
+  if (window.DamonFX) window.DamonFX.navigate("leaderboard.html");
+  else window.location.href = "leaderboard.html";
 };
 
 resultCard.classList.add("hidden");

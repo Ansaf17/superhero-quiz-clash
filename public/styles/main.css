@@ -701,3 +701,42 @@ animation: pulseGlow 2.2s ease-in-out forwards;
     grid-template-columns: 1fr;
   }
 }
+body {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+body.page-ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.page-exit {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 11, 20, 0.82);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.page-transition-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sound-toggle-btn {
+  background: #334155;
+  color: white;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+}
