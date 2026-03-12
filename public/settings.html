@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAMON - Settings</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <div>
+        <h1 style="margin:0;">Settings</h1>
+        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Manage your DAMON preferences</p>
+      </div>
+      <a class="card" href="home.html">Back Home</a>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <section class="card settings-card">
+      <h2>Game Preferences</h2>
+
+      <label for="soundEnabled">Sound</label>
+      <select id="soundEnabled">
+        <option value="true">On</option>
+        <option value="false">Off</option>
+      </select>
+
+      <label for="defaultDifficulty">Default Bot Difficulty</label>
+      <select id="defaultDifficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <label for="defaultCategory">Default Category</label>
+      <select id="defaultCategory">
+        <option value="math">Maths</option>
+        <option value="banana">Banana API</option>
+        <option value="general">General Knowledge</option>
+        <option value="programming">Programming</option>
+      </select>
+
+      <label for="turnTimer">Turn Timer</label>
+      <select id="turnTimer">
+        <option value="5">5 seconds</option>
+        <option value="10">10 seconds</option>
+        <option value="15">15 seconds</option>
+        <option value="20">20 seconds</option>
+      </select>
+
+      <div class="settings-actions">
+        <button id="saveSettingsBtn" type="button">Save Settings</button>
+        <button id="resetSettingsBtn" class="secondary" type="button">Reset to Defaults</button>
+      </div>
+    </section>
+
+    <section class="card settings-card danger-card">
+      <h2>Data Controls</h2>
+      <p style="color:#cbd5e1;">Use these carefully. This will affect your local browser data only.</p>
+
+      <div class="settings-actions">
+        <button id="clearBattleConfigBtn" class="secondary" type="button">Clear Current Battle</button>
+        <button id="clearMatchHistoryBtn" class="secondary" type="button">Clear Match History</button>
+        <button id="clearAllDataBtn" type="button">Reset All Data</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/app-state.js"></script>
+  <script src="./js/global-ui.js"></script>
+  <script src="./js/settings.js"></script>
+</body>
+</html>

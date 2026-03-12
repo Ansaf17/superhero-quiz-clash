@@ -5,6 +5,8 @@ if (!config) {
   window.location.href = "home.html";
 }
 
+const settings = state.getSettings() || state.getDefaultSettings();
+
 const messageBox = document.getElementById("messageBox");
 const p1Avatar = document.getElementById("p1Avatar");
 const p2Avatar = document.getElementById("p2Avatar");
@@ -23,7 +25,7 @@ const finalScoreText = document.getElementById("finalScoreText");
 const resultMetaText = document.getElementById("resultMetaText");
 
 const totalRounds = 5;
-const turnTimeLimit = 10;
+const turnTimeLimit = Number(settings.turnTimer || 10);
 
 let player1Score = 0;
 let player2Score = 0;
@@ -257,7 +259,7 @@ function finishMatch() {
   finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
 
   const difficultyText = config.mode === "pc" ? ` | Difficulty: ${config.botDifficulty || "easy"}` : "";
-  resultMetaText.textContent = `Category: ${config.category} | Mode: ${config.mode}${difficultyText}`;
+  resultMetaText.textContent = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s${difficultyText}`;
 
   if (!config.player2.isBot) {
     state.saveUserStats(
@@ -296,6 +298,7 @@ function finishMatch() {
         category: config.category,
         mode: config.mode,
         difficulty: config.botDifficulty || "easy",
+        timer: turnTimeLimit,
         date: new Date().toLocaleString()
       });
       state.saveMatches(matches);
@@ -303,8 +306,7 @@ function finishMatch() {
   }
 
   resultCard.classList.remove("hidden");
-showMessage("Match completed successfully.", "success");
-if (window.DamonFX && winner !== "draw") window.DamonFX.playWin();
+  showMessage("Match completed successfully.", "success");
 }
 
 async function nextTurn() {
@@ -346,7 +348,7 @@ function handleTimeUp() {
 
   answerButtons[correctIndex].classList.add("correct");
   showMessage("Time is up! Turn skipped.", "error");
-if (window.DamonFX) window.DamonFX.playTimeout();
+  if (window.DamonFX) window.DamonFX.playTimeout();
 
   setTimeout(() => nextTurn(), 1200);
 }
@@ -361,15 +363,15 @@ function handleAnswerClick(index) {
   correctBtn.classList.add("correct");
 
   if (index === correctIndex) {
-  if (currentTurn === "player1") player1Score += 10;
-  else player2Score += 10;
-  showMessage("Correct answer!", "success");
-  if (window.DamonFX) window.DamonFX.playCorrect();
-} else {
-  answerButtons[index].classList.add("wrong");
-  showMessage("Wrong answer!", "error");
-  if (window.DamonFX) window.DamonFX.playWrong();
-}
+    if (currentTurn === "player1") player1Score += 10;
+    else player2Score += 10;
+    showMessage("Correct answer!", "success");
+    if (window.DamonFX) window.DamonFX.playCorrect();
+  } else {
+    answerButtons[index].classList.add("wrong");
+    showMessage("Wrong answer!", "error");
+    if (window.DamonFX) window.DamonFX.playWrong();
+  }
 
   updateHeader();
   answerButtons.forEach(btn => btn.disabled = true);

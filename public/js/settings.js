@@ -1,0 +1,98 @@
+const state = window.DamonState;
+const messageBox = document.getElementById("messageBox");
+
+const soundEnabled = document.getElementById("soundEnabled");
+const defaultDifficulty = document.getElementById("defaultDifficulty");
+const defaultCategory = document.getElementById("defaultCategory");
+const turnTimer = document.getElementById("turnTimer");
+
+const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+const resetSettingsBtn = document.getElementById("resetSettingsBtn");
+const clearBattleConfigBtn = document.getElementById("clearBattleConfigBtn");
+const clearMatchHistoryBtn = document.getElementById("clearMatchHistoryBtn");
+const clearAllDataBtn = document.getElementById("clearAllDataBtn");
+
+function showMessage(text, type) {
+  messageBox.textContent = text;
+  messageBox.className = `message-box ${type}`;
+}
+
+function getSettings() {
+  return JSON.parse(localStorage.getItem("damonSettings") || "null");
+}
+
+function saveSettings(settings) {
+  localStorage.setItem("damonSettings", JSON.stringify(settings));
+}
+
+function getDefaultSettings() {
+  return {
+    soundEnabled: true,
+    defaultDifficulty: "easy",
+    defaultCategory: "math",
+    turnTimer: 10
+  };
+}
+
+function loadSettingsToUI() {
+  const settings = getSettings() || getDefaultSettings();
+
+  soundEnabled.value = String(settings.soundEnabled);
+  defaultDifficulty.value = settings.defaultDifficulty;
+  defaultCategory.value = settings.defaultCategory;
+  turnTimer.value = String(settings.turnTimer);
+
+  localStorage.setItem("damonSoundEnabled", JSON.stringify(settings.soundEnabled));
+}
+
+saveSettingsBtn.onclick = () => {
+  const settings = {
+    soundEnabled: soundEnabled.value === "true",
+    defaultDifficulty: defaultDifficulty.value,
+    defaultCategory: defaultCategory.value,
+    turnTimer: Number(turnTimer.value)
+  };
+
+  saveSettings(settings);
+  localStorage.setItem("damonSoundEnabled", JSON.stringify(settings.soundEnabled));
+  showMessage("Settings saved successfully.", "success");
+};
+
+resetSettingsBtn.onclick = () => {
+  const defaults = getDefaultSettings();
+  saveSettings(defaults);
+  localStorage.setItem("damonSoundEnabled", JSON.stringify(defaults.soundEnabled));
+  loadSettingsToUI();
+  showMessage("Settings reset to defaults.", "success");
+};
+
+clearBattleConfigBtn.onclick = () => {
+  state.clearBattleConfig();
+  state.clearPvpDraft();
+  showMessage("Current battle data cleared.", "success");
+};
+
+clearMatchHistoryBtn.onclick = () => {
+  localStorage.removeItem("matches");
+  localStorage.removeItem("h2h");
+  showMessage("Match history and head-to-head records cleared.", "success");
+};
+
+clearAllDataBtn.onclick = () => {
+  localStorage.removeItem("users");
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("matches");
+  localStorage.removeItem("h2h");
+  localStorage.removeItem("battleConfig");
+  localStorage.removeItem("pvpDraft");
+  localStorage.removeItem("damonSettings");
+  localStorage.removeItem("damonSoundEnabled");
+
+  showMessage("All DAMON data has been reset.", "success");
+
+  setTimeout(() => {
+    window.location.href = "home.html";
+  }, 800);
+};
+
+loadSettingsToUI();

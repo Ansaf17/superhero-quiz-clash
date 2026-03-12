@@ -5,16 +5,36 @@ const tiles = document.querySelectorAll(".category-tile");
 const difficultyCard = document.getElementById("difficultyCard");
 const difficultyButtons = document.querySelectorAll(".difficulty-btn");
 
-let selectedCategory = "math";
-let selectedDifficulty = "easy";
-
 if (!config) {
   window.location.href = "home.html";
 }
 
+const settings = state.getSettings() || state.getDefaultSettings();
+
+let selectedCategory = settings.defaultCategory || "math";
+let selectedDifficulty = settings.defaultDifficulty || "easy";
+
 function showMessage(text, type) {
   messageBox.textContent = text;
   messageBox.className = `message-box ${type}`;
+}
+
+function applyInitialSelections() {
+  tiles.forEach(tile => {
+    if (tile.dataset.category === selectedCategory) {
+      tile.classList.add("active");
+    } else {
+      tile.classList.remove("active");
+    }
+  });
+
+  difficultyButtons.forEach(btn => {
+    if (btn.dataset.difficulty === selectedDifficulty) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
 }
 
 tiles.forEach(tile => {
@@ -52,3 +72,5 @@ document.getElementById("startGameBtn").onclick = () => {
     }
   }, 250);
 };
+
+applyInitialSelections();

@@ -740,3 +740,25 @@ body.page-exit {
   padding: 10px 14px;
   font-size: 0.95rem;
 }
+.settings-card {
+  max-width: 850px;
+  margin: 0 auto 20px;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.danger-card button:last-child {
+  background: #ef4444;
+  color: white;
+}
+
+.top-bar-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}

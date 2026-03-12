@@ -13,13 +13,16 @@
         <h1 style="margin:0;">Choose Category</h1>
         <p class="subtitle" style="text-align:left; margin:6px 0 0;">Select the battle type before entering the arena.</p>
       </div>
-      <a class="card" href="home.html">Back Home</a>
+      <div class="top-bar-actions">
+        <a class="card" href="settings.html">Settings</a>
+        <a class="card" href="home.html">Back Home</a>
+      </div>
     </div>
 
     <div id="messageBox" class="message-box"></div>
 
     <section class="grid-2">
-      <button class="card category-tile active" data-category="math" type="button">
+      <button class="card category-tile" data-category="math" type="button">
         <h3>➗ Maths</h3>
         <p>Fast calculation rounds</p>
       </button>
@@ -45,7 +48,7 @@
       <p style="margin-top:0; color:#cbd5e1;">Only applies to Player vs PC mode.</p>
 
       <div class="difficulty-grid">
-        <button class="difficulty-btn active" data-difficulty="easy" type="button">
+        <button class="difficulty-btn" data-difficulty="easy" type="button">
           <strong>Easy</strong>
           <span>More mistakes, slower answers</span>
         </button>
@@ -68,7 +71,7 @@
   </div>
 
   <script src="./js/app-state.js"></script>
-<script src="./js/global-ui.js"></script>
-<script src="./js/category.js"></script>
+  <script src="./js/global-ui.js"></script>
+  <script src="./js/category.js"></script>
 </body>
 </html>

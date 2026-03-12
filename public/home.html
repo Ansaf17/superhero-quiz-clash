@@ -20,6 +20,21 @@
           <div id="loggedOutPanel">
             <h3 style="margin-top:0;">Account</h3>
 
+            <div id="loggedInPanel" class="hidden">
+            <div class="profile-mini">
+              <div class="profile-mini-avatar" id="miniAvatar">🦸</div>
+              <div>
+                <p style="margin:0; font-weight:700;" id="miniUsername">User</p>
+                <p style="margin:4px 0 0; color:#cbd5e1; font-size:0.92rem;">Logged in</p>
+              </div>
+            </div>
+
+            <div class="compact-auth-actions" style="margin-top:14px;">
+              <a href="profile.html" class="secondary button-link">Profile</a>
+              <button id="logoutBtn" class="secondary" type="button">Logout</button>
+            </div>
+          </div>
+
             <label for="loginUsername">Username</label>
             <input id="loginUsername" type="text" placeholder="Enter username">
 
@@ -57,20 +72,6 @@
             </div>
           </div>
 
-          <div id="loggedInPanel" class="hidden">
-            <div class="profile-mini">
-              <div class="profile-mini-avatar" id="miniAvatar">🦸</div>
-              <div>
-                <p style="margin:0; font-weight:700;" id="miniUsername">User</p>
-                <p style="margin:4px 0 0; color:#cbd5e1; font-size:0.92rem;">Logged in</p>
-              </div>
-            </div>
-
-            <div class="compact-auth-actions" style="margin-top:14px;">
-              <a href="profile.html" class="secondary button-link">Profile</a>
-              <button id="logoutBtn" class="secondary" type="button">Logout</button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -83,21 +84,25 @@
     </section>
 
     <section class="grid-3 home-main-grid">
-      <a class="card hero-button" href="leaderboard.html">
-        <h3>Leaderboard</h3>
-        <p>See top players and stats</p>
-      </a>
+  <a class="card hero-button" href="leaderboard.html">
+    <h3>Leaderboard</h3>
+    <p>See top players and stats</p>
+  </a>
 
-      <button class="card hero-button" id="pcBtn" type="button">
-        <h3>Game Lobby</h3>
-        <p>Player vs PC</p>
-      </button>
+  <button class="card hero-button" id="pcBtn" type="button">
+    <h3>Game Lobby</h3>
+    <p>Player vs PC</p>
+  </button>
 
-      <button class="card hero-button" id="pvpBtn" type="button">
-        <h3>PVP</h3>
-        <p>Multiplayer same-screen</p>
-      </button>
-    </section>
+  <button class="card hero-button" id="pvpBtn" type="button">
+    <h3>PVP</h3>
+    <p>Multiplayer same-screen</p>
+  </button>
+</section>
+
+<section class="card" style="margin-top:20px; text-align:center;">
+  <a href="settings.html" class="button-link">Open Settings</a>
+</section>
   </div>
 
   <script src="./js/app-state.js"></script>
