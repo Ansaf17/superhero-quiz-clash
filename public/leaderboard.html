@@ -17,12 +17,42 @@
     </div>
 
     <section class="card" style="margin-bottom:20px;">
-      <h2>Player Rankings</h2>
+      <div class="leaderboard-toolbar">
+        <h2 style="margin:0;">Player Rankings</h2>
+
+        <div class="leaderboard-filters">
+          <select id="leaderboardSort">
+            <option value="wins">Sort by Wins</option>
+            <option value="points">Sort by Points</option>
+            <option value="matches">Sort by Matches Played</option>
+          </select>
+        </div>
+      </div>
+
       <div id="leaderboardList" class="leaderboard-list"></div>
     </section>
 
     <section class="card" style="margin-bottom:20px;">
-      <h2>Your Match History</h2>
+      <div class="leaderboard-toolbar">
+        <h2 style="margin:0;">Your Match History</h2>
+
+        <div class="leaderboard-filters">
+          <select id="historyCategoryFilter">
+            <option value="all">All Categories</option>
+            <option value="math">Maths</option>
+            <option value="banana">Banana API</option>
+            <option value="general">General Knowledge</option>
+            <option value="programming">Programming</option>
+          </select>
+
+          <select id="historyModeFilter">
+            <option value="all">All Modes</option>
+            <option value="pvp">PVP</option>
+            <option value="pc">Player vs PC</option>
+          </select>
+        </div>
+      </div>
+
       <div id="historyList" class="history-list"></div>
     </section>
 
@@ -33,7 +63,7 @@
   </div>
 
   <script src="./js/app-state.js"></script>
-<script src="./js/global-ui.js"></script>
-<script src="./js/leaderboard.js"></script>
+  <script src="./js/global-ui.js"></script>
+  <script src="./js/leaderboard.js"></script>
 </body>
 </html>

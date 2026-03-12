@@ -20,6 +20,7 @@ const roundNumber = document.getElementById("roundNumber");
 const questionText = document.getElementById("questionText");
 const answerButtons = document.querySelectorAll(".answer-btn");
 const resultCard = document.getElementById("resultCard");
+const resultBadge = document.getElementById("resultBadge");
 const winnerText = document.getElementById("winnerText");
 const finalScoreText = document.getElementById("finalScoreText");
 const resultMetaText = document.getElementById("resultMetaText");
@@ -240,6 +241,21 @@ function triggerBotTurn() {
   }, delay);
 }
 
+function getResultBadge(winner) {
+  if (winner === "draw") {
+    return "🤝";
+  }
+
+  if (winner === config.player1.username) {
+    if (player1Score >= 40) return "🏆";
+    if (player1Score >= 30) return "🥇";
+    if (player1Score >= 20) return "🥈";
+    return "🥉";
+  }
+
+  return "💥";
+}
+
 function finishMatch() {
   stopTimer();
   stopBotThinking();
@@ -255,6 +271,7 @@ function finishMatch() {
     resultText = `🏆 ${config.player2.username} wins the battle!`;
   }
 
+  resultBadge.textContent = getResultBadge(winner);
   winnerText.textContent = resultText;
   finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
 
@@ -307,6 +324,7 @@ function finishMatch() {
 
   resultCard.classList.remove("hidden");
   showMessage("Match completed successfully.", "success");
+  if (window.DamonFX && winner !== "draw") window.DamonFX.playWin();
 }
 
 async function nextTurn() {
