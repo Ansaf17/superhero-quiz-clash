@@ -51,13 +51,16 @@
       </div>
     </section>
 
-    <section class="card hidden" id="resultCard" style="text-align:center;">
+    <section class="card hidden result-polish-card" id="resultCard">
       <h2>Battle Result</h2>
       <p id="winnerText"></p>
       <p id="finalScoreText"></p>
-      <div class="row-between" style="justify-content:center; margin-top:12px;">
-        <button id="playAgainBtn" type="button">Back to Categories</button>
-        <button id="historyBtn" type="button">View History</button>
+      <p id="resultMetaText" class="result-meta-text"></p>
+
+      <div class="result-actions">
+        <button id="sameCategoryRematchBtn" type="button">Rematch Same Category</button>
+        <button id="newCategoryBtn" class="secondary" type="button">Choose New Category</button>
+        <button id="historyBtn" class="secondary" type="button">View History</button>
       </div>
     </section>
   </div>

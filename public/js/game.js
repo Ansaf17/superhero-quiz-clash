@@ -20,6 +20,7 @@ const answerButtons = document.querySelectorAll(".answer-btn");
 const resultCard = document.getElementById("resultCard");
 const winnerText = document.getElementById("winnerText");
 const finalScoreText = document.getElementById("finalScoreText");
+const resultMetaText = document.getElementById("resultMetaText");
 
 const totalRounds = 5;
 const turnTimeLimit = 10;
@@ -197,24 +198,23 @@ async function generateQuestion() {
   }
 }
 
-function getBotAccuracy() {
-  if (config.category === "math") return 0.8;
-  if (config.category === "banana") return 0.65;
-  if (config.category === "general") return 0.6;
-  if (config.category === "programming") return 0.7;
-  return 0.65;
-}
+function getBotProfile() {
+  const difficulty = config.botDifficulty || "easy";
 
-function getBotThinkingTime() {
-  if (config.category === "math") return 1500 + Math.floor(Math.random() * 2000);
-  if (config.category === "banana") return 2500 + Math.floor(Math.random() * 3000);
-  if (config.category === "general") return 1800 + Math.floor(Math.random() * 3000);
-  if (config.category === "programming") return 2000 + Math.floor(Math.random() * 2800);
-  return 2000 + Math.floor(Math.random() * 2500);
+  if (difficulty === "easy") {
+    return { accuracy: 0.45, minDelay: 2800, maxDelay: 5200 };
+  }
+
+  if (difficulty === "medium") {
+    return { accuracy: 0.68, minDelay: 1800, maxDelay: 3600 };
+  }
+
+  return { accuracy: 0.85, minDelay: 1200, maxDelay: 2500 };
 }
 
 function getBotChoiceIndex() {
-  const shouldBeCorrect = Math.random() < getBotAccuracy();
+  const profile = getBotProfile();
+  const shouldBeCorrect = Math.random() < profile.accuracy;
 
   if (shouldBeCorrect) {
     return correctIndex;
@@ -229,12 +229,13 @@ function triggerBotTurn() {
     return;
   }
 
-  const botDelay = getBotThinkingTime();
+  const profile = getBotProfile();
+  const delay = profile.minDelay + Math.floor(Math.random() * (profile.maxDelay - profile.minDelay + 1));
 
   botThinkingTimeout = setTimeout(() => {
     const botPick = getBotChoiceIndex();
     handleAnswerClick(botPick);
-  }, botDelay);
+  }, delay);
 }
 
 function finishMatch() {
@@ -254,6 +255,9 @@ function finishMatch() {
 
   winnerText.textContent = resultText;
   finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
+
+  const difficultyText = config.mode === "pc" ? ` | Difficulty: ${config.botDifficulty || "easy"}` : "";
+  resultMetaText.textContent = `Category: ${config.category} | Mode: ${config.mode}${difficultyText}`;
 
   if (!config.player2.isBot) {
     state.saveUserStats(
@@ -291,6 +295,7 @@ function finishMatch() {
         winner,
         category: config.category,
         mode: config.mode,
+        difficulty: config.botDifficulty || "easy",
         date: new Date().toLocaleString()
       });
       state.saveMatches(matches);
@@ -372,7 +377,11 @@ answerButtons.forEach((btn, idx) => {
   btn.onclick = () => handleAnswerClick(idx);
 });
 
-document.getElementById("playAgainBtn").onclick = () => {
+document.getElementById("sameCategoryRematchBtn").onclick = () => {
+  window.location.href = "game.html";
+};
+
+document.getElementById("newCategoryBtn").onclick = () => {
   window.location.href = "category.html";
 };
 
