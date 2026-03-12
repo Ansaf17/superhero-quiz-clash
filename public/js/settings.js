@@ -47,6 +47,7 @@ saveSettingsBtn.onclick = () => {
   saveSettings(settings);
   localStorage.setItem("damonSoundEnabled", JSON.stringify(settings.soundEnabled));
   showMessage("Settings saved successfully.", "success");
+  if (window.DamonToast) window.DamonToast.show("Settings saved.", "success");
 };
 
 resetSettingsBtn.onclick = () => {
@@ -55,18 +56,21 @@ resetSettingsBtn.onclick = () => {
   localStorage.setItem("damonSoundEnabled", JSON.stringify(defaults.soundEnabled));
   loadSettingsToUI();
   showMessage("Settings reset to defaults.", "success");
+  if (window.DamonToast) window.DamonToast.show("Settings reset to defaults.", "info");
 };
 
 clearBattleConfigBtn.onclick = () => {
   state.clearBattleConfig();
   state.clearPvpDraft();
   showMessage("Current battle data cleared.", "success");
+  if (window.DamonToast) window.DamonToast.show("Current battle cleared.", "warning");
 };
 
 clearMatchHistoryBtn.onclick = () => {
   localStorage.removeItem("matches");
   localStorage.removeItem("h2h");
   showMessage("Match history and head-to-head records cleared.", "success");
+  if (window.DamonToast) window.DamonToast.show("Match history cleared.", "warning");
 };
 
 clearAllDataBtn.onclick = () => {
@@ -80,10 +84,11 @@ clearAllDataBtn.onclick = () => {
   localStorage.removeItem("damonSoundEnabled");
 
   showMessage("All DAMON data has been reset.", "success");
+  if (window.DamonToast) window.DamonToast.show("All local data reset.", "error");
 
   setTimeout(() => {
     window.location.href = "home.html";
-  }, 800);
+  }, 900);
 };
 
 loadSettingsToUI();

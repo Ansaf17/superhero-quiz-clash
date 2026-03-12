@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DAMON - Stats Dashboard</title>
+  <title>DAMON - Analytics Dashboard</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
 <body>
   <div class="page">
     <div class="top-bar">
       <div>
-        <h1 style="margin:0;">Stats Dashboard</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Your personal DAMON performance overview</p>
+        <h1 style="margin:0;">Analytics Dashboard</h1>
+        <p class="subtitle" style="text-align:left; margin:6px 0 0;">A full overview of your DAMON performance</p>
       </div>
       <div class="top-bar-actions">
         <a class="card" href="profile.html">Profile</a>
@@ -20,9 +20,11 @@
       </div>
     </div>
 
-    <section class="card stats-hero-card">
-      <div class="stats-hero-layout">
-        <div class="stats-hero-avatar" id="statsAvatar">🦸</div>
+    <div id="statsToastAnchor"></div>
+
+    <section class="card dashboard-hero-card">
+      <div class="dashboard-hero-layout">
+        <div class="dashboard-hero-avatar" id="statsAvatar">🦸</div>
         <div>
           <h2 id="statsUsername" style="margin:0 0 8px;">Player</h2>
           <p id="statsSummaryText" style="margin:0; color:#cbd5e1;">Summary</p>
@@ -30,53 +32,91 @@
       </div>
     </section>
 
-    <section class="stats-grid">
-      <div class="card stats-box">
-        <h3>Total Points</h3>
-        <p id="statsPoints">0</p>
+    <section class="dashboard-kpi-grid">
+      <div class="card dashboard-kpi-card">
+        <span class="dashboard-kpi-label">Total Points</span>
+        <h3 id="statsPoints">0</h3>
       </div>
 
-      <div class="card stats-box">
-        <h3>Total Wins</h3>
-        <p id="statsWins">0</p>
+      <div class="card dashboard-kpi-card">
+        <span class="dashboard-kpi-label">Total Wins</span>
+        <h3 id="statsWins">0</h3>
       </div>
 
-      <div class="card stats-box">
-        <h3>Total Losses</h3>
-        <p id="statsLosses">0</p>
+      <div class="card dashboard-kpi-card">
+        <span class="dashboard-kpi-label">Total Losses</span>
+        <h3 id="statsLosses">0</h3>
       </div>
 
-      <div class="card stats-box">
-        <h3>Matches Played</h3>
-        <p id="statsMatches">0</p>
+      <div class="card dashboard-kpi-card">
+        <span class="dashboard-kpi-label">Matches Played</span>
+        <h3 id="statsMatches">0</h3>
       </div>
 
-      <div class="card stats-box">
-        <h3>Win Rate</h3>
-        <p id="statsWinRate">0%</p>
+      <div class="card dashboard-kpi-card">
+        <span class="dashboard-kpi-label">Win Rate</span>
+        <h3 id="statsWinRate">0%</h3>
       </div>
 
-      <div class="card stats-box">
-        <h3>Best Category</h3>
-        <p id="statsBestCategory">-</p>
+      <div class="card dashboard-kpi-card">
+        <span class="dashboard-kpi-label">Best Category</span>
+        <h3 id="statsBestCategory">-</h3>
       </div>
     </section>
 
     <section class="grid-2" style="margin-top:20px;">
-      <section class="card">
-        <h2>Mode Breakdown</h2>
-        <div id="modeBreakdown" class="stats-breakdown-list"></div>
+      <section class="card analytics-panel">
+        <div class="analytics-panel-header">
+          <h2>Category Analytics</h2>
+          <span class="analytics-chip">Matches by category</span>
+        </div>
+        <div id="categoryChart" class="chart-bars"></div>
       </section>
 
-      <section class="card">
-        <h2>Category Breakdown</h2>
-        <div id="categoryBreakdown" class="stats-breakdown-list"></div>
+      <section class="card analytics-panel">
+        <div class="analytics-panel-header">
+          <h2>Mode Analytics</h2>
+          <span class="analytics-chip">PVP vs Player vs PC</span>
+        </div>
+        <div id="modeChart" class="chart-bars"></div>
       </section>
     </section>
 
-    <section class="card" style="margin-top:20px;">
-      <h2>Recent Match Snapshot</h2>
-      <div id="recentMatchesSnapshot" class="stats-breakdown-list"></div>
+    <section class="grid-2" style="margin-top:20px;">
+      <section class="card analytics-panel">
+        <div class="analytics-panel-header">
+          <h2>Performance Insights</h2>
+          <span class="analytics-chip">Smart summary</span>
+        </div>
+        <div id="insightsList" class="insights-list"></div>
+      </section>
+
+      <section class="card analytics-panel">
+        <div class="analytics-panel-header">
+          <h2>Recent Match Snapshot</h2>
+          <span class="analytics-chip">Last 5 matches</span>
+        </div>
+        <div id="recentMatchesSnapshot" class="stats-breakdown-list"></div>
+      </section>
+    </section>
+
+    <section class="card analytics-panel" style="margin-top:20px;">
+      <div class="analytics-panel-header">
+        <h2>Category Breakdown Table</h2>
+        <span class="analytics-chip">Detailed view</span>
+      </div>
+      <div class="dashboard-table-wrap">
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Matches</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody id="categoryTableBody"></tbody>
+        </table>
+      </div>
     </section>
   </div>
 
