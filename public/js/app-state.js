@@ -15,6 +15,23 @@ window.DamonState = {
       turnTimer: 10
     };
   },
+  
+      getSettings() {
+    return JSON.parse(localStorage.getItem("damonSettings") || "null");
+  },
+
+  saveSettings(settings) {
+    localStorage.setItem("damonSettings", JSON.stringify(settings));
+  },
+
+  getDefaultSettings() {
+    return {
+      soundEnabled: true,
+      defaultDifficulty: "easy",
+      defaultCategory: "math",
+      turnTimer: 10
+    };
+  },
 getUsers() {
 return JSON.parse(localStorage.getItem("users") || "[]");
 },

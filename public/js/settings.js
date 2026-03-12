@@ -18,24 +18,15 @@ function showMessage(text, type) {
 }
 
 function getSettings() {
-  return JSON.parse(localStorage.getItem("damonSettings") || "null");
+  return state.getSettings() || state.getDefaultSettings();
 }
 
 function saveSettings(settings) {
-  localStorage.setItem("damonSettings", JSON.stringify(settings));
-}
-
-function getDefaultSettings() {
-  return {
-    soundEnabled: true,
-    defaultDifficulty: "easy",
-    defaultCategory: "math",
-    turnTimer: 10
-  };
+  state.saveSettings(settings);
 }
 
 function loadSettingsToUI() {
-  const settings = getSettings() || getDefaultSettings();
+  const settings = getSettings();
 
   soundEnabled.value = String(settings.soundEnabled);
   defaultDifficulty.value = settings.defaultDifficulty;
@@ -59,7 +50,7 @@ saveSettingsBtn.onclick = () => {
 };
 
 resetSettingsBtn.onclick = () => {
-  const defaults = getDefaultSettings();
+  const defaults = state.getDefaultSettings();
   saveSettings(defaults);
   localStorage.setItem("damonSoundEnabled", JSON.stringify(defaults.soundEnabled));
   loadSettingsToUI();

@@ -13,42 +13,61 @@
         <h1 style="margin:0;">Settings</h1>
         <p class="subtitle" style="text-align:left; margin:6px 0 0;">Manage your DAMON preferences</p>
       </div>
-      <a class="card" href="home.html">Back Home</a>
+      <div class="top-bar-actions">
+        <a class="card" href="achievements.html">Achievements</a>
+        <a class="card" href="home.html">Back Home</a>
+      </div>
     </div>
 
     <div id="messageBox" class="message-box"></div>
 
-    <section class="card settings-card">
-      <h2>Game Preferences</h2>
+    <section class="card settings-card polished-settings-card">
+      <div class="settings-header">
+        <div>
+          <h2 style="margin:0;">Game Preferences</h2>
+          <p style="margin:8px 0 0; color:#cbd5e1;">Customize how DAMON plays and feels for you.</p>
+        </div>
+        <div class="settings-icon-box">⚙️</div>
+      </div>
 
-      <label for="soundEnabled">Sound</label>
-      <select id="soundEnabled">
-        <option value="true">On</option>
-        <option value="false">Off</option>
-      </select>
+      <div class="grid-2 settings-grid">
+        <div class="settings-option-box">
+          <label for="soundEnabled">Sound</label>
+          <select id="soundEnabled">
+            <option value="true">On</option>
+            <option value="false">Off</option>
+          </select>
+        </div>
 
-      <label for="defaultDifficulty">Default Bot Difficulty</label>
-      <select id="defaultDifficulty">
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
+        <div class="settings-option-box">
+          <label for="defaultDifficulty">Default Bot Difficulty</label>
+          <select id="defaultDifficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
 
-      <label for="defaultCategory">Default Category</label>
-      <select id="defaultCategory">
-        <option value="math">Maths</option>
-        <option value="banana">Banana API</option>
-        <option value="general">General Knowledge</option>
-        <option value="programming">Programming</option>
-      </select>
+        <div class="settings-option-box">
+          <label for="defaultCategory">Default Category</label>
+          <select id="defaultCategory">
+            <option value="math">Maths</option>
+            <option value="banana">Banana API</option>
+            <option value="general">General Knowledge</option>
+            <option value="programming">Programming</option>
+          </select>
+        </div>
 
-      <label for="turnTimer">Turn Timer</label>
-      <select id="turnTimer">
-        <option value="5">5 seconds</option>
-        <option value="10">10 seconds</option>
-        <option value="15">15 seconds</option>
-        <option value="20">20 seconds</option>
-      </select>
+        <div class="settings-option-box">
+          <label for="turnTimer">Turn Timer</label>
+          <select id="turnTimer">
+            <option value="5">5 seconds</option>
+            <option value="10">10 seconds</option>
+            <option value="15">15 seconds</option>
+            <option value="20">20 seconds</option>
+          </select>
+        </div>
+      </div>
 
       <div class="settings-actions">
         <button id="saveSettingsBtn" type="button">Save Settings</button>
@@ -58,7 +77,7 @@
 
     <section class="card settings-card danger-card">
       <h2>Data Controls</h2>
-      <p style="color:#cbd5e1;">Use these carefully. This will affect your local browser data only.</p>
+      <p style="color:#cbd5e1;">These affect your local browser data only.</p>
 
       <div class="settings-actions">
         <button id="clearBattleConfigBtn" class="secondary" type="button">Clear Current Battle</button>
