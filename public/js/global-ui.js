@@ -2,12 +2,6 @@
   const TRANSITION_DELAY = 260;
   let soundEnabled = JSON.parse(localStorage.getItem("damonSoundEnabled") || "true");
 
-  function markReady() {
-    requestAnimationFrame(() => {
-      document.body.classList.add("page-ready");
-    });
-  }
-
   function ensureOverlay() {
     let overlay = document.querySelector(".page-transition-overlay");
     if (!overlay) {
@@ -16,6 +10,13 @@
       document.body.appendChild(overlay);
     }
     return overlay;
+  }
+
+  function resetPageState() {
+    const overlay = ensureOverlay();
+    overlay.classList.remove("active");
+    document.body.classList.remove("page-exit");
+    document.body.classList.add("page-ready");
   }
 
   function goWithTransition(url) {
@@ -29,22 +30,9 @@
     }, TRANSITION_DELAY);
   }
 
-  function attachLinkTransitions() {
-    document.querySelectorAll('a[href]').forEach(link => {
-      const href = link.getAttribute("href");
-      if (!href || href.startsWith("#") || href.startsWith("http")) return;
-
-      link.addEventListener("click", function (e) {
-        e.preventDefault();
-        goWithTransition(href);
-      });
-    });
-  }
-
   function createSoundButton() {
     const topBar = document.querySelector(".top-bar");
     if (!topBar) return;
-
     if (document.getElementById("soundToggleBtn")) return;
 
     const btn = document.createElement("button");
@@ -80,7 +68,6 @@
     gainNode.connect(ctx.destination);
 
     oscillator.start();
-
     gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
     oscillator.stop(ctx.currentTime + duration);
   }
@@ -103,9 +90,6 @@
       setTimeout(() => playTone(659, 0.18, "sine", 0.05), 120);
       setTimeout(() => playTone(784, 0.28, "sine", 0.05), 240);
     },
-    playOpen() {
-      playTone(500, 0.08, "sine", 0.03);
-    },
     navigate(url) {
       goWithTransition(url);
     }
@@ -113,8 +97,11 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     ensureOverlay();
-    attachLinkTransitions();
     createSoundButton();
-    markReady();
+    resetPageState();
+  });
+
+  window.addEventListener("pageshow", function () {
+    resetPageState();
   });
 })();

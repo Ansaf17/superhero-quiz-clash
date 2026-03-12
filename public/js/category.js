@@ -18,19 +18,19 @@ function showMessage(text, type) {
 }
 
 tiles.forEach(tile => {
-  tile.onclick = () => {
+  tile.addEventListener("click", () => {
     tiles.forEach(t => t.classList.remove("active"));
     tile.classList.add("active");
     selectedCategory = tile.dataset.category;
-  };
+  });
 });
 
 difficultyButtons.forEach(btn => {
-  btn.onclick = () => {
+  btn.addEventListener("click", () => {
     difficultyButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     selectedDifficulty = btn.dataset.difficulty;
-  };
+  });
 });
 
 if (config.mode !== "pc") {
@@ -39,17 +39,16 @@ if (config.mode !== "pc") {
 
 document.getElementById("startGameBtn").onclick = () => {
   config.category = selectedCategory;
-
-  if (config.mode === "pc") {
-    config.botDifficulty = selectedDifficulty;
-  } else {
-    config.botDifficulty = null;
-  }
+  config.botDifficulty = config.mode === "pc" ? selectedDifficulty : null;
 
   state.setBattleConfig(config);
   showMessage(`Category selected: ${selectedCategory}`, "success");
 
   setTimeout(() => {
-    window.location.href = "game.html";
-  }, 350);
+    if (window.DamonFX) {
+      window.DamonFX.navigate("game.html");
+    } else {
+      window.location.href = "game.html";
+    }
+  }, 250);
 };

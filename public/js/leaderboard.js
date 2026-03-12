@@ -81,8 +81,23 @@ if (!currentUser) {
         <p>${nameB} Wins: ${record[nameB] || 0}</p>
         <p>${nameA} Total Points: ${record[`${nameA}Points`] || 0}</p>
         <p>${nameB} Total Points: ${record[`${nameB}Points`] || 0}</p>
-        <a href="h2h.html?key=${encodeURIComponent(key)}" class="button-link" style="margin-top:10px;">View Details</a>
       `;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "secondary";
+      btn.style.marginTop = "10px";
+      btn.textContent = "View Details";
+      btn.onclick = () => {
+        const target = `h2h.html?key=${encodeURIComponent(key)}`;
+        if (window.DamonFX) {
+          window.DamonFX.navigate(target);
+        } else {
+          window.location.href = target;
+        }
+      };
+
+      item.appendChild(btn);
       h2hList.appendChild(item);
     });
   }
