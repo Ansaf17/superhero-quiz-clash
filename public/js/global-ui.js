@@ -12,6 +12,16 @@
     return overlay;
   }
 
+  function ensureToastContainer() {
+    let container = document.querySelector(".toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "toast-container";
+      document.body.appendChild(container);
+    }
+    return container;
+  }
+
   function resetPageState() {
     const overlay = ensureOverlay();
     overlay.classList.remove("active");
@@ -45,6 +55,7 @@
       soundEnabled = !soundEnabled;
       localStorage.setItem("damonSoundEnabled", JSON.stringify(soundEnabled));
       btn.textContent = soundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
+      showToast(soundEnabled ? "Sound enabled" : "Sound disabled", "info");
     };
 
     topBar.appendChild(btn);
@@ -72,6 +83,40 @@
     oscillator.stop(ctx.currentTime + duration);
   }
 
+  function showToast(message, type = "info", duration = 2600) {
+    const container = ensureToastContainer();
+    const toast = document.createElement("div");
+    toast.className = `toast toast-${type}`;
+
+    const icon =
+      type === "success" ? "✅" :
+      type === "error" ? "❌" :
+      type === "warning" ? "⚠️" :
+      "🔔";
+
+    toast.innerHTML = `
+      <div class="toast-icon">${icon}</div>
+      <div class="toast-text">${message}</div>
+      <button class="toast-close" type="button">×</button>
+    `;
+
+    const removeToast = () => {
+      toast.classList.add("toast-exit");
+      setTimeout(() => {
+        toast.remove();
+      }, 260);
+    };
+
+    toast.querySelector(".toast-close").onclick = removeToast;
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.classList.add("toast-show");
+    });
+
+    setTimeout(removeToast, duration);
+  }
+
   window.DamonFX = {
     playCorrect() {
       playTone(720, 0.18, "sine", 0.05);
@@ -95,8 +140,15 @@
     }
   };
 
+  window.DamonToast = {
+    show(message, type = "info", duration = 2600) {
+      showToast(message, type, duration);
+    }
+  };
+
   document.addEventListener("DOMContentLoaded", function () {
     ensureOverlay();
+    ensureToastContainer();
     createSoundButton();
     resetPageState();
   });

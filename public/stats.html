@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAMON - Stats Dashboard</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <div>
+        <h1 style="margin:0;">Stats Dashboard</h1>
+        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Your personal DAMON performance overview</p>
+      </div>
+      <div class="top-bar-actions">
+        <a class="card" href="profile.html">Profile</a>
+        <a class="card" href="leaderboard.html">Leaderboard</a>
+        <a class="card" href="home.html">Back Home</a>
+      </div>
+    </div>
+
+    <section class="card stats-hero-card">
+      <div class="stats-hero-layout">
+        <div class="stats-hero-avatar" id="statsAvatar">🦸</div>
+        <div>
+          <h2 id="statsUsername" style="margin:0 0 8px;">Player</h2>
+          <p id="statsSummaryText" style="margin:0; color:#cbd5e1;">Summary</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="card stats-box">
+        <h3>Total Points</h3>
+        <p id="statsPoints">0</p>
+      </div>
+
+      <div class="card stats-box">
+        <h3>Total Wins</h3>
+        <p id="statsWins">0</p>
+      </div>
+
+      <div class="card stats-box">
+        <h3>Total Losses</h3>
+        <p id="statsLosses">0</p>
+      </div>
+
+      <div class="card stats-box">
+        <h3>Matches Played</h3>
+        <p id="statsMatches">0</p>
+      </div>
+
+      <div class="card stats-box">
+        <h3>Win Rate</h3>
+        <p id="statsWinRate">0%</p>
+      </div>
+
+      <div class="card stats-box">
+        <h3>Best Category</h3>
+        <p id="statsBestCategory">-</p>
+      </div>
+    </section>
+
+    <section class="grid-2" style="margin-top:20px;">
+      <section class="card">
+        <h2>Mode Breakdown</h2>
+        <div id="modeBreakdown" class="stats-breakdown-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Category Breakdown</h2>
+        <div id="categoryBreakdown" class="stats-breakdown-list"></div>
+      </section>
+    </section>
+
+    <section class="card" style="margin-top:20px;">
+      <h2>Recent Match Snapshot</h2>
+      <div id="recentMatchesSnapshot" class="stats-breakdown-list"></div>
+    </section>
+  </div>
+
+  <script src="./js/app-state.js"></script>
+  <script src="./js/global-ui.js"></script>
+  <script src="./js/stats.js"></script>
+</body>
+</html>

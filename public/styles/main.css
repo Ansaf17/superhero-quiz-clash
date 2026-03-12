@@ -989,3 +989,223 @@ body.page-exit {
     text-align: center;
   }
 }
+.toast-container {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  gap: 12px;
+  z-index: 10000;
+  width: min(360px, 92vw);
+}
+
+.toast {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: #182235;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white;
+  padding: 14px 14px;
+  border-radius: 14px;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.toast-show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast-exit {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+}
+
+.toast-success {
+  border-left: 4px solid #22c55e;
+}
+
+.toast-error {
+  border-left: 4px solid #ef4444;
+}
+
+.toast-warning {
+  border-left: 4px solid #facc15;
+}
+
+.toast-info {
+  border-left: 4px solid #38bdf8;
+}
+
+.toast-icon {
+  font-size: 1.1rem;
+}
+
+.toast-text {
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.toast-close {
+  background: transparent;
+  color: white;
+  font-size: 1.1rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.stats-hero-card {
+  margin-bottom: 20px;
+}
+
+.stats-hero-layout {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.stats-hero-avatar {
+  width: 78px;
+  height: 78px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.stats-box {
+  text-align: center;
+}
+
+.stats-box h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.stats-box p {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #facc15;
+}
+
+.stats-breakdown-list {
+  display: grid;
+  gap: 12px;
+}
+
+.stats-breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.08);
+}
+
+.achievement-summary-card {
+  margin-bottom: 20px;
+}
+
+.achievement-summary-layout {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.achievement-summary-avatar {
+  width: 74px;
+  height: 74px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.3rem;
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.achievement-card {
+  text-align: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.achievement-card:hover {
+  transform: translateY(-4px);
+}
+
+.achievement-icon {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.achievement-status {
+  margin-top: 12px;
+  font-weight: 800;
+}
+
+.achievement-unlocked {
+  border: 1px solid rgba(34,197,94,0.4);
+  background: rgba(34,197,94,0.08);
+}
+
+.achievement-unlocked .achievement-status {
+  color: #22c55e;
+}
+
+.achievement-locked {
+  opacity: 0.7;
+}
+
+.achievement-locked .achievement-status {
+  color: #94a3b8;
+}
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-hero-layout {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stats-breakdown-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .achievement-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .achievement-summary-layout {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .toast-container {
+    left: 14px;
+    right: 14px;
+    width: auto;
+  }
+}
