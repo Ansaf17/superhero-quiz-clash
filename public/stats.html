@@ -1,127 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DAMON - Analytics Dashboard</title>
-  <link rel="stylesheet" href="./styles/main.css" />
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DAMON Analytics</title>
+
+<link rel="stylesheet" href="./styles/main.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
+
 <body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">Analytics Dashboard</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">A full overview of your DAMON performance</p>
-      </div>
-      <div class="top-bar-actions">
-        <a class="card" href="profile.html">Profile</a>
-        <a class="card" href="leaderboard.html">Leaderboard</a>
-        <a class="card" href="home.html">Back Home</a>
-      </div>
-    </div>
 
-    <div id="statsToastAnchor"></div>
+<div class="page">
 
-    <section class="card dashboard-hero-card">
-      <div class="dashboard-hero-layout">
-        <div class="dashboard-hero-avatar" id="statsAvatar">🦸</div>
-        <div>
-          <h2 id="statsUsername" style="margin:0 0 8px;">Player</h2>
-          <p id="statsSummaryText" style="margin:0; color:#cbd5e1;">Summary</p>
-        </div>
-      </div>
-    </section>
+<div class="top-bar">
 
-    <section class="dashboard-kpi-grid">
-      <div class="card dashboard-kpi-card">
-        <span class="dashboard-kpi-label">Total Points</span>
-        <h3 id="statsPoints">0</h3>
-      </div>
+<div>
+<h1>Analytics Dashboard</h1>
+<p class="subtitle">Performance analytics and statistics</p>
+</div>
 
-      <div class="card dashboard-kpi-card">
-        <span class="dashboard-kpi-label">Total Wins</span>
-        <h3 id="statsWins">0</h3>
-      </div>
+<div class="top-bar-actions">
+<a class="card" href="profile.html">Profile</a>
+<a class="card" href="settings.html">Settings</a>
+<a class="card" href="home.html">Home</a>
+</div>
 
-      <div class="card dashboard-kpi-card">
-        <span class="dashboard-kpi-label">Total Losses</span>
-        <h3 id="statsLosses">0</h3>
-      </div>
+</div>
 
-      <div class="card dashboard-kpi-card">
-        <span class="dashboard-kpi-label">Matches Played</span>
-        <h3 id="statsMatches">0</h3>
-      </div>
+<section class="card dashboard-hero-card">
 
-      <div class="card dashboard-kpi-card">
-        <span class="dashboard-kpi-label">Win Rate</span>
-        <h3 id="statsWinRate">0%</h3>
-      </div>
+<div class="dashboard-hero-layout">
 
-      <div class="card dashboard-kpi-card">
-        <span class="dashboard-kpi-label">Best Category</span>
-        <h3 id="statsBestCategory">-</h3>
-      </div>
-    </section>
+<div id="statsAvatar" class="dashboard-hero-avatar">🦸</div>
 
-    <section class="grid-2" style="margin-top:20px;">
-      <section class="card analytics-panel">
-        <div class="analytics-panel-header">
-          <h2>Category Analytics</h2>
-          <span class="analytics-chip">Matches by category</span>
-        </div>
-        <div id="categoryChart" class="chart-bars"></div>
-      </section>
+<div>
+<h2 id="statsUsername">Player</h2>
+<p id="statsSummaryText">Stats summary</p>
+</div>
 
-      <section class="card analytics-panel">
-        <div class="analytics-panel-header">
-          <h2>Mode Analytics</h2>
-          <span class="analytics-chip">PVP vs Player vs PC</span>
-        </div>
-        <div id="modeChart" class="chart-bars"></div>
-      </section>
-    </section>
+</div>
 
-    <section class="grid-2" style="margin-top:20px;">
-      <section class="card analytics-panel">
-        <div class="analytics-panel-header">
-          <h2>Performance Insights</h2>
-          <span class="analytics-chip">Smart summary</span>
-        </div>
-        <div id="insightsList" class="insights-list"></div>
-      </section>
+</section>
 
-      <section class="card analytics-panel">
-        <div class="analytics-panel-header">
-          <h2>Recent Match Snapshot</h2>
-          <span class="analytics-chip">Last 5 matches</span>
-        </div>
-        <div id="recentMatchesSnapshot" class="stats-breakdown-list"></div>
-      </section>
-    </section>
+<section class="dashboard-kpi-grid">
 
-    <section class="card analytics-panel" style="margin-top:20px;">
-      <div class="analytics-panel-header">
-        <h2>Category Breakdown Table</h2>
-        <span class="analytics-chip">Detailed view</span>
-      </div>
-      <div class="dashboard-table-wrap">
-        <table class="dashboard-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Matches</th>
-              <th>Share</th>
-            </tr>
-          </thead>
-          <tbody id="categoryTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-  </div>
+<div class="card dashboard-kpi-card">
+<span>Total Points</span>
+<h3 id="statsPoints">0</h3>
+</div>
 
-  <script src="./js/app-state.js"></script>
-  <script src="./js/global-ui.js"></script>
-  <script src="./js/stats.js"></script>
+<div class="card dashboard-kpi-card">
+<span>Total Wins</span>
+<h3 id="statsWins">0</h3>
+</div>
+
+<div class="card dashboard-kpi-card">
+<span>Total Losses</span>
+<h3 id="statsLosses">0</h3>
+</div>
+
+<div class="card dashboard-kpi-card">
+<span>Matches Played</span>
+<h3 id="statsMatches">0</h3>
+</div>
+
+<div class="card dashboard-kpi-card">
+<span>Win Rate</span>
+<h3 id="statsWinRate">0%</h3>
+</div>
+
+<div class="card dashboard-kpi-card">
+<span>Best Category</span>
+<h3 id="statsBestCategory">-</h3>
+</div>
+
+</section>
+
+<section class="grid-2">
+
+<div class="card">
+
+<h2>Category Distribution</h2>
+
+<canvas id="categoryChart"></canvas>
+
+</div>
+
+<div class="card">
+
+<h2>Game Mode Distribution</h2>
+
+<canvas id="modeChart"></canvas>
+
+</div>
+
+</section>
+
+<section class="card">
+
+<h2>Recent Matches</h2>
+
+<div id="recentMatches"></div>
+
+</section>
+
+</div>
+
+<script src="./js/app-state.js"></script>
+<script src="./js/global-ui.js"></script>
+<script src="./js/stats.js"></script>
+
 </body>
 </html>

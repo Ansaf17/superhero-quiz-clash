@@ -73,6 +73,26 @@ clearMatchHistoryBtn.onclick = () => {
   if (window.DamonToast) window.DamonToast.show("Match history cleared.", "warning");
 };
 
+const themeSelect = document.getElementById("themeSelect");
+
+themeSelect.value = localStorage.getItem("damonTheme") || "dark";
+
+themeSelect.onchange = function(){
+
+localStorage.setItem("damonTheme",themeSelect.value);
+
+applyTheme(themeSelect.value);
+
+};
+
+function applyTheme(theme){
+
+document.body.setAttribute("data-theme",theme);
+
+}
+
+applyTheme(localStorage.getItem("damonTheme") || "dark");
+
 clearAllDataBtn.onclick = () => {
   localStorage.removeItem("users");
   localStorage.removeItem("currentUser");
