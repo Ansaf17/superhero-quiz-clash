@@ -5,6 +5,7 @@ const soundEnabled = document.getElementById("soundEnabled");
 const defaultDifficulty = document.getElementById("defaultDifficulty");
 const defaultCategory = document.getElementById("defaultCategory");
 const turnTimer = document.getElementById("turnTimer");
+const themeSelect = document.getElementById("themeSelect");
 
 const saveSettingsBtn = document.getElementById("saveSettingsBtn");
 const resetSettingsBtn = document.getElementById("resetSettingsBtn");
@@ -17,23 +18,16 @@ function showMessage(text, type) {
   messageBox.className = `message-box ${type}`;
 }
 
-function getSettings() {
-  return state.getSettings() || state.getDefaultSettings();
-}
+function loadSettings() {
+  const settings = state.getSettings() || state.getDefaultSettings();
+  const savedTheme = localStorage.getItem("damon_theme") || "dark";
+  const musicEnabled = localStorage.getItem("damon_sound_enabled");
 
-function saveSettings(settings) {
-  state.saveSettings(settings);
-}
-
-function loadSettingsToUI() {
-  const settings = getSettings();
-
-  soundEnabled.value = String(settings.soundEnabled);
+  soundEnabled.value = String(musicEnabled === null ? true : musicEnabled === "true");
   defaultDifficulty.value = settings.defaultDifficulty;
   defaultCategory.value = settings.defaultCategory;
   turnTimer.value = String(settings.turnTimer);
-
-  localStorage.setItem("damonSoundEnabled", JSON.stringify(settings.soundEnabled));
+  themeSelect.value = savedTheme;
 }
 
 saveSettingsBtn.onclick = () => {
@@ -44,54 +38,60 @@ saveSettingsBtn.onclick = () => {
     turnTimer: Number(turnTimer.value)
   };
 
-  saveSettings(settings);
-  localStorage.setItem("damonSoundEnabled", JSON.stringify(settings.soundEnabled));
+  state.saveSettings(settings);
+  localStorage.setItem("damon_sound_enabled", String(settings.soundEnabled));
+
+  if (window.DamonTheme) {
+    window.DamonTheme.setTheme(themeSelect.value);
+  }
+
+  if (window.DamonAudio) {
+    if (settings.soundEnabled) {
+      window.DamonAudio.playMenuMusic();
+    } else {
+      window.DamonAudio.stopAllMusic();
+    }
+  }
+
   showMessage("Settings saved successfully.", "success");
-  if (window.DamonToast) window.DamonToast.show("Settings saved.", "success");
+  if (window.DamonToast) {
+    window.DamonToast.show("Settings saved.", "success");
+  }
 };
 
 resetSettingsBtn.onclick = () => {
   const defaults = state.getDefaultSettings();
-  saveSettings(defaults);
-  localStorage.setItem("damonSoundEnabled", JSON.stringify(defaults.soundEnabled));
-  loadSettingsToUI();
+  state.saveSettings(defaults);
+
+  localStorage.setItem("damon_sound_enabled", "true");
+  localStorage.setItem("damon_theme", "dark");
+
+  if (window.DamonTheme) {
+    window.DamonTheme.setTheme("dark");
+  }
+
+  if (window.DamonAudio) {
+    window.DamonAudio.playMenuMusic();
+  }
+
+  loadSettings();
   showMessage("Settings reset to defaults.", "success");
-  if (window.DamonToast) window.DamonToast.show("Settings reset to defaults.", "info");
+  if (window.DamonToast) {
+    window.DamonToast.show("Settings reset.", "info");
+  }
 };
 
 clearBattleConfigBtn.onclick = () => {
   state.clearBattleConfig();
   state.clearPvpDraft();
   showMessage("Current battle data cleared.", "success");
-  if (window.DamonToast) window.DamonToast.show("Current battle cleared.", "warning");
 };
 
 clearMatchHistoryBtn.onclick = () => {
   localStorage.removeItem("matches");
   localStorage.removeItem("h2h");
-  showMessage("Match history and head-to-head records cleared.", "success");
-  if (window.DamonToast) window.DamonToast.show("Match history cleared.", "warning");
+  showMessage("Match history cleared.", "success");
 };
-
-const themeSelect = document.getElementById("themeSelect");
-
-themeSelect.value = localStorage.getItem("damonTheme") || "dark";
-
-themeSelect.onchange = function(){
-
-localStorage.setItem("damonTheme",themeSelect.value);
-
-applyTheme(themeSelect.value);
-
-};
-
-function applyTheme(theme){
-
-document.body.setAttribute("data-theme",theme);
-
-}
-
-applyTheme(localStorage.getItem("damonTheme") || "dark");
 
 clearAllDataBtn.onclick = () => {
   localStorage.removeItem("users");
@@ -101,14 +101,19 @@ clearAllDataBtn.onclick = () => {
   localStorage.removeItem("battleConfig");
   localStorage.removeItem("pvpDraft");
   localStorage.removeItem("damonSettings");
-  localStorage.removeItem("damonSoundEnabled");
+  localStorage.removeItem("damon_theme");
+  localStorage.removeItem("damon_sound_enabled");
+  localStorage.removeItem("damon_menu_time");
+
+  if (window.DamonAudio) {
+    window.DamonAudio.stopAllMusic();
+  }
 
   showMessage("All DAMON data has been reset.", "success");
-  if (window.DamonToast) window.DamonToast.show("All local data reset.", "error");
 
   setTimeout(() => {
-    window.location.href = "home.html";
-  }, 900);
+    window.location.href = "./home.html";
+  }, 800);
 };
 
-loadSettingsToUI();
+loadSettings();

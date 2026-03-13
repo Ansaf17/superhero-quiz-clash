@@ -186,9 +186,14 @@ function renderH2H() {
   });
 }
 
+
 leaderboardSort.addEventListener("change", renderLeaderboard);
 historyCategoryFilter.addEventListener("change", renderHistory);
 historyModeFilter.addEventListener("change", renderHistory);
+
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
 
 renderLeaderboard();
 renderHistory();

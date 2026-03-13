@@ -105,6 +105,10 @@ responsive:true
 
 });
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const recentDiv = document.getElementById("recentMatches");
 
 const recent = userMatches.slice(-5).reverse();

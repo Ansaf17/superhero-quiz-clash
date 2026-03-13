@@ -123,6 +123,8 @@ achievements.forEach(item => {
     <p>${item.description}</p>
     <div class="achievement-status">${item.unlocked ? "Unlocked" : "Locked"}</div>
   `;
-
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
   achievementGrid.appendChild(card);
 });

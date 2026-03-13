@@ -85,7 +85,7 @@ function startTimer() {
 }
 
 function resetAnswers() {
-  answerButtons.forEach(btn => {
+  answerButtons.forEach((btn) => {
     btn.classList.remove("correct", "wrong");
     btn.disabled = false;
     btn.textContent = "Loading...";
@@ -120,6 +120,7 @@ async function generateMathQuestion() {
   while (set.size < 4) {
     set.add(correct + (Math.floor(Math.random() * 7) - 3));
   }
+
   setOptions(Array.from(set), correct);
 }
 
@@ -139,6 +140,7 @@ async function generateBananaQuestion() {
   while (set.size < 4) {
     set.add(solution + (Math.floor(Math.random() * 7) - 3));
   }
+
   setOptions(Array.from(set), solution);
 }
 
@@ -153,7 +155,7 @@ async function generateGeneralQuestion() {
   const q = data.results[0];
   const question = state.decodeHtml(q.question);
   const correct = state.decodeHtml(q.correct_answer);
-  const incorrect = q.incorrect_answers.map(a => state.decodeHtml(a));
+  const incorrect = q.incorrect_answers.map((a) => state.decodeHtml(a));
 
   questionText.textContent = `Question: ${question}`;
   setOptions([correct, ...incorrect], correct);
@@ -170,7 +172,7 @@ async function generateProgrammingQuestion() {
   const q = data.results[0];
   const question = state.decodeHtml(q.question);
   const correct = state.decodeHtml(q.correct_answer);
-  const incorrect = q.incorrect_answers.map(a => state.decodeHtml(a));
+  const incorrect = q.incorrect_answers.map((a) => state.decodeHtml(a));
 
   questionText.textContent = `Question: ${question}`;
   setOptions([correct, ...incorrect], correct);
@@ -223,7 +225,7 @@ function getBotChoiceIndex() {
     return correctIndex;
   }
 
-  const wrongIndexes = [0, 1, 2, 3].filter(index => index !== correctIndex);
+  const wrongIndexes = [0, 1, 2, 3].filter((index) => index !== correctIndex);
   return wrongIndexes[Math.floor(Math.random() * wrongIndexes.length)];
 }
 
@@ -290,7 +292,7 @@ function finishMatch() {
     );
   } else {
     const users = state.getUsers();
-    const p1 = users.find(u => u.username === config.player1.username);
+    const p1 = users.find((u) => u.username === config.player1.username);
 
     if (p1) {
       p1.totalPoints += player1Score;
@@ -324,7 +326,14 @@ function finishMatch() {
 
   resultCard.classList.remove("hidden");
   showMessage("Match completed successfully.", "success");
-  if (window.DamonFX && winner !== "draw") window.DamonFX.playWin();
+
+  if (typeof playMenuMusic === "function") {
+    playMenuMusic();
+  }
+
+  if (window.DamonFX && winner !== "draw") {
+    window.DamonFX.playWin();
+  }
 }
 
 async function nextTurn() {
@@ -357,22 +366,27 @@ async function nextTurn() {
 
 function handleTimeUp() {
   if (turnLocked) return;
+
   turnLocked = true;
   stopBotThinking();
 
-  answerButtons.forEach(btn => {
+  answerButtons.forEach((btn) => {
     btn.disabled = true;
   });
 
   answerButtons[correctIndex].classList.add("correct");
   showMessage("Time is up! Turn skipped.", "error");
-  if (window.DamonFX) window.DamonFX.playTimeout();
+
+  if (window.DamonFX) {
+    window.DamonFX.playTimeout();
+  }
 
   setTimeout(() => nextTurn(), 1200);
 }
 
 function handleAnswerClick(index) {
   if (turnLocked) return;
+
   turnLocked = true;
   stopTimer();
   stopBotThinking();
@@ -381,18 +395,30 @@ function handleAnswerClick(index) {
   correctBtn.classList.add("correct");
 
   if (index === correctIndex) {
-    if (currentTurn === "player1") player1Score += 10;
-    else player2Score += 10;
+    if (currentTurn === "player1") {
+      player1Score += 10;
+    } else {
+      player2Score += 10;
+    }
+
     showMessage("Correct answer!", "success");
-    if (window.DamonFX) window.DamonFX.playCorrect();
+
+    if (window.DamonFX) {
+      window.DamonFX.playCorrect();
+    }
   } else {
     answerButtons[index].classList.add("wrong");
     showMessage("Wrong answer!", "error");
-    if (window.DamonFX) window.DamonFX.playWrong();
+
+    if (window.DamonFX) {
+      window.DamonFX.playWrong();
+    }
   }
 
   updateHeader();
-  answerButtons.forEach(btn => btn.disabled = true);
+  answerButtons.forEach((btn) => {
+    btn.disabled = true;
+  });
 
   setTimeout(() => nextTurn(), 1200);
 }
@@ -402,20 +428,48 @@ answerButtons.forEach((btn, idx) => {
 });
 
 document.getElementById("sameCategoryRematchBtn").onclick = () => {
-  if (window.DamonFX) window.DamonFX.navigate("game.html");
-  else window.location.href = "game.html";
+  if (typeof playBattleMusic === "function") {
+    playBattleMusic();
+  }
+
+  if (window.DamonFX) {
+    window.DamonFX.navigate("game.html");
+  } else {
+    window.location.href = "game.html";
+  }
 };
 
 document.getElementById("newCategoryBtn").onclick = () => {
-  if (window.DamonFX) window.DamonFX.navigate("category.html");
-  else window.location.href = "category.html";
+  if (typeof playMenuMusic === "function") {
+    playMenuMusic();
+  }
+
+  if (window.DamonFX) {
+    window.DamonFX.navigate("category.html");
+  } else {
+    window.location.href = "category.html";
+  }
 };
 
 document.getElementById("historyBtn").onclick = () => {
-  if (window.DamonFX) window.DamonFX.navigate("leaderboard.html");
-  else window.location.href = "leaderboard.html";
+  if (typeof playMenuMusic === "function") {
+    playMenuMusic();
+  }
+
+  if (window.DamonFX) {
+    window.DamonFX.navigate("leaderboard.html");
+  } else {
+    window.location.href = "leaderboard.html";
+  }
 };
 
 resultCard.classList.add("hidden");
 updateHeader();
+
+if (typeof playBattleMusic === "function") {
+  playBattleMusic();
+}
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
 generateQuestion();

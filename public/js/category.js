@@ -72,5 +72,8 @@ document.getElementById("startGameBtn").onclick = () => {
     }
   }, 250);
 };
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
 
 applyInitialSelections();

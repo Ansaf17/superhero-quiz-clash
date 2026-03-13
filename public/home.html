@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DAMON - Home</title>
+  <title>DAMON</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
 <body>
+
   <div class="page">
+
     <div class="home-topbar">
       <div></div>
 
@@ -21,10 +23,10 @@
             <h3 style="margin-top:0;">Account</h3>
 
             <label for="loginUsername">Username</label>
-            <input id="loginUsername" type="text" placeholder="Enter username">
+            <input id="loginUsername" type="text" placeholder="Enter username" />
 
             <label for="loginPassword">Password</label>
-            <input id="loginPassword" type="password" placeholder="Enter password">
+            <input id="loginPassword" type="password" placeholder="Enter password" />
 
             <div class="compact-auth-actions">
               <button id="loginBtn" type="button">Login</button>
@@ -33,10 +35,10 @@
 
             <div id="registerArea" class="hidden" style="margin-top:16px;">
               <label for="registerUsername">New Username</label>
-              <input id="registerUsername" type="text" placeholder="Enter username">
+              <input id="registerUsername" type="text" placeholder="Enter username" />
 
               <label for="registerPassword">New Password</label>
-              <input id="registerPassword" type="password" placeholder="Enter password">
+              <input id="registerPassword" type="password" placeholder="Enter password" />
 
               <h4>Choose Avatar</h4>
               <div class="avatar-grid compact-avatar-grid" id="avatarGrid">
@@ -67,9 +69,9 @@
             </div>
 
             <div class="compact-auth-actions" style="margin-top:14px;">
-              <a href="profile.html" class="secondary button-link">Profile</a>
-              <a href="stats.html" class="secondary button-link">Stats</a>
-              <a href="settings.html" class="secondary button-link">Settings</a>
+              <a href="./profile.html" class="secondary button-link">Profile</a>
+              <a href="./stats.html" class="secondary button-link">Stats</a>
+              <a href="./settings.html" class="secondary button-link">Settings</a>
               <button id="logoutBtn" class="secondary" type="button">Logout</button>
             </div>
           </div>
@@ -80,37 +82,40 @@
     <div id="messageBox" class="message-box"></div>
 
     <section class="home-hero">
-      <h1 class="title home-main-title">DAMON</h1>
-      <p class="subtitle home-main-subtitle">Modern multiplayer quiz battles</p>
+      <h1 class="title">DAMON</h1>
+      <p class="subtitle">Battle of Knowledge</p>
     </section>
 
-    <section class="grid-3 home-main-grid">
-      <a class="card hero-button" href="leaderboard.html">
+    <div class="grid-3 home-main-grid">
+      <a href="./leaderboard.html" class="card hero-button">
         <h3>Leaderboard</h3>
-        <p>See top players and stats</p>
+        <p>Top players worldwide</p>
       </a>
+
+      <button class="card hero-button" id="pvpBtn" type="button">
+        <h3>Player vs Player</h3>
+        <p>Challenge real opponents</p>
+      </button>
 
       <button class="card hero-button" id="pcBtn" type="button">
         <h3>Game Lobby</h3>
-        <p>Player vs PC</p>
+        <p>Play against AI</p>
       </button>
-
-      <button class="card hero-button" id="pvpBtn" type="button">
-        <h3>PVP</h3>
-        <p>Multiplayer same-screen</p>
-      </button>
-    </section>
+    </div>
 
     <section class="card" style="margin-top:20px; text-align:center;">
       <div class="top-bar-actions" style="justify-content:center;">
-        <a href="settings.html" class="button-link">Open Settings</a>
-        <a href="stats.html" class="button-link">Open Stats</a>
+        <a href="./settings.html" class="button-link">Open Settings</a>
+        <a href="./stats.html" class="button-link">Open Stats</a>
       </div>
     </section>
+
   </div>
 
   <script src="./js/app-state.js"></script>
   <script src="./js/global-ui.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/audio.js"></script>
   <script src="./js/home.js"></script>
 </body>
 </html>

@@ -67,6 +67,10 @@ continueBtn.onclick = () => {
     player2
   });
 
+  if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
   if (window.DamonFX) {
     window.DamonFX.navigate("category.html");
   } else {

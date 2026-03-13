@@ -193,5 +193,9 @@ pvpBtn.onclick = () => {
   window.location.href = "lobby.html";
 };
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 refreshSessionUI();
 closeDropdown();
