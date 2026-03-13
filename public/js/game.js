@@ -334,6 +334,9 @@ function finishMatch() {
   if (window.DamonFX && winner !== "draw") {
     window.DamonFX.playWin();
   }
+  if (window.DamonAudio) {
+  window.DamonAudio.returnMenuMusic();
+}
 }
 
 async function nextTurn() {
@@ -470,6 +473,6 @@ if (typeof playBattleMusic === "function") {
   playBattleMusic();
 }
 if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
+  window.DamonAudio.playBattleMusic();
 }
 generateQuestion();

@@ -26,6 +26,10 @@ const messageBox = document.getElementById("messageBox");
 let selectedAvatar = "";
 let dropdownOpen = false;
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 function showMessage(text, type) {
   messageBox.textContent = text;
   messageBox.className = `message-box ${type}`;
@@ -193,9 +197,6 @@ pvpBtn.onclick = () => {
   window.location.href = "lobby.html";
 };
 
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
 
 refreshSessionUI();
 closeDropdown();

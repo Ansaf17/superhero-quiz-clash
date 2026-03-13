@@ -1,13 +1,14 @@
 const state = window.DamonState;
 const currentUser = state.getCurrentUser();
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 if (!currentUser) {
   window.location.href = "home.html";
 }
 
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
 
 document.getElementById("profileAvatar").textContent = currentUser.avatar;
 document.getElementById("profileUsername").textContent = currentUser.username;

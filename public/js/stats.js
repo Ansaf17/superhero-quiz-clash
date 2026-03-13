@@ -2,6 +2,10 @@ const state = window.DamonState;
 
 const user = state.getCurrentUser();
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 if (!user) {
 location.href = "home.html";
 }
@@ -104,10 +108,6 @@ responsive:true
 }
 
 });
-
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
 
 const recentDiv = document.getElementById("recentMatches");
 

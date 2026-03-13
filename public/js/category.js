@@ -5,6 +5,10 @@ const tiles = document.querySelectorAll(".category-tile");
 const difficultyCard = document.getElementById("difficultyCard");
 const difficultyButtons = document.querySelectorAll(".difficulty-btn");
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 if (!config) {
   window.location.href = "home.html";
 }
@@ -72,8 +76,5 @@ document.getElementById("startGameBtn").onclick = () => {
     }
   }, 250);
 };
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
 
 applyInitialSelections();

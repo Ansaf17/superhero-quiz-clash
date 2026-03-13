@@ -1,6 +1,10 @@
 const state = window.DamonState;
 const currentUser = state.getCurrentUser();
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 if (!currentUser) {
   window.location.href = "home.html";
 }
@@ -66,10 +70,6 @@ continueBtn.onclick = () => {
     player1: currentUser,
     player2
   });
-
-  if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
 
   if (window.DamonFX) {
     window.DamonFX.navigate("category.html");

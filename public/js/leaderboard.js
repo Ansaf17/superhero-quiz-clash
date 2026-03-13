@@ -10,6 +10,10 @@ const historyModeFilter = document.getElementById("historyModeFilter");
 
 const currentUser = state.getCurrentUser();
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 function getMedalByRank(rank) {
   if (rank === 1) return "🥇";
   if (rank === 2) return "🥈";
@@ -191,9 +195,6 @@ leaderboardSort.addEventListener("change", renderLeaderboard);
 historyCategoryFilter.addEventListener("change", renderHistory);
 historyModeFilter.addEventListener("change", renderHistory);
 
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
 
 renderLeaderboard();
 renderHistory();
