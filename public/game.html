@@ -13,7 +13,7 @@
         <h1 style="margin:0;">Battle Arena</h1>
         <p class="subtitle" style="text-align:left; margin:6px 0 0;">Turn-based same-screen quiz battle</p>
       </div>
-      <a class="card" href="home.html">Exit Arena</a>
+      <a class="card" href="./home.html">Exit Arena</a>
     </div>
 
     <div id="messageBox" class="message-box"></div>
@@ -24,6 +24,7 @@
           <div class="hero-pill" id="p1Avatar">🦸</div>
           <h3 id="p1Name">Player 1</h3>
           <p>Score: <span id="p1Score">0</span></p>
+          <p>Streak: <span id="p1StreakDisplay">0</span></p>
         </div>
 
         <div class="vs-text">VS</div>
@@ -32,12 +33,15 @@
           <div class="hero-pill" id="p2Avatar">🦹</div>
           <h3 id="p2Name">Player 2</h3>
           <p>Score: <span id="p2Score">0</span></p>
+          <p>Streak: <span id="p2StreakDisplay">0</span></p>
         </div>
       </div>
 
       <h3 id="turnIndicator" style="text-align:center; margin-top:22px;">Turn:</h3>
       <p class="timer" id="timerText">Time Left: 10s</p>
       <p style="text-align:center;">Round: <span id="roundNumber">1</span> / 5</p>
+
+      <div id="streakBanner" class="streak-banner hidden"></div>
 
       <div class="question-box">
         <div id="questionText">Loading question...</div>
@@ -58,6 +62,8 @@
       <p id="finalScoreText"></p>
       <p id="resultMetaText" class="result-meta-text"></p>
 
+      <div id="progressSummary" class="progress-summary"></div>
+
       <div class="result-actions">
         <button id="sameCategoryRematchBtn" type="button">Rematch Same Category</button>
         <button id="newCategoryBtn" class="secondary" type="button">Choose New Category</button>
@@ -68,8 +74,8 @@
 
   <script src="./js/app-state.js"></script>
   <script src="./js/global-ui.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/audio.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/audio.js"></script>
   <script src="./js/game.js"></script>
 </body>
 </html>

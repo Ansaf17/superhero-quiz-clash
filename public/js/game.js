@@ -14,6 +14,8 @@ const p1Name = document.getElementById("p1Name");
 const p2Name = document.getElementById("p2Name");
 const p1ScoreEl = document.getElementById("p1Score");
 const p2ScoreEl = document.getElementById("p2Score");
+const p1StreakDisplay = document.getElementById("p1StreakDisplay");
+const p2StreakDisplay = document.getElementById("p2StreakDisplay");
 const turnIndicator = document.getElementById("turnIndicator");
 const timerText = document.getElementById("timerText");
 const roundNumber = document.getElementById("roundNumber");
@@ -24,6 +26,8 @@ const resultBadge = document.getElementById("resultBadge");
 const winnerText = document.getElementById("winnerText");
 const finalScoreText = document.getElementById("finalScoreText");
 const resultMetaText = document.getElementById("resultMetaText");
+const progressSummary = document.getElementById("progressSummary");
+const streakBanner = document.getElementById("streakBanner");
 
 const totalRounds = 5;
 const turnTimeLimit = Number(settings.turnTimer || 10);
@@ -38,9 +42,23 @@ let timerInterval = null;
 let timeLeft = turnTimeLimit;
 let botThinkingTimeout = null;
 
+let player1Streak = 0;
+let player2Streak = 0;
+
 function showMessage(text, type) {
   messageBox.textContent = text;
   messageBox.className = `message-box ${type}`;
+}
+
+function showStreakBanner(text) {
+  streakBanner.textContent = text;
+  streakBanner.classList.remove("hidden");
+  streakBanner.classList.add("streak-banner-show");
+
+  setTimeout(() => {
+    streakBanner.classList.remove("streak-banner-show");
+    streakBanner.classList.add("hidden");
+  }, 1400);
 }
 
 function updateHeader() {
@@ -50,6 +68,8 @@ function updateHeader() {
   p2Name.textContent = config.player2.username;
   p1ScoreEl.textContent = player1Score;
   p2ScoreEl.textContent = player2Score;
+  p1StreakDisplay.textContent = player1Streak;
+  p2StreakDisplay.textContent = player2Streak;
   roundNumber.textContent = currentRound;
   turnIndicator.textContent = `Turn: ${currentTurn === "player1" ? config.player1.username : config.player2.username}`;
 }
@@ -101,6 +121,36 @@ function setOptions(options, correctValue) {
     btn.disabled = false;
     btn.classList.remove("correct", "wrong");
   });
+}
+
+function applyStreakBonus(playerKey) {
+  let bonus = 0;
+  let streak = 0;
+  let username = "";
+
+  if (playerKey === "player1") {
+    streak = player1Streak;
+    username = config.player1.username;
+  } else {
+    streak = player2Streak;
+    username = config.player2.username;
+  }
+
+  if (streak > 0 && streak % 5 === 0) {
+    bonus = 10;
+  } else if (streak > 0 && streak % 3 === 0) {
+    bonus = 5;
+  }
+
+  if (bonus > 0) {
+    if (playerKey === "player1") {
+      player1Score += bonus;
+    } else {
+      player2Score += bonus;
+    }
+
+    showStreakBanner(`🔥 ${username} earned a +${bonus} streak bonus!`);
+  }
 }
 
 async function generateMathQuestion() {
@@ -256,6 +306,18 @@ function getResultBadge(winner) {
   return "💥";
 }
 
+function renderProgressCard(title, progress) {
+  return `
+    <div class="progress-card">
+      <h3>${title}</h3>
+      <p><strong>XP:</strong> +${progress.xpGain} (${progress.oldXp} → ${progress.newXp})</p>
+      <p><strong>Level:</strong> ${progress.oldLevel} → ${progress.newLevel}${progress.leveledUp ? " 🎉" : ""}</p>
+      <p><strong>Rank Title:</strong> ${progress.oldRankTitle} → ${progress.newRankTitle}${progress.rankChanged ? " ✨" : ""}</p>
+      <p><strong>Tier:</strong> ${progress.oldTier} → ${progress.newTier}${progress.tierChanged ? " 🏅" : ""}</p>
+    </div>
+  `;
+}
+
 function finishMatch() {
   stopTimer();
   stopBotThinking();
@@ -276,6 +338,7 @@ function finishMatch() {
   finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
 
   let progressSummaryText = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
+  progressSummary.innerHTML = "";
 
   if (!config.player2.isBot) {
     const result = state.saveUserStats(
@@ -289,8 +352,12 @@ function finishMatch() {
     );
 
     if (result) {
-      progressSummaryText += `<br>Player 1 XP: +${result.player1Progress.xpGain} | Level ${result.player1Progress.newLevel} | ${result.player1Progress.newRankTitle} | ${result.player1Progress.newTier}`;
-      progressSummaryText += `<br>Player 2 XP: +${result.player2Progress.xpGain} | Level ${result.player2Progress.newLevel} | ${result.player2Progress.newRankTitle} | ${result.player2Progress.newTier}`;
+      progressSummary.innerHTML = `
+        <div class="progress-grid">
+          ${renderProgressCard(config.player1.username, result.player1Progress)}
+          ${renderProgressCard(config.player2.username, result.player2Progress)}
+        </div>
+      `;
     }
   } else {
     const users = state.getUsers();
@@ -331,7 +398,11 @@ function finishMatch() {
       });
       state.saveMatches(matches);
 
-      progressSummaryText += `<br>XP Gained: +${progress.xpGain} | Level ${progress.newLevel} | ${progress.newRankTitle} | ${progress.newTier}`;
+      progressSummary.innerHTML = `
+        <div class="progress-grid">
+          ${renderProgressCard(config.player1.username, progress)}
+        </div>
+      `;
     }
   }
 
@@ -373,11 +444,20 @@ async function nextTurn() {
   await generateQuestion();
 }
 
+function resetCurrentPlayerStreak() {
+  if (currentTurn === "player1") {
+    player1Streak = 0;
+  } else {
+    player2Streak = 0;
+  }
+}
+
 function handleTimeUp() {
   if (turnLocked) return;
 
   turnLocked = true;
   stopBotThinking();
+  resetCurrentPlayerStreak();
 
   answerButtons.forEach((btn) => {
     btn.disabled = true;
@@ -390,6 +470,7 @@ function handleTimeUp() {
     window.DamonFX.playTimeout();
   }
 
+  updateHeader();
   setTimeout(() => nextTurn(), 1200);
 }
 
@@ -406,8 +487,14 @@ function handleAnswerClick(index) {
   if (index === correctIndex) {
     if (currentTurn === "player1") {
       player1Score += 10;
+      player1Streak += 1;
+      applyStreakBonus("player1");
+      player2Streak = 0;
     } else {
       player2Score += 10;
+      player2Streak += 1;
+      applyStreakBonus("player2");
+      player1Streak = 0;
     }
 
     showMessage("Correct answer!", "success");
@@ -417,6 +504,8 @@ function handleAnswerClick(index) {
     }
   } else {
     answerButtons[index].classList.add("wrong");
+    resetCurrentPlayerStreak();
+
     showMessage("Wrong answer!", "error");
 
     if (window.DamonFX) {

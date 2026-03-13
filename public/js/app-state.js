@@ -172,6 +172,7 @@ window.DamonState = {
     const oldLevel = user.level;
     const oldRankTitle = user.rankTitle;
     const oldTier = user.leaderboardTier;
+    const oldXp = user.xp;
 
     user.xp += xpGain;
     user.level = this.getLevelFromXp(user.xp);
@@ -180,6 +181,8 @@ window.DamonState = {
 
     return {
       xpGain,
+      oldXp,
+      newXp: user.xp,
       oldLevel,
       newLevel: user.level,
       leveledUp: user.level > oldLevel,

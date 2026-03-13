@@ -7,6 +7,7 @@ if (window.DamonAudio) {
 const leaderboardList = document.getElementById("leaderboardList");
 const historyList = document.getElementById("historyList");
 const h2hList = document.getElementById("h2hList");
+const podiumWrap = document.getElementById("podiumWrap");
 
 const leaderboardSort = document.getElementById("leaderboardSort");
 const historyCategoryFilter = document.getElementById("historyCategoryFilter");
@@ -21,7 +22,7 @@ function getMedalByRank(rank) {
   return "🏅";
 }
 
-function renderLeaderboard() {
+function getSortedUsers() {
   const users = [...state.getUsers()];
   const sortMode = leaderboardSort.value;
 
@@ -35,7 +36,51 @@ function renderLeaderboard() {
     return b.totalPoints - a.totalPoints;
   });
 
+  return users;
+}
+
+function renderPodium(users) {
+  podiumWrap.innerHTML = "";
+
+  if (users.length === 0) {
+    podiumWrap.innerHTML = `<div class="leaderboard-item">No users yet.</div>`;
+    return;
+  }
+
+  const topThree = users.slice(0, 3);
+
+  const order = [
+    topThree[1] || null,
+    topThree[0] || null,
+    topThree[2] || null
+  ];
+
+  order.forEach((user, index) => {
+    if (!user) return;
+
+    const visualRank = index === 1 ? 1 : index === 0 ? 2 : 3;
+    const podium = document.createElement("div");
+    podium.className = `podium-player podium-rank-${visualRank}`;
+
+    podium.innerHTML = `
+      <div class="podium-medal">${getMedalByRank(visualRank)}</div>
+      <div class="podium-avatar">${user.avatar}</div>
+      <h3>${user.username}</h3>
+      <p>${user.leaderboardTier} • ${user.rankTitle}</p>
+      <p>Wins: ${user.totalWins}</p>
+      <p>XP: ${user.xp}</p>
+      <div class="podium-block podium-block-${visualRank}">#${visualRank}</div>
+    `;
+
+    podiumWrap.appendChild(podium);
+  });
+}
+
+function renderLeaderboard() {
+  const users = getSortedUsers();
+
   leaderboardList.innerHTML = "";
+  renderPodium(users);
 
   if (users.length === 0) {
     leaderboardList.innerHTML = `<div class="leaderboard-item">No users yet.</div>`;
