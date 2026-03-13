@@ -20,7 +20,7 @@
     <div id="achievementPopupStack" class="achievement-popup-stack"></div>
     <div id="confettiContainer" class="confetti-container"></div>
 
-    <section class="card">
+    <section class="card" id="arenaCard">
       <div class="score-grid">
         <div class="score-card">
           <div class="hero-pill" id="p1Avatar">🦸</div>
@@ -70,8 +70,14 @@
         <button class="answer-btn" data-index="3" type="button" disabled>Loading...</button>
       </div>
     </section>
+  </div>
 
-    <section class="card hidden result-polish-card victory-card" id="resultCard">
+  <section class="hidden result-overlay" id="resultCard">
+    <div class="result-overlay-backdrop"></div>
+
+    <div class="card result-overlay-panel victory-card">
+      <button id="closeResultBtn" class="result-close-btn" type="button">✕</button>
+
       <div class="victory-glow"></div>
       <div class="result-badge" id="resultBadge">🏅</div>
       <h2>Battle Result</h2>
@@ -102,8 +108,8 @@
         <button id="historyBtn" class="secondary" type="button">View History</button>
         <button id="continueTournamentBtn" class="secondary hidden" type="button">Continue Tournament</button>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 
   <script src="./js/app-state.js"></script>
   <script src="./js/global-ui.js"></script>

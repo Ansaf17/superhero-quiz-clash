@@ -2041,3 +2041,62 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+.result-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.result-overlay.hidden {
+  display: none;
+}
+
+.result-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.result-overlay-panel {
+  position: relative;
+  z-index: 2;
+  width: min(980px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: resultPopIn 0.35s ease;
+}
+
+@keyframes resultPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.result-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  padding: 0;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  font-size: 1.1rem;
+  z-index: 4;
+}
+
+.result-close-btn:hover {
+  background: rgba(255,255,255,0.16);
+}
