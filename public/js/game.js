@@ -52,6 +52,8 @@ const powerupSkipCount = document.getElementById("powerupSkipCount");
 const powerupTimeCount = document.getElementById("powerupTimeCount");
 const powerupDoubleCount = document.getElementById("powerupDoubleCount");
 
+const continueTournamentBtn = document.getElementById("continueTournamentBtn");
+
 const totalRounds = config.mode === "boss" ? 7 : 5;
 const turnTimeLimit = Number(settings.turnTimer || 10);
 
@@ -85,7 +87,7 @@ let player1Powerups = {
 };
 
 let player2Powerups =
-  config.mode === "pc" || config.mode === "boss"
+  config.mode === "pc" || config.mode === "boss" || config.mode === "tournament"
     ? { fiftyFifty: 1, skip: 1, extraTime: 1, doublePoints: 1, doublePointsActive: false }
     : { fiftyFifty: 1, skip: 1, extraTime: 1, doublePoints: 1, doublePointsActive: false };
 
@@ -193,7 +195,11 @@ function updatePowerupUI() {
   if (powerups.doublePointsActive) powerupDoubleBtn.classList.add("active");
   else powerupDoubleBtn.classList.remove("active");
 
-  if ((config.mode === "pc" && currentTurn === "player2") || (config.mode === "boss" && currentTurn === "player2")) {
+  if (
+    (config.mode === "pc" && currentTurn === "player2") ||
+    (config.mode === "boss" && currentTurn === "player2") ||
+    (config.mode === "tournament" && currentTurn === "player2")
+  ) {
     powerup5050Btn.disabled = true;
     powerupSkipBtn.disabled = true;
     powerupTimeBtn.disabled = true;
@@ -446,7 +452,7 @@ function getBotProfile() {
 }
 
 function updateSpecialLabel() {
-  if (config.mode === "pc" && config.player2.isBot) {
+  if ((config.mode === "pc" || config.mode === "tournament") && config.player2.isBot) {
     const labels = {
       slowThinker: "🐢 Bot Personality: Slow Thinker",
       speedDemon: "⚡ Bot Personality: Speed Demon",
@@ -512,7 +518,13 @@ function maybeUseEnemyPowerup() {
 }
 
 function triggerEnemyTurn() {
-  if (!((config.mode === "pc" && currentTurn === "player2") || (config.mode === "boss" && currentTurn === "player2"))) {
+  if (
+    !(
+      (config.mode === "pc" && currentTurn === "player2") ||
+      (config.mode === "boss" && currentTurn === "player2") ||
+      (config.mode === "tournament" && currentTurn === "player2")
+    )
+  ) {
     return;
   }
 
@@ -533,7 +545,11 @@ function triggerEnemyTurn() {
 
 function getResultBadge(winner) {
   if (winner === "draw") return "🤝";
-  if (winner === config.player1.username) return config.mode === "boss" ? "👑" : "🏆";
+  if (winner === config.player1.username) {
+    if (config.mode === "boss") return "👑";
+    if (config.mode === "tournament") return "🏆";
+    return "🏆";
+  }
   return config.mode === "boss" ? "💀" : "💥";
 }
 
@@ -642,6 +658,61 @@ function spendPersistentPowerupInventory() {
   state.setCurrentUser(player);
 }
 
+function updateTournamentAfterMatch(winner) {
+  const raw = localStorage.getItem("damonTournament");
+  if (!raw) return { completed: true };
+
+  const tournament = JSON.parse(raw);
+
+  if (tournament.completed) {
+    return tournament;
+  }
+
+  if (config.stage === "semifinal") {
+    tournament.bracket.semifinal1.winner = winner;
+
+    if (winner === config.player1.username) {
+      tournament.bracket.final.player1 = config.player1.username;
+      tournament.currentStage = "final";
+      tournament.completed = false;
+      tournament.champion = false;
+    } else {
+      tournament.currentStage = "completed";
+      tournament.completed = true;
+      tournament.champion = false;
+    }
+  } else if (config.stage === "final") {
+    tournament.bracket.final.player1 = config.player1.username;
+    tournament.bracket.final.winner = winner;
+    tournament.currentStage = "completed";
+    tournament.completed = true;
+    tournament.champion = winner === config.player1.username;
+  }
+
+  localStorage.setItem("damonTournament", JSON.stringify(tournament));
+  return tournament;
+}
+
+function applyTournamentChampionBonus() {
+  const users = state.getUsers();
+  const user = users.find((u) => u.username === config.player1.username);
+  if (!user) return null;
+
+  user.coins += 200;
+  user.xp += 150;
+  user.level = state.getLevelFromXp(user.xp);
+  user.rankTitle = state.getRankTitle(user.level);
+  user.leaderboardTier = state.getLeaderboardTier(user.totalWins);
+
+  state.saveUsers(users);
+  state.setCurrentUser(user);
+
+  return {
+    coins: 200,
+    xp: 150
+  };
+}
+
 function finishMatch() {
   stopTimer();
   stopBotThinking();
@@ -649,6 +720,7 @@ function finishMatch() {
 
   let winner = "draw";
   let resultText = "🤝 The battle ended in a draw!";
+  continueTournamentBtn.classList.add("hidden");
 
   if (config.mode === "boss") {
     if (bossHp <= 0) {
@@ -720,7 +792,72 @@ function finishMatch() {
 
     resultMetaText.textContent = `Category: ${config.category || "math"} | Mode: boss | Boss: ${config.bossProfile.name}`;
   } else {
-    resultMetaText.textContent = `Category: ${config.category || "math"} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
+    const singleResult = state.saveSinglePlayerStats(
+      config.player1.username,
+      config.player2.username,
+      player1Score,
+      player2Score,
+      winner,
+      config.category || "math",
+      config.mode,
+      {
+        correctAnswers: player1CorrectAnswers,
+        difficulty: config.botDifficulty || "easy",
+        personality: config.botPersonality || "slowThinker"
+      }
+    );
+
+    if (singleResult) {
+      progressSummary.innerHTML = `
+        <div class="progress-grid">
+          ${renderProgressCard(config.player1.username, singleResult.progress)}
+        </div>
+      `;
+
+      unlockedAchievements.innerHTML = renderAchievements(singleResult.achievements);
+
+      dailyChallengeStatus.innerHTML = `
+        <div class="daily-result-grid">
+          ${renderDailyStatus(config.player1.username, singleResult.daily)}
+        </div>
+      `;
+
+      powerupRewardsBox.innerHTML = `
+        <div class="daily-result-grid">
+          ${renderRewards(config.player1.username, singleResult.rewards, singleResult.coinReward)}
+        </div>
+      `;
+
+      singleResult.achievements.forEach((item) => showAchievementPopup(item.title, item.description));
+    }
+
+    if (config.mode === "tournament") {
+      const tournament = updateTournamentAfterMatch(winner);
+
+      if (!tournament.completed && winner === config.player1.username) {
+        continueTournamentBtn.classList.remove("hidden");
+      }
+
+      if (tournament.completed && tournament.champion) {
+        const bonus = applyTournamentChampionBonus();
+        if (bonus) {
+          powerupRewardsBox.innerHTML += `
+            <div class="daily-result-grid" style="margin-top:12px;">
+              <div class="reward-player-card">
+                <h4>Tournament Champion Bonus</h4>
+                <div class="reward-chip">👑 Champion</div>
+                <div class="reward-chip">🪙 +${bonus.coins} Coins</div>
+                <div class="reward-chip">✨ +${bonus.xp} XP</div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      resultMetaText.textContent = `Category: ${config.category || "math"} | Mode: tournament | Stage: ${config.stage}`;
+    } else {
+      resultMetaText.textContent = `Category: ${config.category || "math"} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
+    }
   }
 
   resultCard.classList.remove("hidden");
@@ -767,7 +904,7 @@ async function nextTurn() {
     updateHeader();
     await generateQuestion();
 
-    if (config.mode === "pc") {
+    if (config.mode === "pc" || config.mode === "tournament") {
       triggerEnemyTurn();
     }
 
@@ -964,6 +1101,12 @@ document.getElementById("sameCategoryRematchBtn").onclick = () => {
     window.location.href = "boss.html";
     return;
   }
+
+  if (config.mode === "tournament") {
+    window.location.href = "tournament.html";
+    return;
+  }
+
   window.location.href = "game.html";
 };
 
@@ -972,6 +1115,12 @@ document.getElementById("newCategoryBtn").onclick = () => {
     window.location.href = "boss.html";
     return;
   }
+
+  if (config.mode === "tournament") {
+    window.location.href = "tournament.html";
+    return;
+  }
+
   window.location.href = "category.html";
 };
 
@@ -979,8 +1128,66 @@ document.getElementById("historyBtn").onclick = () => {
   window.location.href = "leaderboard.html";
 };
 
+continueTournamentBtn.onclick = () => {
+  const raw = localStorage.getItem("damonTournament");
+  if (!raw) {
+    window.location.href = "tournament.html";
+    return;
+  }
+
+  const tournament = JSON.parse(raw);
+
+  if (tournament.currentStage !== "final") {
+    window.location.href = "tournament.html";
+    return;
+  }
+
+  const opponentName = tournament.finalOpponent.username;
+  const opponentAvatar = tournament.finalOpponent.avatar;
+  const opponentPersonality = tournament.finalOpponent.personality;
+
+  state.setBattleConfig({
+    mode: "tournament",
+    stage: "final",
+    category: tournament.category,
+    botDifficulty: tournament.difficulty,
+    botPersonality: opponentPersonality,
+    player1: {
+      username: config.player1.username,
+      avatar: config.player1.avatar
+    },
+    player2: {
+      username: opponentName,
+      avatar: opponentAvatar,
+      isBot: true
+    }
+  });
+
+  window.location.href = "game.html";
+};
+
+function updateSpecialLabel() {
+  if ((config.mode === "pc" || config.mode === "tournament") && config.player2.isBot) {
+    const labels = {
+      slowThinker: "🐢 Bot Personality: Slow Thinker",
+      speedDemon: "⚡ Bot Personality: Speed Demon",
+      trollBot: "😈 Bot Personality: Troll Bot",
+      geniusBot: "🧠 Bot Personality: Genius Bot"
+    };
+
+    botPersonalityText.classList.remove("hidden");
+    botPersonalityText.textContent = labels[config.botPersonality || "slowThinker"];
+  } else if (config.mode === "boss") {
+    botPersonalityText.classList.remove("hidden");
+    botPersonalityText.textContent = `👹 Boss Profile: ${config.bossProfile.name}`;
+  } else {
+    botPersonalityText.classList.add("hidden");
+  }
+}
+
 async function initGame() {
   resultCard.classList.add("hidden");
+  continueTournamentBtn.classList.add("hidden");
   disableAllAnswers("Loading...");
   updateSpecialLabel();
   updateHeader();

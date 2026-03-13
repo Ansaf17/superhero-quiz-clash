@@ -6,6 +6,7 @@ const registerBtn = document.getElementById("registerBtn");
 const pcBtn = document.getElementById("pcBtn");
 const pvpBtn = document.getElementById("pvpBtn");
 const bossBtn = document.getElementById("bossBtn");
+const tournamentBtn = document.getElementById("tournamentBtn");
 const claimDailyBtn = document.getElementById("claimDailyBtn");
 
 const profileToggleBtn = document.getElementById("profileToggleBtn");
@@ -207,6 +208,7 @@ logoutBtn.onclick = () => {
   state.clearCurrentUser();
   state.clearBattleConfig();
   state.clearPvpDraft();
+  localStorage.removeItem("damonTournament");
   refreshSessionUI();
   closeDropdown();
   showMessage("Logged out successfully.", "success");
@@ -235,7 +237,6 @@ claimDailyBtn.onclick = () => {
 
 pcBtn.onclick = () => {
   const currentUser = state.getCurrentUser();
-
   if (!currentUser) {
     showMessage("Log in first to continue.", "error");
     return;
@@ -256,24 +257,29 @@ pcBtn.onclick = () => {
 
 pvpBtn.onclick = () => {
   const currentUser = state.getCurrentUser();
-
   if (!currentUser) {
     showMessage("Log in first to continue.", "error");
     return;
   }
-
   window.location.href = "lobby.html";
 };
 
 bossBtn.onclick = () => {
   const currentUser = state.getCurrentUser();
-
   if (!currentUser) {
     showMessage("Log in first to continue.", "error");
     return;
   }
-
   window.location.href = "boss.html";
+};
+
+tournamentBtn.onclick = () => {
+  const currentUser = state.getCurrentUser();
+  if (!currentUser) {
+    showMessage("Log in first to continue.", "error");
+    return;
+  }
+  window.location.href = "tournament.html";
 };
 
 refreshSessionUI();

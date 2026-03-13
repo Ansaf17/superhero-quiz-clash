@@ -2016,3 +2016,28 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+.tournament-bracket {
+  display: grid;
+  gap: 18px;
+}
+
+.tournament-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.tournament-match-card {
+  text-align: center;
+}
+
+.tournament-status-card {
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  .tournament-stage-grid {
+    grid-template-columns: 1fr;
+  }
+}
