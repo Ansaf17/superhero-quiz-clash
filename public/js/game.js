@@ -221,6 +221,116 @@ function applyStreakBonus(playerKey) {
   }
 }
 
+/* -----------------------------
+   QUESTION GENERATION FUNCTIONS
+------------------------------ */
+
+async function generateMathQuestion() {
+  const a = Math.floor(Math.random() * 10) + 1;
+  const b = Math.floor(Math.random() * 10) + 1;
+  const ops = ["+", "-", "*"];
+  const op = ops[Math.floor(Math.random() * ops.length)];
+
+  let correct = 0;
+  if (op === "+") correct = a + b;
+  if (op === "-") correct = a - b;
+  if (op === "*") correct = a * b;
+
+  questionText.textContent = `Question: ${a} ${op === "*" ? "×" : op} ${b}`;
+
+  const set = new Set([correct]);
+  while (set.size < 4) {
+    set.add(correct + (Math.floor(Math.random() * 7) - 3));
+  }
+
+  setOptions(Array.from(set), correct);
+}
+
+async function generateBananaQuestion() {
+  const response = await fetch("https://marcconrad.com/uob/banana/api.php");
+  const data = await response.json();
+  const solution = Number(data.solution);
+
+  questionText.innerHTML = `
+    <div>
+      <p>Solve the Banana Puzzle</p>
+      <img src="${data.question}" alt="Banana puzzle">
+    </div>
+  `;
+
+  const set = new Set([solution]);
+  while (set.size < 4) {
+    set.add(solution + (Math.floor(Math.random() * 7) - 3));
+  }
+
+  setOptions(Array.from(set), solution);
+}
+
+async function generateGeneralQuestion() {
+  const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple");
+  const data = await response.json();
+
+  if (!data.results || !data.results.length) {
+    throw new Error("No general question returned");
+  }
+
+  const q = data.results[0];
+  const question = state.decodeHtml(q.question);
+  const correct = state.decodeHtml(q.correct_answer);
+  const incorrect = q.incorrect_answers.map((a) => state.decodeHtml(a));
+
+  questionText.textContent = `Question: ${question}`;
+  setOptions([correct, ...incorrect], correct);
+}
+
+async function generateProgrammingQuestion() {
+  const response = await fetch("https://opentdb.com/api.php?amount=1&category=18&type=multiple");
+  const data = await response.json();
+
+  if (!data.results || !data.results.length) {
+    throw new Error("No programming question returned");
+  }
+
+  const q = data.results[0];
+  const question = state.decodeHtml(q.question);
+  const correct = state.decodeHtml(q.correct_answer);
+  const incorrect = q.incorrect_answers.map((a) => state.decodeHtml(a));
+
+  questionText.textContent = `Question: ${question}`;
+  setOptions([correct, ...incorrect], correct);
+}
+
+async function generateQuestion() {
+  resetAnswers();
+
+  try {
+    if (config.category === "math") {
+      await generateMathQuestion();
+    } else if (config.category === "banana") {
+      await generateBananaQuestion();
+    } else if (config.category === "general") {
+      await generateGeneralQuestion();
+    } else if (config.category === "programming") {
+      await generateProgrammingQuestion();
+    } else {
+      await generateMathQuestion();
+    }
+
+    startTimer();
+    updatePowerupUI();
+  } catch (err) {
+    console.error(err);
+    showMessage("Question API failed. Falling back to maths.", "error");
+    await generateMathQuestion();
+    startTimer();
+    updatePowerupUI();
+  }
+}
+
+/* -----------------------------
+   BOT PERSONALITY / AI
+------------------------------ */
+
 function getBotProfile() {
   const personality = config.botPersonality || "slowThinker";
   const difficulty = config.botDifficulty || "easy";
@@ -347,6 +457,10 @@ function triggerBotTurn() {
   }, delay);
 }
 
+/* -----------------------------
+   RESULT / PROGRESSION
+------------------------------ */
+
 function getResultBadge(winner) {
   if (winner === "draw") return "🤝";
 
@@ -470,6 +584,10 @@ function finishMatch() {
   }
 }
 
+/* -----------------------------
+   TURN FLOW
+------------------------------ */
+
 async function nextTurn() {
   resetAnswers();
   turnLocked = false;
@@ -531,7 +649,7 @@ function handleTimeUp() {
 function handleAnswerClick(index) {
   if (turnLocked) return;
 
-  if (answerButtons[index].hidden || answerButtons[index].disabled && !answerButtons[index].classList.contains("correct")) {
+  if (answerButtons[index].hidden || (answerButtons[index].disabled && !answerButtons[index].classList.contains("correct"))) {
     return;
   }
 
@@ -589,6 +707,10 @@ function handleAnswerClick(index) {
 
   setTimeout(() => nextTurn(), 1200);
 }
+
+/* -----------------------------
+   POWERUPS
+------------------------------ */
 
 powerup5050Btn.onclick = () => {
   if (turnLocked) return;
@@ -655,6 +777,10 @@ powerupDoubleBtn.onclick = () => {
   showMessage(`${getCurrentPlayerName()} activated Double Points!`, "success");
 };
 
+/* -----------------------------
+   BUTTON BINDINGS
+------------------------------ */
+
 answerButtons.forEach((btn, idx) => {
   btn.onclick = () => handleAnswerClick(idx);
 });
@@ -682,6 +808,10 @@ document.getElementById("historyBtn").onclick = () => {
     window.location.href = "leaderboard.html";
   }
 };
+
+/* -----------------------------
+   INIT
+------------------------------ */
 
 resultCard.classList.add("hidden");
 updateBotPersonalityLabel();
