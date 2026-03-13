@@ -42,7 +42,6 @@
       <p style="text-align:center;">Round: <span id="roundNumber">1</span> / 5</p>
 
       <div id="botPersonalityText" class="bot-personality-text hidden"></div>
-
       <div id="streakBanner" class="streak-banner hidden"></div>
 
       <div class="powerups-panel">
@@ -67,7 +66,8 @@
       </div>
     </section>
 
-    <section class="card hidden result-polish-card" id="resultCard">
+    <section class="card hidden result-polish-card victory-card" id="resultCard">
+      <div class="victory-glow"></div>
       <div class="result-badge" id="resultBadge">🏅</div>
       <h2>Battle Result</h2>
       <p id="winnerText"></p>
@@ -75,6 +75,16 @@
       <p id="resultMetaText" class="result-meta-text"></p>
 
       <div id="progressSummary" class="progress-summary"></div>
+
+      <section class="result-section">
+        <h3>Unlocked Achievements</h3>
+        <div id="unlockedAchievements" class="result-achievement-list"></div>
+      </section>
+
+      <section class="result-section">
+        <h3>Daily Challenge Progress</h3>
+        <div id="dailyChallengeStatus" class="daily-result-list"></div>
+      </section>
 
       <div class="result-actions">
         <button id="sameCategoryRematchBtn" type="button">Rematch Same Category</button>

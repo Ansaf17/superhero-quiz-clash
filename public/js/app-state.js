@@ -1,5 +1,7 @@
 window.DamonState = {
   normalizeUser(user) {
+    const today = new Date().toISOString().split("T")[0];
+
     return {
       username: user.username || "",
       password: user.password || "",
@@ -12,12 +14,15 @@ window.DamonState = {
       level: Number(user.level || 1),
       rankTitle: user.rankTitle || "Rookie",
       leaderboardTier: user.leaderboardTier || "Bronze",
+      winStreak: Number(user.winStreak || 0),
+      bestWinStreak: Number(user.bestWinStreak || 0),
       achievements: Array.isArray(user.achievements) ? user.achievements : [],
       dailyProgress: user.dailyProgress || {
-        correctToday: 0,
-        matchesToday: 0,
-        winsToday: 0,
-        lastUpdated: new Date().toISOString().split("T")[0]
+        date: today,
+        matchesPlayed: 0,
+        wins: 0,
+        correctAnswers: 0,
+        bananaPlayed: false
       }
     };
   },
@@ -195,7 +200,152 @@ window.DamonState = {
     };
   },
 
-  saveUserStats(player1Username, player2Username, player1Score, player2Score, winner, category, mode) {
+  getTodayString() {
+    return new Date().toISOString().split("T")[0];
+  },
+
+  resetDailyProgressIfNeeded(user) {
+    const today = this.getTodayString();
+
+    if (!user.dailyProgress || user.dailyProgress.date !== today) {
+      user.dailyProgress = {
+        date: today,
+        matchesPlayed: 0,
+        wins: 0,
+        correctAnswers: 0,
+        bananaPlayed: false
+      };
+    }
+  },
+
+  getAchievementDefinitions() {
+    return [
+      {
+        id: "first_win",
+        title: "First Win",
+        description: "Win your first match."
+      },
+      {
+        id: "ten_wins",
+        title: "10 Wins",
+        description: "Reach 10 total wins."
+      },
+      {
+        id: "hundred_points",
+        title: "100 Points",
+        description: "Reach 100 total points."
+      },
+      {
+        id: "five_win_streak",
+        title: "5 Win Streak",
+        description: "Win 5 matches in a row."
+      }
+    ];
+  },
+
+  getAchievementMap() {
+    const defs = this.getAchievementDefinitions();
+    const map = {};
+    defs.forEach((item) => {
+      map[item.id] = item;
+    });
+    return map;
+  },
+
+  unlockAchievements(user) {
+    const unlocked = [];
+    const current = new Set(user.achievements);
+    const defs = this.getAchievementMap();
+
+    const checks = [
+      { id: "first_win", condition: user.totalWins >= 1 },
+      { id: "ten_wins", condition: user.totalWins >= 10 },
+      { id: "hundred_points", condition: user.totalPoints >= 100 },
+      { id: "five_win_streak", condition: user.winStreak >= 5 }
+    ];
+
+    checks.forEach((check) => {
+      if (check.condition && !current.has(check.id)) {
+        user.achievements.push(check.id);
+        unlocked.push(defs[check.id]);
+      }
+    });
+
+    return unlocked;
+  },
+
+  getDailyChallengeDefinitions() {
+    return [
+      {
+        id: "daily_win_1",
+        title: "Daily Challenger",
+        description: "Win 1 match today."
+      },
+      {
+        id: "daily_correct_5",
+        title: "Sharp Mind",
+        description: "Answer 5 questions correctly today."
+      },
+      {
+        id: "daily_banana_1",
+        title: "Banana Trouble",
+        description: "Play 1 Banana API match today."
+      }
+    ];
+  },
+
+  getDailyChallengeStatuses(user) {
+    this.resetDailyProgressIfNeeded(user);
+
+    const defs = this.getDailyChallengeDefinitions();
+
+    return defs.map((challenge) => {
+      let completed = false;
+
+      if (challenge.id === "daily_win_1") {
+        completed = user.dailyProgress.wins >= 1;
+      } else if (challenge.id === "daily_correct_5") {
+        completed = user.dailyProgress.correctAnswers >= 5;
+      } else if (challenge.id === "daily_banana_1") {
+        completed = user.dailyProgress.bananaPlayed === true;
+      }
+
+      return {
+        ...challenge,
+        completed
+      };
+    });
+  },
+
+  updateDailyProgress(user, category, correctAnswers, won) {
+    this.resetDailyProgressIfNeeded(user);
+
+    user.dailyProgress.matchesPlayed += 1;
+    user.dailyProgress.correctAnswers += correctAnswers;
+
+    if (won) {
+      user.dailyProgress.wins += 1;
+    }
+
+    if (category === "banana") {
+      user.dailyProgress.bananaPlayed = true;
+    }
+
+    return this.getDailyChallengeStatuses(user);
+  },
+
+  updateWinStreak(user, winner) {
+    if (winner === user.username) {
+      user.winStreak += 1;
+      if (user.winStreak > user.bestWinStreak) {
+        user.bestWinStreak = user.winStreak;
+      }
+    } else if (winner !== "draw") {
+      user.winStreak = 0;
+    }
+  },
+
+  saveUserStats(player1Username, player2Username, player1Score, player2Score, winner, category, mode, extra = {}) {
     const users = this.getUsers();
 
     const player1 = users.find((u) => u.username === player1Username);
@@ -204,6 +354,9 @@ window.DamonState = {
     if (!player1 || !player2) {
       return null;
     }
+
+    const player1CorrectAnswers = Number(extra.player1CorrectAnswers || 0);
+    const player2CorrectAnswers = Number(extra.player2CorrectAnswers || 0);
 
     player1.totalPoints += player1Score;
     player2.totalPoints += player2Score;
@@ -219,14 +372,20 @@ window.DamonState = {
       player1.totalLosses += 1;
     }
 
-    player1.leaderboardTier = this.getLeaderboardTier(player1.totalWins);
-    player2.leaderboardTier = this.getLeaderboardTier(player2.totalWins);
+    this.updateWinStreak(player1, winner);
+    this.updateWinStreak(player2, winner);
 
     const player1XpGain = this.calculateXpGain(player1Score, winner, player1.username);
     const player2XpGain = this.calculateXpGain(player2Score, winner, player2.username);
 
     const player1Progress = this.applyProgress(player1, player1XpGain);
     const player2Progress = this.applyProgress(player2, player2XpGain);
+
+    const player1Achievements = this.unlockAchievements(player1);
+    const player2Achievements = this.unlockAchievements(player2);
+
+    const player1Daily = this.updateDailyProgress(player1, category, player1CorrectAnswers, winner === player1.username);
+    const player2Daily = this.updateDailyProgress(player2, category, player2CorrectAnswers, winner === player2.username);
 
     this.saveUsers(users);
 
@@ -249,6 +408,8 @@ window.DamonState = {
       mode,
       player1XpGain,
       player2XpGain,
+      player1CorrectAnswers,
+      player2CorrectAnswers,
       date: new Date().toLocaleString()
     });
     this.saveMatches(matches);
@@ -281,7 +442,66 @@ window.DamonState = {
 
     return {
       player1Progress,
-      player2Progress
+      player2Progress,
+      player1Achievements,
+      player2Achievements,
+      player1Daily,
+      player2Daily
+    };
+  },
+
+  saveSinglePlayerStats(username, opponentName, playerScore, opponentScore, winner, category, mode, extra = {}) {
+    const users = this.getUsers();
+    const player = users.find((u) => u.username === username);
+
+    if (!player) {
+      return null;
+    }
+
+    const correctAnswers = Number(extra.correctAnswers || 0);
+
+    player.totalPoints += playerScore;
+    player.matchesPlayed += 1;
+
+    if (winner === player.username) {
+      player.totalWins += 1;
+    } else if (winner !== "draw") {
+      player.totalLosses += 1;
+    }
+
+    this.updateWinStreak(player, winner);
+
+    const xpGain = this.calculateXpGain(playerScore, winner, player.username);
+    const progress = this.applyProgress(player, xpGain);
+    const achievements = this.unlockAchievements(player);
+    const daily = this.updateDailyProgress(player, category, correctAnswers, winner === player.username);
+
+    this.saveUsers(users);
+    this.setCurrentUser(player);
+
+    const matches = this.getMatches();
+    matches.push({
+      player1: username,
+      player2: opponentName,
+      player1Score: playerScore,
+      player2Score: opponentScore,
+      winner,
+      category,
+      mode,
+      player1XpGain: xpGain,
+      player2XpGain: 0,
+      player1CorrectAnswers: correctAnswers,
+      player2CorrectAnswers: 0,
+      difficulty: extra.difficulty || "easy",
+      personality: extra.personality || "slowThinker",
+      date: new Date().toLocaleString()
+    });
+    this.saveMatches(matches);
+
+    return {
+      progress,
+      achievements,
+      daily
     };
   }
 };

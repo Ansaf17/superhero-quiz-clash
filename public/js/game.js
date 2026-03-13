@@ -27,6 +27,8 @@ const winnerText = document.getElementById("winnerText");
 const finalScoreText = document.getElementById("finalScoreText");
 const resultMetaText = document.getElementById("resultMetaText");
 const progressSummary = document.getElementById("progressSummary");
+const unlockedAchievements = document.getElementById("unlockedAchievements");
+const dailyChallengeStatus = document.getElementById("dailyChallengeStatus");
 const streakBanner = document.getElementById("streakBanner");
 const botPersonalityText = document.getElementById("botPersonalityText");
 
@@ -55,6 +57,8 @@ let botThinkingTimeout = null;
 
 let player1Streak = 0;
 let player2Streak = 0;
+let player1CorrectAnswers = 0;
+let player2CorrectAnswers = 0;
 let removedIndexes = [];
 
 let player1Powerups = {
@@ -221,10 +225,6 @@ function applyStreakBonus(playerKey) {
   }
 }
 
-/* -----------------------------
-   QUESTION GENERATION FUNCTIONS
------------------------------- */
-
 async function generateMathQuestion() {
   const a = Math.floor(Math.random() * 10) + 1;
   const b = Math.floor(Math.random() * 10) + 1;
@@ -326,10 +326,6 @@ async function generateQuestion() {
     updatePowerupUI();
   }
 }
-
-/* -----------------------------
-   BOT PERSONALITY / AI
------------------------------- */
 
 function getBotProfile() {
   const personality = config.botPersonality || "slowThinker";
@@ -457,10 +453,6 @@ function triggerBotTurn() {
   }, delay);
 }
 
-/* -----------------------------
-   RESULT / PROGRESSION
------------------------------- */
-
 function getResultBadge(winner) {
   if (winner === "draw") return "🤝";
 
@@ -486,6 +478,39 @@ function renderProgressCard(title, progress) {
   `;
 }
 
+function renderAchievements(items) {
+  if (!items || items.length === 0) {
+    return `<div class="mini-info-card">No new achievements unlocked this match.</div>`;
+  }
+
+  return items.map((item) => `
+    <div class="mini-achievement-card">
+      <div class="mini-achievement-icon">🏆</div>
+      <div>
+        <strong>${item.title}</strong>
+        <p>${item.description}</p>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderDailyStatus(title, items) {
+  return `
+    <div class="daily-player-card">
+      <h4>${title}</h4>
+      ${items.map((item) => `
+        <div class="daily-result-item ${item.completed ? "daily-ok" : "daily-pending"}">
+          <span>${item.completed ? "✅" : "🎯"}</span>
+          <div>
+            <strong>${item.title}</strong>
+            <p>${item.description}</p>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 function finishMatch() {
   stopTimer();
   stopBotThinking();
@@ -507,6 +532,8 @@ function finishMatch() {
 
   let progressSummaryText = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
   progressSummary.innerHTML = "";
+  unlockedAchievements.innerHTML = "";
+  dailyChallengeStatus.innerHTML = "";
 
   if (!config.player2.isBot) {
     const result = state.saveUserStats(
@@ -516,7 +543,11 @@ function finishMatch() {
       player2Score,
       winner,
       config.category,
-      config.mode
+      config.mode,
+      {
+        player1CorrectAnswers,
+        player2CorrectAnswers
+      }
     );
 
     if (result) {
@@ -526,50 +557,55 @@ function finishMatch() {
           ${renderProgressCard(config.player2.username, result.player2Progress)}
         </div>
       `;
+
+      unlockedAchievements.innerHTML = `
+        <div class="unlock-grid">
+          <div>
+            <h4>${config.player1.username}</h4>
+            ${renderAchievements(result.player1Achievements)}
+          </div>
+          <div>
+            <h4>${config.player2.username}</h4>
+            ${renderAchievements(result.player2Achievements)}
+          </div>
+        </div>
+      `;
+
+      dailyChallengeStatus.innerHTML = `
+        <div class="daily-result-grid">
+          ${renderDailyStatus(config.player1.username, result.player1Daily)}
+          ${renderDailyStatus(config.player2.username, result.player2Daily)}
+        </div>
+      `;
     }
   } else {
-    const users = state.getUsers();
-    const p1 = users.find((u) => u.username === config.player1.username);
-
-    if (p1) {
-      p1.totalPoints += player1Score;
-      p1.matchesPlayed += 1;
-
-      if (winner === p1.username) {
-        p1.totalWins += 1;
-      } else if (winner !== "draw") {
-        p1.totalLosses += 1;
-      }
-
-      p1.leaderboardTier = state.getLeaderboardTier(p1.totalWins);
-
-      const xpGain = state.calculateXpGain(player1Score, winner, p1.username);
-      const progress = state.applyProgress(p1, xpGain);
-
-      state.saveUsers(users);
-      state.setCurrentUser(p1);
-
-      const matches = state.getMatches();
-      matches.push({
-        player1: config.player1.username,
-        player2: config.player2.username,
-        player1Score,
-        player2Score,
-        winner,
-        category: config.category,
-        mode: config.mode,
+    const single = state.saveSinglePlayerStats(
+      config.player1.username,
+      config.player2.username,
+      player1Score,
+      player2Score,
+      winner,
+      config.category,
+      config.mode,
+      {
+        correctAnswers: player1CorrectAnswers,
         difficulty: config.botDifficulty || "easy",
-        personality: config.botPersonality || "slowThinker",
-        timer: turnTimeLimit,
-        player1XpGain: xpGain,
-        player2XpGain: 0,
-        date: new Date().toLocaleString()
-      });
-      state.saveMatches(matches);
+        personality: config.botPersonality || "slowThinker"
+      }
+    );
 
+    if (single) {
       progressSummary.innerHTML = `
         <div class="progress-grid">
-          ${renderProgressCard(config.player1.username, progress)}
+          ${renderProgressCard(config.player1.username, single.progress)}
+        </div>
+      `;
+
+      unlockedAchievements.innerHTML = renderAchievements(single.achievements);
+
+      dailyChallengeStatus.innerHTML = `
+        <div class="daily-result-grid">
+          ${renderDailyStatus(config.player1.username, single.daily)}
         </div>
       `;
     }
@@ -579,14 +615,14 @@ function finishMatch() {
   resultCard.classList.remove("hidden");
   showMessage("Match completed successfully.", "success");
 
+  if (window.DamonAudio) {
+    window.DamonAudio.playVictory();
+  }
+
   if (window.DamonFX && winner !== "draw") {
     window.DamonFX.playWin();
   }
 }
-
-/* -----------------------------
-   TURN FLOW
------------------------------- */
 
 async function nextTurn() {
   resetAnswers();
@@ -638,8 +674,8 @@ function handleTimeUp() {
   answerButtons[correctIndex].classList.add("correct");
   showMessage("Time is up! Turn skipped.", "error");
 
-  if (window.DamonFX) {
-    window.DamonFX.playTimeout();
+  if (window.DamonAudio) {
+    window.DamonAudio.playTimeout();
   }
 
   updateHeader();
@@ -667,12 +703,14 @@ function handleAnswerClick(index) {
     if (currentTurn === "player1") {
       player1Score += awardedPoints;
       player1Streak += 1;
+      player1CorrectAnswers += 1;
       applyStreakBonus("player1");
       player2Streak = 0;
       player1Powerups.doublePointsActive = false;
     } else {
       player2Score += awardedPoints;
       player2Streak += 1;
+      player2CorrectAnswers += 1;
       applyStreakBonus("player2");
       player1Streak = 0;
       player2Powerups.doublePointsActive = false;
@@ -680,8 +718,8 @@ function handleAnswerClick(index) {
 
     showMessage(`Correct answer! +${awardedPoints} points`, "success");
 
-    if (window.DamonFX) {
-      window.DamonFX.playCorrect();
+    if (window.DamonAudio) {
+      window.DamonAudio.playCorrect();
     }
   } else {
     answerButtons[index].classList.add("wrong");
@@ -695,8 +733,8 @@ function handleAnswerClick(index) {
 
     showMessage("Wrong answer!", "error");
 
-    if (window.DamonFX) {
-      window.DamonFX.playWrong();
+    if (window.DamonAudio) {
+      window.DamonAudio.playWrong();
     }
   }
 
@@ -707,10 +745,6 @@ function handleAnswerClick(index) {
 
   setTimeout(() => nextTurn(), 1200);
 }
-
-/* -----------------------------
-   POWERUPS
------------------------------- */
 
 powerup5050Btn.onclick = () => {
   if (turnLocked) return;
@@ -777,10 +811,6 @@ powerupDoubleBtn.onclick = () => {
   showMessage(`${getCurrentPlayerName()} activated Double Points!`, "success");
 };
 
-/* -----------------------------
-   BUTTON BINDINGS
------------------------------- */
-
 answerButtons.forEach((btn, idx) => {
   btn.onclick = () => handleAnswerClick(idx);
 });
@@ -808,10 +838,6 @@ document.getElementById("historyBtn").onclick = () => {
     window.location.href = "leaderboard.html";
   }
 };
-
-/* -----------------------------
-   INIT
------------------------------- */
 
 resultCard.classList.add("hidden");
 updateBotPersonalityLabel();

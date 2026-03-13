@@ -1,113 +1,55 @@
 const SOUND_KEY = "damon_sound_enabled";
 
-const menuMusic = new Audio("./audio/menu.mp3");
-const battleMusic = new Audio("./audio/battle.mp3");
-
-menuMusic.loop = true;
-battleMusic.loop = true;
-
-menuMusic.volume = 0.35;
-battleMusic.volume = 0.55;
-
-let musicStarted = false;
-
-/* Check if music enabled */
-
 function isMusicEnabled() {
   const saved = localStorage.getItem(SOUND_KEY);
   return saved === null ? true : saved === "true";
 }
 
-/* Stop all music */
-
-function stopAllMusic() {
-  menuMusic.pause();
-  battleMusic.pause();
-}
-
-/* Menu music */
-
-function playMenuMusic() {
-
+function safePlay(audio) {
   if (!isMusicEnabled()) return;
-
-  battleMusic.pause();
-
-  menuMusic.play().catch(()=>{});
-
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
 }
 
-/* Battle music */
+const correctSfx = new Audio("./audio/correct.wav");
+const wrongSfx = new Audio("./audio/wrong.wav");
+const timerSfx = new Audio("./audio/timer.wav");
+const victorySfx = new Audio("./audio/victory.wav");
 
-function playBattleMusic() {
+correctSfx.volume = 0.5;
+wrongSfx.volume = 0.5;
+timerSfx.volume = 0.45;
+victorySfx.volume = 0.65;
 
-  if (!isMusicEnabled()) return;
-
-  menuMusic.pause();
-
-  battleMusic.currentTime = 0;
-
-  battleMusic.play().catch(()=>{});
-
-}
-
-/* Return to menu */
-
-function returnMenuMusic() {
-
-  if (!isMusicEnabled()) return;
-
-  battleMusic.pause();
-
-  playMenuMusic();
-
-}
-
-/* Toggle */
+/* Keep old methods safe/no-op */
+function playMenuMusic() {}
+function playBattleMusic() {}
+function returnMenuMusic() {}
+function stopAllMusic() {}
 
 function toggleMusic() {
-
   const enabled = isMusicEnabled();
-
-  if (enabled) {
-
-    localStorage.setItem(SOUND_KEY,"false");
-    stopAllMusic();
-
-  } else {
-
-    localStorage.setItem(SOUND_KEY,"true");
-    playMenuMusic();
-
-  }
-
+  localStorage.setItem(SOUND_KEY, String(!enabled));
+  return !enabled;
 }
-
-/* First interaction fix */
-
-function enableMusicOnFirstInteraction() {
-
-  if (musicStarted) return;
-
-  musicStarted = true;
-
-  if (isMusicEnabled()) {
-    playMenuMusic();
-  }
-
-}
-
-/* Wait for user interaction */
-
-document.addEventListener("click", enableMusicOnFirstInteraction, {once:true});
-document.addEventListener("keydown", enableMusicOnFirstInteraction, {once:true});
-document.addEventListener("touchstart", enableMusicOnFirstInteraction, {once:true});
 
 window.DamonAudio = {
+  isMusicEnabled,
+  toggleMusic,
   playMenuMusic,
   playBattleMusic,
   returnMenuMusic,
   stopAllMusic,
-  toggleMusic,
-  isMusicEnabled
+  playCorrect() {
+    safePlay(correctSfx);
+  },
+  playWrong() {
+    safePlay(wrongSfx);
+  },
+  playTimeout() {
+    safePlay(timerSfx);
+  },
+  playVictory() {
+    safePlay(victorySfx);
+  }
 };
