@@ -16,11 +16,14 @@ const p1ScoreEl = document.getElementById("p1Score");
 const p2ScoreEl = document.getElementById("p2Score");
 const p1StreakDisplay = document.getElementById("p1StreakDisplay");
 const p2StreakDisplay = document.getElementById("p2StreakDisplay");
+const p2StreakRow = document.getElementById("p2StreakRow");
 const turnIndicator = document.getElementById("turnIndicator");
 const timerText = document.getElementById("timerText");
 const roundNumber = document.getElementById("roundNumber");
+const roundTotal = document.getElementById("roundTotal");
 const questionText = document.getElementById("questionText");
 const answerButtons = document.querySelectorAll(".answer-btn");
+
 const resultCard = document.getElementById("resultCard");
 const resultBadge = document.getElementById("resultBadge");
 const winnerText = document.getElementById("winnerText");
@@ -30,6 +33,7 @@ const progressSummary = document.getElementById("progressSummary");
 const unlockedAchievements = document.getElementById("unlockedAchievements");
 const dailyChallengeStatus = document.getElementById("dailyChallengeStatus");
 const powerupRewardsBox = document.getElementById("powerupRewardsBox");
+
 const streakBanner = document.getElementById("streakBanner");
 const botPersonalityText = document.getElementById("botPersonalityText");
 const achievementPopupStack = document.getElementById("achievementPopupStack");
@@ -55,8 +59,9 @@ let player1Score = 0;
 let player2Score = 0;
 let currentTurn = "player1";
 let currentRound = 1;
-let correctIndex = 0;
-let turnLocked = false;
+let correctIndex = -1;
+let questionReady = false;
+let turnLocked = true;
 let timerInterval = null;
 let timeLeft = turnTimeLimit;
 let botThinkingTimeout = null;
@@ -66,7 +71,6 @@ let player2Streak = 0;
 let player1CorrectAnswers = 0;
 let player2CorrectAnswers = 0;
 let removedIndexes = [];
-
 let bossHp = config.mode === "boss" ? Number(config.bossProfile?.hp || 50) : 0;
 
 const freshUsers = state.getUsers();
@@ -82,20 +86,8 @@ let player1Powerups = {
 
 let player2Powerups =
   config.mode === "pc" || config.mode === "boss"
-    ? {
-        fiftyFifty: 1,
-        skip: 1,
-        extraTime: 1,
-        doublePoints: 1,
-        doublePointsActive: false
-      }
-    : {
-        fiftyFifty: 1,
-        skip: 1,
-        extraTime: 1,
-        doublePoints: 1,
-        doublePointsActive: false
-      };
+    ? { fiftyFifty: 1, skip: 1, extraTime: 1, doublePoints: 1, doublePointsActive: false }
+    : { fiftyFifty: 1, skip: 1, extraTime: 1, doublePoints: 1, doublePointsActive: false };
 
 function showMessage(text, type) {
   messageBox.textContent = text;
@@ -154,6 +146,15 @@ function launchConfetti() {
   }, 3000);
 }
 
+function disableAllAnswers(label = "Loading...") {
+  answerButtons.forEach((btn) => {
+    btn.disabled = true;
+    btn.hidden = false;
+    btn.textContent = label;
+    btn.classList.remove("correct", "wrong", "faded");
+  });
+}
+
 function getCurrentPowerupSet() {
   return currentTurn === "player1" ? player1Powerups : player2Powerups;
 }
@@ -166,11 +167,13 @@ function updateBossUI() {
   if (config.mode === "boss") {
     bossBanner.classList.remove("hidden");
     bossHpRow.classList.remove("hidden");
+    p2StreakRow.classList.add("hidden");
     bossBanner.textContent = `👹 Boss Battle: ${config.bossProfile.name}`;
     bossHpText.textContent = bossHp;
   } else {
     bossBanner.classList.add("hidden");
     bossHpRow.classList.add("hidden");
+    p2StreakRow.classList.remove("hidden");
   }
 }
 
@@ -182,16 +185,13 @@ function updatePowerupUI() {
   powerupTimeCount.textContent = powerups.extraTime;
   powerupDoubleCount.textContent = powerups.doublePoints;
 
-  powerup5050Btn.disabled = turnLocked || powerups.fiftyFifty <= 0;
-  powerupSkipBtn.disabled = turnLocked || powerups.skip <= 0;
-  powerupTimeBtn.disabled = turnLocked || powerups.extraTime <= 0;
-  powerupDoubleBtn.disabled = turnLocked || powerups.doublePoints <= 0 || powerups.doublePointsActive;
+  powerup5050Btn.disabled = turnLocked || !questionReady || powerups.fiftyFifty <= 0;
+  powerupSkipBtn.disabled = turnLocked || !questionReady || powerups.skip <= 0;
+  powerupTimeBtn.disabled = turnLocked || !questionReady || powerups.extraTime <= 0;
+  powerupDoubleBtn.disabled = turnLocked || !questionReady || powerups.doublePoints <= 0 || powerups.doublePointsActive;
 
-  if (powerups.doublePointsActive) {
-    powerupDoubleBtn.classList.add("active");
-  } else {
-    powerupDoubleBtn.classList.remove("active");
-  }
+  if (powerups.doublePointsActive) powerupDoubleBtn.classList.add("active");
+  else powerupDoubleBtn.classList.remove("active");
 
   if ((config.mode === "pc" && currentTurn === "player2") || (config.mode === "boss" && currentTurn === "player2")) {
     powerup5050Btn.disabled = true;
@@ -211,6 +211,7 @@ function updateHeader() {
   p1StreakDisplay.textContent = player1Streak;
   p2StreakDisplay.textContent = player2Streak;
   roundNumber.textContent = currentRound;
+  roundTotal.textContent = totalRounds;
   turnIndicator.textContent = `Turn: ${currentTurn === "player1" ? config.player1.username : config.player2.username}`;
   updatePowerupUI();
   updateBossUI();
@@ -248,12 +249,9 @@ function startTimer() {
 
 function resetAnswers() {
   removedIndexes = [];
-  answerButtons.forEach((btn) => {
-    btn.classList.remove("correct", "wrong", "faded");
-    btn.disabled = false;
-    btn.hidden = false;
-    btn.textContent = "Loading...";
-  });
+  questionReady = false;
+  correctIndex = -1;
+  disableAllAnswers("Loading...");
 }
 
 function setOptions(options, correctValue) {
@@ -261,11 +259,15 @@ function setOptions(options, correctValue) {
   correctIndex = shuffled.indexOf(correctValue);
 
   answerButtons.forEach((btn, idx) => {
-    btn.textContent = shuffled[idx];
+    btn.textContent = String(shuffled[idx]);
     btn.disabled = false;
     btn.hidden = false;
     btn.classList.remove("correct", "wrong", "faded");
   });
+
+  questionReady = true;
+  turnLocked = false;
+  updatePowerupUI();
 }
 
 function applyStreakBonus(playerKey) {
@@ -281,11 +283,8 @@ function applyStreakBonus(playerKey) {
     username = config.player2.username;
   }
 
-  if (streak > 0 && streak % 5 === 0) {
-    bonus = 10;
-  } else if (streak > 0 && streak % 3 === 0) {
-    bonus = 5;
-  }
+  if (streak > 0 && streak % 5 === 0) bonus = 10;
+  else if (streak > 0 && streak % 3 === 0) bonus = 5;
 
   if (bonus > 0) {
     if (playerKey === "player1") player1Score += bonus;
@@ -310,16 +309,20 @@ async function generateMathQuestion() {
 
   const set = new Set([correct]);
   while (set.size < 4) {
-    set.add(correct + (Math.floor(Math.random() * 7) - 3));
+    set.add(correct + (Math.floor(Math.random() * 9) - 4));
   }
 
   setOptions(Array.from(set), correct);
 }
 
 async function generateBananaQuestion() {
-  const response = await fetch("https://marcconrad.com/uob/banana/api.php");
+  const response = await fetch("https://marcconrad.com/uob/banana/api.php", { cache: "no-store" });
   const data = await response.json();
   const solution = Number(data.solution);
+
+  if (!data.question || Number.isNaN(solution)) {
+    throw new Error("Invalid banana question");
+  }
 
   questionText.innerHTML = `
     <div>
@@ -330,14 +333,14 @@ async function generateBananaQuestion() {
 
   const set = new Set([solution]);
   while (set.size < 4) {
-    set.add(solution + (Math.floor(Math.random() * 7) - 3));
+    set.add(solution + (Math.floor(Math.random() * 9) - 4));
   }
 
   setOptions(Array.from(set), solution);
 }
 
 async function generateGeneralQuestion() {
-  const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple");
+  const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple", { cache: "no-store" });
   const data = await response.json();
 
   if (!data.results || !data.results.length) {
@@ -354,7 +357,7 @@ async function generateGeneralQuestion() {
 }
 
 async function generateProgrammingQuestion() {
-  const response = await fetch("https://opentdb.com/api.php?amount=1&category=18&type=multiple");
+  const response = await fetch("https://opentdb.com/api.php?amount=1&category=18&type=multiple", { cache: "no-store" });
   const data = await response.json();
 
   if (!data.results || !data.results.length) {
@@ -372,39 +375,30 @@ async function generateProgrammingQuestion() {
 
 async function generateQuestion() {
   resetAnswers();
+  updateHeader();
 
   try {
-    if (config.category === "math") {
-      await generateMathQuestion();
-    } else if (config.category === "banana") {
-      await generateBananaQuestion();
-    } else if (config.category === "general") {
-      await generateGeneralQuestion();
-    } else if (config.category === "programming") {
-      await generateProgrammingQuestion();
-    } else {
-      await generateMathQuestion();
-    }
+    const category = config.category || "math";
+
+    if (category === "math") await generateMathQuestion();
+    else if (category === "banana") await generateBananaQuestion();
+    else if (category === "general") await generateGeneralQuestion();
+    else if (category === "programming") await generateProgrammingQuestion();
+    else await generateMathQuestion();
 
     startTimer();
-    updatePowerupUI();
   } catch (err) {
-    console.error(err);
+    console.error("Question generation failed:", err);
     showMessage("Question API failed. Falling back to maths.", "error");
     await generateMathQuestion();
     startTimer();
-    updatePowerupUI();
   }
 }
 
 function getBotProfile() {
   if (config.mode === "boss") {
-    if (config.bossProfile.id === "ironTitan") {
-      return { accuracy: 0.7, minDelay: 2200, maxDelay: 3500 };
-    }
-    if (config.bossProfile.id === "shadowBrain") {
-      return { accuracy: 0.85, minDelay: 1200, maxDelay: 2200 };
-    }
+    if (config.bossProfile.id === "ironTitan") return { accuracy: 0.7, minDelay: 2200, maxDelay: 3500 };
+    if (config.bossProfile.id === "shadowBrain") return { accuracy: 0.85, minDelay: 1200, maxDelay: 2200 };
     return { accuracy: 0.78, minDelay: 1500, maxDelay: 2800 };
   }
 
@@ -474,9 +468,7 @@ function getBotChoiceIndex() {
   const profile = getBotProfile();
   const shouldBeCorrect = Math.random() < profile.accuracy;
 
-  if (shouldBeCorrect) {
-    return correctIndex;
-  }
+  if (shouldBeCorrect) return correctIndex;
 
   const availableIndexes = [0, 1, 2, 3].filter((index) => !removedIndexes.includes(index));
   const wrongIndexes = availableIndexes.filter((index) => index !== correctIndex);
@@ -524,6 +516,8 @@ function triggerEnemyTurn() {
     return;
   }
 
+  if (!questionReady) return;
+
   maybeUseEnemyPowerup();
   updatePowerupUI();
 
@@ -531,6 +525,7 @@ function triggerEnemyTurn() {
   const delay = profile.minDelay + Math.floor(Math.random() * (profile.maxDelay - profile.minDelay + 1));
 
   botThinkingTimeout = setTimeout(() => {
+    if (!questionReady || turnLocked) return;
     const pick = getBotChoiceIndex();
     handleAnswerClick(pick);
   }, delay);
@@ -690,7 +685,7 @@ function finishMatch() {
       player1Score,
       player2Score,
       won,
-      config.category,
+      config.category || "math",
       player1CorrectAnswers
     );
 
@@ -723,9 +718,9 @@ function finishMatch() {
       bossResult.achievements.forEach((item) => showAchievementPopup(item.title, item.description));
     }
 
-    resultMetaText.textContent = `Category: ${config.category} | Mode: boss | Boss: ${config.bossProfile.name}`;
+    resultMetaText.textContent = `Category: ${config.category || "math"} | Mode: boss | Boss: ${config.bossProfile.name}`;
   } else {
-    resultMetaText.textContent = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
+    resultMetaText.textContent = `Category: ${config.category || "math"} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
   }
 
   resultCard.classList.remove("hidden");
@@ -739,7 +734,6 @@ function finishMatch() {
 
 async function nextTurn() {
   resetAnswers();
-  turnLocked = false;
   stopBotThinking();
 
   if (config.mode === "boss") {
@@ -797,9 +791,10 @@ function resetCurrentPlayerStreak() {
 }
 
 function handleTimeUp() {
-  if (turnLocked) return;
+  if (turnLocked || !questionReady) return;
 
   turnLocked = true;
+  questionReady = false;
   stopBotThinking();
   resetCurrentPlayerStreak();
 
@@ -807,7 +802,10 @@ function handleTimeUp() {
     btn.disabled = true;
   });
 
-  answerButtons[correctIndex].classList.add("correct");
+  if (correctIndex >= 0 && answerButtons[correctIndex]) {
+    answerButtons[correctIndex].classList.add("correct");
+  }
+
   showMessage("Time is up! Turn skipped.", "error");
 
   if (window.DamonAudio) {
@@ -819,13 +817,14 @@ function handleTimeUp() {
 }
 
 function handleAnswerClick(index) {
-  if (turnLocked) return;
+  if (turnLocked || !questionReady || correctIndex < 0) return;
 
   if (answerButtons[index].hidden || (answerButtons[index].disabled && !answerButtons[index].classList.contains("correct"))) {
     return;
   }
 
   turnLocked = true;
+  questionReady = false;
   stopTimer();
   stopBotThinking();
 
@@ -867,11 +866,8 @@ function handleAnswerClick(index) {
     answerButtons[index].classList.add("wrong");
     resetCurrentPlayerStreak();
 
-    if (currentTurn === "player1") {
-      player1Powerups.doublePointsActive = false;
-    } else {
-      player2Powerups.doublePointsActive = false;
-    }
+    if (currentTurn === "player1") player1Powerups.doublePointsActive = false;
+    else player2Powerups.doublePointsActive = false;
 
     showMessage("Wrong answer!", "error");
 
@@ -894,7 +890,7 @@ function handleAnswerClick(index) {
 }
 
 powerup5050Btn.onclick = () => {
-  if (turnLocked) return;
+  if (turnLocked || !questionReady) return;
 
   const powerups = getCurrentPowerupSet();
   if (powerups.fiftyFifty <= 0) return;
@@ -914,7 +910,7 @@ powerup5050Btn.onclick = () => {
 };
 
 powerupSkipBtn.onclick = () => {
-  if (turnLocked) return;
+  if (turnLocked || !questionReady) return;
 
   const powerups = getCurrentPowerupSet();
   if (powerups.skip <= 0) return;
@@ -926,6 +922,7 @@ powerupSkipBtn.onclick = () => {
 
   stopTimer();
   turnLocked = true;
+  questionReady = false;
   answerButtons.forEach((btn) => {
     btn.disabled = true;
   });
@@ -934,7 +931,7 @@ powerupSkipBtn.onclick = () => {
 };
 
 powerupTimeBtn.onclick = () => {
-  if (turnLocked) return;
+  if (turnLocked || !questionReady) return;
 
   const powerups = getCurrentPowerupSet();
   if (powerups.extraTime <= 0) return;
@@ -947,7 +944,7 @@ powerupTimeBtn.onclick = () => {
 };
 
 powerupDoubleBtn.onclick = () => {
-  if (turnLocked) return;
+  if (turnLocked || !questionReady) return;
 
   const powerups = getCurrentPowerupSet();
   if (powerups.doublePoints <= 0 || powerups.doublePointsActive) return;
@@ -982,7 +979,18 @@ document.getElementById("historyBtn").onclick = () => {
   window.location.href = "leaderboard.html";
 };
 
-resultCard.classList.add("hidden");
-updateSpecialLabel();
-updateHeader();
-generateQuestion();
+async function initGame() {
+  resultCard.classList.add("hidden");
+  disableAllAnswers("Loading...");
+  updateSpecialLabel();
+  updateHeader();
+  await generateQuestion();
+}
+
+initGame().catch((error) => {
+  console.error("Game init failed:", error);
+  showMessage("Game failed to initialize. Returning to home.", "error");
+  setTimeout(() => {
+    window.location.href = "home.html";
+  }, 1500);
+});

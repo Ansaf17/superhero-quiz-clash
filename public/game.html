@@ -6,7 +6,7 @@
   <title>DAMON - Arena</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
+<body data-page="game">
   <div class="page">
     <div class="top-bar">
       <div>
@@ -35,6 +35,7 @@
           <div class="hero-pill" id="p2Avatar">🦹</div>
           <h3 id="p2Name">Player 2</h3>
           <p>Score: <span id="p2Score">0</span></p>
+          <p id="p2StreakRow">Streak: <span id="p2StreakDisplay">0</span></p>
           <p id="bossHpRow" class="hidden">Boss HP: <span id="bossHpText">0</span></p>
         </div>
       </div>
@@ -43,7 +44,7 @@
 
       <h3 id="turnIndicator" style="text-align:center; margin-top:22px;">Turn:</h3>
       <p class="timer" id="timerText">Time Left: 10s</p>
-      <p style="text-align:center;">Round: <span id="roundNumber">1</span> / 5</p>
+      <p style="text-align:center;">Round: <span id="roundNumber">1</span> / <span id="roundTotal">5</span></p>
 
       <div id="botPersonalityText" class="bot-personality-text hidden"></div>
       <div id="streakBanner" class="streak-banner hidden"></div>
@@ -63,10 +64,10 @@
       </div>
 
       <div class="answers-grid">
-        <button class="answer-btn" data-index="0" type="button">Option 1</button>
-        <button class="answer-btn" data-index="1" type="button">Option 2</button>
-        <button class="answer-btn" data-index="2" type="button">Option 3</button>
-        <button class="answer-btn" data-index="3" type="button">Option 4</button>
+        <button class="answer-btn" data-index="0" type="button" disabled>Loading...</button>
+        <button class="answer-btn" data-index="1" type="button" disabled>Loading...</button>
+        <button class="answer-btn" data-index="2" type="button" disabled>Loading...</button>
+        <button class="answer-btn" data-index="3" type="button" disabled>Loading...</button>
       </div>
     </section>
 
