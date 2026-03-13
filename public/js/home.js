@@ -1,5 +1,9 @@
 const state = window.DamonState;
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const registerBtn = document.getElementById("registerBtn");
@@ -25,10 +29,6 @@ const messageBox = document.getElementById("messageBox");
 
 let selectedAvatar = "";
 let dropdownOpen = false;
-
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
 
 function showMessage(text, type) {
   messageBox.textContent = text;
@@ -62,7 +62,7 @@ function refreshSessionUI() {
     loggedOutPanel.classList.add("hidden");
     loggedInPanel.classList.remove("hidden");
     miniAvatar.textContent = currentUser.avatar;
-    miniUsername.textContent = currentUser.username;
+    miniUsername.textContent = `${currentUser.username} • ${currentUser.rankTitle}`;
     profileToggleAvatar.textContent = currentUser.avatar;
   } else {
     loggedOutPanel.classList.remove("hidden");
@@ -92,9 +92,9 @@ hideRegisterBtn.onclick = () => {
   registerArea.classList.add("hidden");
 };
 
-avatarOptions.forEach(option => {
+avatarOptions.forEach((option) => {
   option.onclick = () => {
-    avatarOptions.forEach(i => i.classList.remove("selected"));
+    avatarOptions.forEach((item) => item.classList.remove("selected"));
     option.classList.add("selected");
     selectedAvatar = option.dataset.avatar;
   };
@@ -110,7 +110,7 @@ registerBtn.onclick = () => {
   }
 
   const users = state.getUsers();
-  const exists = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+  const exists = users.find((u) => u.username.toLowerCase() === username.toLowerCase());
 
   if (exists) {
     showMessage("Username already exists.", "error");
@@ -124,7 +124,18 @@ registerBtn.onclick = () => {
     totalPoints: 0,
     totalWins: 0,
     totalLosses: 0,
-    matchesPlayed: 0
+    matchesPlayed: 0,
+    xp: 0,
+    level: 1,
+    rankTitle: "Rookie",
+    leaderboardTier: "Bronze",
+    achievements: [],
+    dailyProgress: {
+      correctToday: 0,
+      matchesToday: 0,
+      winsToday: 0,
+      lastUpdated: new Date().toISOString().split("T")[0]
+    }
   });
 
   state.saveUsers(users);
@@ -132,7 +143,7 @@ registerBtn.onclick = () => {
   document.getElementById("registerUsername").value = "";
   document.getElementById("registerPassword").value = "";
   selectedAvatar = "";
-  avatarOptions.forEach(i => i.classList.remove("selected"));
+  avatarOptions.forEach((item) => item.classList.remove("selected"));
   registerArea.classList.add("hidden");
 
   showMessage("Registered successfully. You can now log in.", "success");
@@ -141,9 +152,9 @@ registerBtn.onclick = () => {
 loginBtn.onclick = () => {
   const username = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
-  const users = state.getUsers();
 
-  const user = users.find(u => u.username === username && u.password === password);
+  const users = state.getUsers();
+  const user = users.find((u) => u.username === username && u.password === password);
 
   if (!user) {
     showMessage("Invalid username or password.", "error");
@@ -196,7 +207,6 @@ pvpBtn.onclick = () => {
 
   window.location.href = "lobby.html";
 };
-
 
 refreshSessionUI();
 closeDropdown();

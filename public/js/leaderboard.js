@@ -1,5 +1,9 @@
 const state = window.DamonState;
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const leaderboardList = document.getElementById("leaderboardList");
 const historyList = document.getElementById("historyList");
 const h2hList = document.getElementById("h2hList");
@@ -10,10 +14,6 @@ const historyModeFilter = document.getElementById("historyModeFilter");
 
 const currentUser = state.getCurrentUser();
 
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
-
 function getMedalByRank(rank) {
   if (rank === 1) return "🥇";
   if (rank === 2) return "🥈";
@@ -21,27 +21,15 @@ function getMedalByRank(rank) {
   return "🏅";
 }
 
-function getPlayerTier(user) {
-  if (user.totalWins >= 15) return { icon: "🏆", label: "Champion" };
-  if (user.totalWins >= 8) return { icon: "🥇", label: "Elite" };
-  if (user.totalWins >= 4) return { icon: "🥈", label: "Pro" };
-  if (user.totalWins >= 1) return { icon: "🥉", label: "Rookie Winner" };
-  return { icon: "🎯", label: "Beginner" };
-}
-
 function renderLeaderboard() {
   const users = [...state.getUsers()];
-
   const sortMode = leaderboardSort.value;
 
   users.sort((a, b) => {
-    if (sortMode === "points") {
-      return b.totalPoints - a.totalPoints;
-    }
-
-    if (sortMode === "matches") {
-      return b.matchesPlayed - a.matchesPlayed;
-    }
+    if (sortMode === "points") return b.totalPoints - a.totalPoints;
+    if (sortMode === "xp") return b.xp - a.xp;
+    if (sortMode === "level") return b.level - a.level;
+    if (sortMode === "matches") return b.matchesPlayed - a.matchesPlayed;
 
     if (b.totalWins !== a.totalWins) return b.totalWins - a.totalWins;
     return b.totalPoints - a.totalPoints;
@@ -55,24 +43,25 @@ function renderLeaderboard() {
   }
 
   users.forEach((user, index) => {
-    const rank = index + 1;
-    const medal = getMedalByRank(rank);
-    const tier = getPlayerTier(user);
+    const medal = getMedalByRank(index + 1);
 
     const item = document.createElement("div");
     item.className = "leaderboard-item";
     item.innerHTML = `
       <div class="row-between">
         <div>
-          <strong>${medal} #${rank} ${user.username}</strong>
+          <strong>${medal} #${index + 1} ${user.username}</strong>
         </div>
-        <div style="font-size:1.4rem;">${user.avatar}</div>
+        <div style="font-size:1.5rem;">${user.avatar}</div>
       </div>
 
-      <p><strong>Tier:</strong> ${tier.icon} ${tier.label}</p>
-      <p>Wins: ${user.totalWins}</p>
-      <p>Points: ${user.totalPoints}</p>
-      <p>Matches Played: ${user.matchesPlayed}</p>
+      <p><strong>Tier:</strong> ${user.leaderboardTier}</p>
+      <p><strong>Rank Title:</strong> ${user.rankTitle}</p>
+      <p><strong>Level:</strong> ${user.level}</p>
+      <p><strong>XP:</strong> ${user.xp}</p>
+      <p><strong>Wins:</strong> ${user.totalWins}</p>
+      <p><strong>Points:</strong> ${user.totalPoints}</p>
+      <p><strong>Matches Played:</strong> ${user.matchesPlayed}</p>
     `;
     leaderboardList.appendChild(item);
   });
@@ -91,15 +80,15 @@ function renderHistory() {
   const selectedMode = historyModeFilter.value;
 
   let userMatches = matches.filter(
-    match => match.player1 === currentUser.username || match.player2 === currentUser.username
+    (match) => match.player1 === currentUser.username || match.player2 === currentUser.username
   );
 
   if (selectedCategory !== "all") {
-    userMatches = userMatches.filter(match => match.category === selectedCategory);
+    userMatches = userMatches.filter((match) => match.category === selectedCategory);
   }
 
   if (selectedMode !== "all") {
-    userMatches = userMatches.filter(match => match.mode === selectedMode);
+    userMatches = userMatches.filter((match) => match.mode === selectedMode);
   }
 
   userMatches.reverse();
@@ -109,25 +98,29 @@ function renderHistory() {
     return;
   }
 
-  userMatches.forEach(match => {
-    let medal = "🏅";
+  userMatches.forEach((match) => {
+    let resultIcon = "🏅";
 
     if (match.winner === "draw") {
-      medal = "🤝";
+      resultIcon = "🤝";
     } else if (match.winner === currentUser.username) {
-      medal = "🏆";
+      resultIcon = "🏆";
     } else {
-      medal = "💥";
+      resultIcon = "💥";
     }
+
+    const currentUserXpGain =
+      match.player1 === currentUser.username ? (match.player1XpGain || 0) : (match.player2XpGain || 0);
 
     const item = document.createElement("div");
     item.className = "history-item";
     item.innerHTML = `
-      <p><strong>${medal} ${match.player1}</strong> vs <strong>${match.player2}</strong></p>
+      <p><strong>${resultIcon} ${match.player1}</strong> vs <strong>${match.player2}</strong></p>
       <p>Score: ${match.player1Score} - ${match.player2Score}</p>
       <p>Winner: ${match.winner}</p>
       <p>Category: ${match.category}</p>
       <p>Mode: ${match.mode}</p>
+      <p>XP Gained: ${currentUserXpGain}</p>
       <p>Date: ${match.date}</p>
     `;
     historyList.appendChild(item);
@@ -144,26 +137,21 @@ function renderH2H() {
     return;
   }
 
-  const relevantKeys = Object.keys(h2h).filter(key => key.includes(currentUser.username));
+  const relevantKeys = Object.keys(h2h).filter((key) => key.includes(currentUser.username));
 
   if (relevantKeys.length === 0) {
     h2hList.innerHTML = `<div class="h2h-item">No head-to-head records yet.</div>`;
     return;
   }
 
-  relevantKeys.forEach(key => {
+  relevantKeys.forEach((key) => {
     const record = h2h[key];
     const [nameA, nameB] = key.split("__");
-
-    let rivalryMedal = "⚔️";
-    if ((record[nameA] || 0) >= 5 || (record[nameB] || 0) >= 5) {
-      rivalryMedal = "🔥";
-    }
 
     const item = document.createElement("div");
     item.className = "h2h-item";
     item.innerHTML = `
-      <p><strong>${rivalryMedal} ${nameA}</strong> vs <strong>${nameB}</strong></p>
+      <p><strong>⚔️ ${nameA}</strong> vs <strong>${nameB}</strong></p>
       <p>Total Matches: ${record.matches}</p>
       <p>${nameA} Wins: ${record[nameA] || 0}</p>
       <p>${nameB} Wins: ${record[nameB] || 0}</p>
@@ -190,11 +178,9 @@ function renderH2H() {
   });
 }
 
-
 leaderboardSort.addEventListener("change", renderLeaderboard);
 historyCategoryFilter.addEventListener("change", renderHistory);
 historyModeFilter.addEventListener("change", renderHistory);
-
 
 renderLeaderboard();
 renderHistory();

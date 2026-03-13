@@ -244,9 +244,7 @@ function triggerBotTurn() {
 }
 
 function getResultBadge(winner) {
-  if (winner === "draw") {
-    return "🤝";
-  }
+  if (winner === "draw") return "🤝";
 
   if (winner === config.player1.username) {
     if (player1Score >= 40) return "🏆";
@@ -277,11 +275,10 @@ function finishMatch() {
   winnerText.textContent = resultText;
   finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
 
-  const difficultyText = config.mode === "pc" ? ` | Difficulty: ${config.botDifficulty || "easy"}` : "";
-  resultMetaText.textContent = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s${difficultyText}`;
+  let progressSummaryText = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
 
   if (!config.player2.isBot) {
-    state.saveUserStats(
+    const result = state.saveUserStats(
       config.player1.username,
       config.player2.username,
       player1Score,
@@ -290,6 +287,11 @@ function finishMatch() {
       config.category,
       config.mode
     );
+
+    if (result) {
+      progressSummaryText += `<br>Player 1 XP: +${result.player1Progress.xpGain} | Level ${result.player1Progress.newLevel} | ${result.player1Progress.newRankTitle} | ${result.player1Progress.newTier}`;
+      progressSummaryText += `<br>Player 2 XP: +${result.player2Progress.xpGain} | Level ${result.player2Progress.newLevel} | ${result.player2Progress.newRankTitle} | ${result.player2Progress.newTier}`;
+    }
   } else {
     const users = state.getUsers();
     const p1 = users.find((u) => u.username === config.player1.username);
@@ -303,6 +305,11 @@ function finishMatch() {
       } else if (winner !== "draw") {
         p1.totalLosses += 1;
       }
+
+      p1.leaderboardTier = state.getLeaderboardTier(p1.totalWins);
+
+      const xpGain = state.calculateXpGain(player1Score, winner, p1.username);
+      const progress = state.applyProgress(p1, xpGain);
 
       state.saveUsers(users);
       state.setCurrentUser(p1);
@@ -318,25 +325,24 @@ function finishMatch() {
         mode: config.mode,
         difficulty: config.botDifficulty || "easy",
         timer: turnTimeLimit,
+        player1XpGain: xpGain,
+        player2XpGain: 0,
         date: new Date().toLocaleString()
       });
       state.saveMatches(matches);
+
+      progressSummaryText += `<br>XP Gained: +${progress.xpGain} | Level ${progress.newLevel} | ${progress.newRankTitle} | ${progress.newTier}`;
     }
   }
+
+  resultMetaText.innerHTML = progressSummaryText;
 
   resultCard.classList.remove("hidden");
   showMessage("Match completed successfully.", "success");
 
-  if (typeof playMenuMusic === "function") {
-    playMenuMusic();
-  }
-
   if (window.DamonFX && winner !== "draw") {
     window.DamonFX.playWin();
   }
-  if (window.DamonAudio) {
-  window.DamonAudio.returnMenuMusic();
-}
 }
 
 async function nextTurn() {
@@ -431,10 +437,6 @@ answerButtons.forEach((btn, idx) => {
 });
 
 document.getElementById("sameCategoryRematchBtn").onclick = () => {
-  if (typeof playBattleMusic === "function") {
-    playBattleMusic();
-  }
-
   if (window.DamonFX) {
     window.DamonFX.navigate("game.html");
   } else {
@@ -443,10 +445,6 @@ document.getElementById("sameCategoryRematchBtn").onclick = () => {
 };
 
 document.getElementById("newCategoryBtn").onclick = () => {
-  if (typeof playMenuMusic === "function") {
-    playMenuMusic();
-  }
-
   if (window.DamonFX) {
     window.DamonFX.navigate("category.html");
   } else {
@@ -455,10 +453,6 @@ document.getElementById("newCategoryBtn").onclick = () => {
 };
 
 document.getElementById("historyBtn").onclick = () => {
-  if (typeof playMenuMusic === "function") {
-    playMenuMusic();
-  }
-
   if (window.DamonFX) {
     window.DamonFX.navigate("leaderboard.html");
   } else {
@@ -468,11 +462,4 @@ document.getElementById("historyBtn").onclick = () => {
 
 resultCard.classList.add("hidden");
 updateHeader();
-
-if (typeof playBattleMusic === "function") {
-  playBattleMusic();
-}
-if (window.DamonAudio) {
-  window.DamonAudio.playBattleMusic();
-}
 generateQuestion();

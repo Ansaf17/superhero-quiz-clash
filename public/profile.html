@@ -14,10 +14,10 @@
         <p class="subtitle" style="text-align:left; margin:6px 0 0;">Your DAMON account overview</p>
       </div>
       <div class="top-bar-actions">
-        <a class="card" href="stats.html">Stats</a>
-        <a class="card" href="achievements.html">Achievements</a>
-        <a class="card" href="settings.html">Settings</a>
-        <a class="card" href="home.html">Back Home</a>
+        <a class="card" href="./stats.html">Stats</a>
+        <a class="card" href="./achievements.html">Achievements</a>
+        <a class="card" href="./settings.html">Settings</a>
+        <a class="card" href="./home.html">Back Home</a>
       </div>
     </div>
 
@@ -26,7 +26,7 @@
         <div class="profile-page-avatar" id="profileAvatar">🦸</div>
         <div>
           <h2 id="profileUsername" style="margin:0 0 8px;">Username</h2>
-          <p style="margin:0; color:#cbd5e1;">Your personal DAMON stats</p>
+          <p style="margin:0; color:#cbd5e1;">Your personal DAMON progression</p>
         </div>
       </div>
 
@@ -50,14 +50,34 @@
           <h3>Matches Played</h3>
           <p id="profileMatches">0</p>
         </div>
+
+        <div class="profile-stat-box">
+          <h3>XP</h3>
+          <p id="profileXp">0</p>
+        </div>
+
+        <div class="profile-stat-box">
+          <h3>Level</h3>
+          <p id="profileLevel">1</p>
+        </div>
+
+        <div class="profile-stat-box">
+          <h3>Rank Title</h3>
+          <p id="profileRankTitle">Rookie</p>
+        </div>
+
+        <div class="profile-stat-box">
+          <h3>Leaderboard Tier</h3>
+          <p id="profileLeaderboardTier">Bronze</p>
+        </div>
       </div>
     </section>
   </div>
 
   <script src="./js/app-state.js"></script>
   <script src="./js/global-ui.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/audio.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/audio.js"></script>
   <script src="./js/profile.js"></script>
 </body>
 </html>
