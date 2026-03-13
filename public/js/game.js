@@ -28,6 +28,17 @@ const finalScoreText = document.getElementById("finalScoreText");
 const resultMetaText = document.getElementById("resultMetaText");
 const progressSummary = document.getElementById("progressSummary");
 const streakBanner = document.getElementById("streakBanner");
+const botPersonalityText = document.getElementById("botPersonalityText");
+
+const powerup5050Btn = document.getElementById("powerup5050Btn");
+const powerupSkipBtn = document.getElementById("powerupSkipBtn");
+const powerupTimeBtn = document.getElementById("powerupTimeBtn");
+const powerupDoubleBtn = document.getElementById("powerupDoubleBtn");
+
+const powerup5050Count = document.getElementById("powerup5050Count");
+const powerupSkipCount = document.getElementById("powerupSkipCount");
+const powerupTimeCount = document.getElementById("powerupTimeCount");
+const powerupDoubleCount = document.getElementById("powerupDoubleCount");
 
 const totalRounds = 5;
 const turnTimeLimit = Number(settings.turnTimer || 10);
@@ -44,6 +55,23 @@ let botThinkingTimeout = null;
 
 let player1Streak = 0;
 let player2Streak = 0;
+let removedIndexes = [];
+
+let player1Powerups = {
+  fiftyFifty: 1,
+  skip: 1,
+  extraTime: 1,
+  doublePoints: 1,
+  doublePointsActive: false
+};
+
+let player2Powerups = {
+  fiftyFifty: 1,
+  skip: 1,
+  extraTime: 1,
+  doublePoints: 1,
+  doublePointsActive: false
+};
 
 function showMessage(text, type) {
   messageBox.textContent = text;
@@ -61,6 +89,41 @@ function showStreakBanner(text) {
   }, 1400);
 }
 
+function getCurrentPowerupSet() {
+  return currentTurn === "player1" ? player1Powerups : player2Powerups;
+}
+
+function getCurrentPlayerName() {
+  return currentTurn === "player1" ? config.player1.username : config.player2.username;
+}
+
+function updatePowerupUI() {
+  const powerups = getCurrentPowerupSet();
+
+  powerup5050Count.textContent = powerups.fiftyFifty;
+  powerupSkipCount.textContent = powerups.skip;
+  powerupTimeCount.textContent = powerups.extraTime;
+  powerupDoubleCount.textContent = powerups.doublePoints;
+
+  powerup5050Btn.disabled = turnLocked || powerups.fiftyFifty <= 0;
+  powerupSkipBtn.disabled = turnLocked || powerups.skip <= 0;
+  powerupTimeBtn.disabled = turnLocked || powerups.extraTime <= 0;
+  powerupDoubleBtn.disabled = turnLocked || powerups.doublePoints <= 0 || powerups.doublePointsActive;
+
+  if (powerups.doublePointsActive) {
+    powerupDoubleBtn.classList.add("active");
+  } else {
+    powerupDoubleBtn.classList.remove("active");
+  }
+
+  if (config.mode === "pc" && config.player2.isBot && currentTurn === "player2") {
+    powerup5050Btn.disabled = true;
+    powerupSkipBtn.disabled = true;
+    powerupTimeBtn.disabled = true;
+    powerupDoubleBtn.disabled = true;
+  }
+}
+
 function updateHeader() {
   p1Avatar.textContent = config.player1.avatar;
   p2Avatar.textContent = config.player2.avatar;
@@ -72,6 +135,7 @@ function updateHeader() {
   p2StreakDisplay.textContent = player2Streak;
   roundNumber.textContent = currentRound;
   turnIndicator.textContent = `Turn: ${currentTurn === "player1" ? config.player1.username : config.player2.username}`;
+  updatePowerupUI();
 }
 
 function stopTimer() {
@@ -105,9 +169,12 @@ function startTimer() {
 }
 
 function resetAnswers() {
+  removedIndexes = [];
+
   answerButtons.forEach((btn) => {
-    btn.classList.remove("correct", "wrong");
+    btn.classList.remove("correct", "wrong", "faded");
     btn.disabled = false;
+    btn.hidden = false;
     btn.textContent = "Loading...";
   });
 }
@@ -119,7 +186,8 @@ function setOptions(options, correctValue) {
   answerButtons.forEach((btn, idx) => {
     btn.textContent = shuffled[idx];
     btn.disabled = false;
-    btn.classList.remove("correct", "wrong");
+    btn.hidden = false;
+    btn.classList.remove("correct", "wrong", "faded");
   });
 }
 
@@ -153,118 +221,64 @@ function applyStreakBonus(playerKey) {
   }
 }
 
-async function generateMathQuestion() {
-  const a = Math.floor(Math.random() * 10) + 1;
-  const b = Math.floor(Math.random() * 10) + 1;
-  const ops = ["+", "-", "*"];
-  const op = ops[Math.floor(Math.random() * ops.length)];
-
-  let correct = 0;
-  if (op === "+") correct = a + b;
-  if (op === "-") correct = a - b;
-  if (op === "*") correct = a * b;
-
-  questionText.textContent = `Question: ${a} ${op === "*" ? "×" : op} ${b}`;
-
-  const set = new Set([correct]);
-  while (set.size < 4) {
-    set.add(correct + (Math.floor(Math.random() * 7) - 3));
-  }
-
-  setOptions(Array.from(set), correct);
-}
-
-async function generateBananaQuestion() {
-  const response = await fetch("https://marcconrad.com/uob/banana/api.php");
-  const data = await response.json();
-  const solution = Number(data.solution);
-
-  questionText.innerHTML = `
-    <div>
-      <p>Solve the Banana Puzzle</p>
-      <img src="${data.question}" alt="Banana puzzle">
-    </div>
-  `;
-
-  const set = new Set([solution]);
-  while (set.size < 4) {
-    set.add(solution + (Math.floor(Math.random() * 7) - 3));
-  }
-
-  setOptions(Array.from(set), solution);
-}
-
-async function generateGeneralQuestion() {
-  const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple");
-  const data = await response.json();
-
-  if (!data.results || !data.results.length) {
-    throw new Error("No general question returned");
-  }
-
-  const q = data.results[0];
-  const question = state.decodeHtml(q.question);
-  const correct = state.decodeHtml(q.correct_answer);
-  const incorrect = q.incorrect_answers.map((a) => state.decodeHtml(a));
-
-  questionText.textContent = `Question: ${question}`;
-  setOptions([correct, ...incorrect], correct);
-}
-
-async function generateProgrammingQuestion() {
-  const response = await fetch("https://opentdb.com/api.php?amount=1&category=18&type=multiple");
-  const data = await response.json();
-
-  if (!data.results || !data.results.length) {
-    throw new Error("No programming question returned");
-  }
-
-  const q = data.results[0];
-  const question = state.decodeHtml(q.question);
-  const correct = state.decodeHtml(q.correct_answer);
-  const incorrect = q.incorrect_answers.map((a) => state.decodeHtml(a));
-
-  questionText.textContent = `Question: ${question}`;
-  setOptions([correct, ...incorrect], correct);
-}
-
-async function generateQuestion() {
-  resetAnswers();
-
-  try {
-    if (config.category === "math") {
-      await generateMathQuestion();
-    } else if (config.category === "banana") {
-      await generateBananaQuestion();
-    } else if (config.category === "general") {
-      await generateGeneralQuestion();
-    } else if (config.category === "programming") {
-      await generateProgrammingQuestion();
-    } else {
-      await generateMathQuestion();
-    }
-
-    startTimer();
-  } catch (err) {
-    console.error(err);
-    showMessage("Question API failed. Falling back to maths.", "error");
-    await generateMathQuestion();
-    startTimer();
-  }
-}
-
 function getBotProfile() {
+  const personality = config.botPersonality || "slowThinker";
   const difficulty = config.botDifficulty || "easy";
 
-  if (difficulty === "easy") {
-    return { accuracy: 0.45, minDelay: 2800, maxDelay: 5200 };
-  }
+  let base = { accuracy: 0.45, minDelay: 2800, maxDelay: 5200 };
 
   if (difficulty === "medium") {
-    return { accuracy: 0.68, minDelay: 1800, maxDelay: 3600 };
+    base = { accuracy: 0.68, minDelay: 1800, maxDelay: 3600 };
+  } else if (difficulty === "hard") {
+    base = { accuracy: 0.85, minDelay: 1200, maxDelay: 2500 };
   }
 
-  return { accuracy: 0.85, minDelay: 1200, maxDelay: 2500 };
+  if (personality === "slowThinker") {
+    return {
+      accuracy: Math.min(base.accuracy + 0.05, 0.95),
+      minDelay: base.minDelay + 1200,
+      maxDelay: base.maxDelay + 1800
+    };
+  }
+
+  if (personality === "speedDemon") {
+    return {
+      accuracy: Math.max(base.accuracy - 0.12, 0.2),
+      minDelay: Math.max(base.minDelay - 900, 500),
+      maxDelay: Math.max(base.maxDelay - 1200, 1200)
+    };
+  }
+
+  if (personality === "trollBot") {
+    const trollAccuracy = Math.random() > 0.5 ? Math.min(base.accuracy + 0.12, 0.95) : Math.max(base.accuracy - 0.28, 0.15);
+    return {
+      accuracy: trollAccuracy,
+      minDelay: Math.max(base.minDelay - 400, 700),
+      maxDelay: base.maxDelay + 300
+    };
+  }
+
+  return {
+    accuracy: Math.min(base.accuracy + 0.08, 0.98),
+    minDelay: Math.max(base.minDelay - 500, 700),
+    maxDelay: Math.max(base.maxDelay - 700, 1400)
+  };
+}
+
+function updateBotPersonalityLabel() {
+  if (config.mode === "pc" && config.player2.isBot) {
+    const labels = {
+      slowThinker: "🐢 Bot Personality: Slow Thinker",
+      speedDemon: "⚡ Bot Personality: Speed Demon",
+      trollBot: "😈 Bot Personality: Troll Bot",
+      geniusBot: "🧠 Bot Personality: Genius Bot"
+    };
+
+    botPersonalityText.classList.remove("hidden");
+    botPersonalityText.textContent = labels[config.botPersonality || "slowThinker"];
+  } else {
+    botPersonalityText.classList.add("hidden");
+  }
 }
 
 function getBotChoiceIndex() {
@@ -275,14 +289,54 @@ function getBotChoiceIndex() {
     return correctIndex;
   }
 
-  const wrongIndexes = [0, 1, 2, 3].filter((index) => index !== correctIndex);
+  const availableIndexes = [0, 1, 2, 3].filter((index) => !removedIndexes.includes(index));
+  const wrongIndexes = availableIndexes.filter((index) => index !== correctIndex);
+
   return wrongIndexes[Math.floor(Math.random() * wrongIndexes.length)];
+}
+
+function maybeUseBotPowerup() {
+  const powerups = player2Powerups;
+  const roll = Math.random();
+
+  if (powerups.doublePoints > 0 && !powerups.doublePointsActive && roll < 0.12) {
+    powerups.doublePoints -= 1;
+    powerups.doublePointsActive = true;
+    showStreakBanner(`🤖 Damon Bot activated Double Points!`);
+    return;
+  }
+
+  if (powerups.extraTime > 0 && timeLeft <= 4 && roll < 0.24) {
+    powerups.extraTime -= 1;
+    timeLeft += 5;
+    timerText.textContent = `Time Left: ${timeLeft}s`;
+    showStreakBanner(`🤖 Damon Bot used +5 Time!`);
+    return;
+  }
+
+  if (powerups.fiftyFifty > 0 && roll < 0.18) {
+    powerups.fiftyFifty -= 1;
+
+    const wrongIndexes = [0, 1, 2, 3].filter((index) => index !== correctIndex && !removedIndexes.includes(index));
+    const toRemove = state.shuffle(wrongIndexes).slice(0, 2);
+
+    toRemove.forEach((idx) => {
+      answerButtons[idx].disabled = true;
+      answerButtons[idx].classList.add("faded");
+      removedIndexes.push(idx);
+    });
+
+    showStreakBanner(`🤖 Damon Bot used 50/50!`);
+  }
 }
 
 function triggerBotTurn() {
   if (!(config.mode === "pc" && config.player2.isBot && currentTurn === "player2")) {
     return;
   }
+
+  maybeUseBotPowerup();
+  updatePowerupUI();
 
   const profile = getBotProfile();
   const delay = profile.minDelay + Math.floor(Math.random() * (profile.maxDelay - profile.minDelay + 1));
@@ -391,6 +445,7 @@ function finishMatch() {
         category: config.category,
         mode: config.mode,
         difficulty: config.botDifficulty || "easy",
+        personality: config.botPersonality || "slowThinker",
         timer: turnTimeLimit,
         player1XpGain: xpGain,
         player2XpGain: 0,
@@ -407,7 +462,6 @@ function finishMatch() {
   }
 
   resultMetaText.innerHTML = progressSummaryText;
-
   resultCard.classList.remove("hidden");
   showMessage("Match completed successfully.", "success");
 
@@ -477,6 +531,10 @@ function handleTimeUp() {
 function handleAnswerClick(index) {
   if (turnLocked) return;
 
+  if (answerButtons[index].hidden || answerButtons[index].disabled && !answerButtons[index].classList.contains("correct")) {
+    return;
+  }
+
   turnLocked = true;
   stopTimer();
   stopBotThinking();
@@ -485,19 +543,24 @@ function handleAnswerClick(index) {
   correctBtn.classList.add("correct");
 
   if (index === correctIndex) {
+    const powerups = getCurrentPowerupSet();
+    const awardedPoints = powerups.doublePointsActive ? 20 : 10;
+
     if (currentTurn === "player1") {
-      player1Score += 10;
+      player1Score += awardedPoints;
       player1Streak += 1;
       applyStreakBonus("player1");
       player2Streak = 0;
+      player1Powerups.doublePointsActive = false;
     } else {
-      player2Score += 10;
+      player2Score += awardedPoints;
       player2Streak += 1;
       applyStreakBonus("player2");
       player1Streak = 0;
+      player2Powerups.doublePointsActive = false;
     }
 
-    showMessage("Correct answer!", "success");
+    showMessage(`Correct answer! +${awardedPoints} points`, "success");
 
     if (window.DamonFX) {
       window.DamonFX.playCorrect();
@@ -505,6 +568,12 @@ function handleAnswerClick(index) {
   } else {
     answerButtons[index].classList.add("wrong");
     resetCurrentPlayerStreak();
+
+    if (currentTurn === "player1") {
+      player1Powerups.doublePointsActive = false;
+    } else {
+      player2Powerups.doublePointsActive = false;
+    }
 
     showMessage("Wrong answer!", "error");
 
@@ -520,6 +589,71 @@ function handleAnswerClick(index) {
 
   setTimeout(() => nextTurn(), 1200);
 }
+
+powerup5050Btn.onclick = () => {
+  if (turnLocked) return;
+
+  const powerups = getCurrentPowerupSet();
+  if (powerups.fiftyFifty <= 0) return;
+
+  const wrongIndexes = [0, 1, 2, 3].filter((index) => index !== correctIndex && !removedIndexes.includes(index));
+  const toRemove = state.shuffle(wrongIndexes).slice(0, 2);
+
+  toRemove.forEach((idx) => {
+    answerButtons[idx].disabled = true;
+    answerButtons[idx].classList.add("faded");
+    removedIndexes.push(idx);
+  });
+
+  powerups.fiftyFifty -= 1;
+  updatePowerupUI();
+  showMessage(`${getCurrentPlayerName()} used 50/50.`, "success");
+};
+
+powerupSkipBtn.onclick = () => {
+  if (turnLocked) return;
+
+  const powerups = getCurrentPowerupSet();
+  if (powerups.skip <= 0) return;
+
+  powerups.skip -= 1;
+  resetCurrentPlayerStreak();
+  updatePowerupUI();
+  showMessage(`${getCurrentPlayerName()} skipped the question.`, "success");
+
+  stopTimer();
+  turnLocked = true;
+  answerButtons.forEach((btn) => {
+    btn.disabled = true;
+  });
+
+  setTimeout(() => nextTurn(), 900);
+};
+
+powerupTimeBtn.onclick = () => {
+  if (turnLocked) return;
+
+  const powerups = getCurrentPowerupSet();
+  if (powerups.extraTime <= 0) return;
+
+  powerups.extraTime -= 1;
+  timeLeft += 5;
+  timerText.textContent = `Time Left: ${timeLeft}s`;
+  updatePowerupUI();
+  showMessage(`${getCurrentPlayerName()} added +5 seconds.`, "success");
+};
+
+powerupDoubleBtn.onclick = () => {
+  if (turnLocked) return;
+
+  const powerups = getCurrentPowerupSet();
+  if (powerups.doublePoints <= 0 || powerups.doublePointsActive) return;
+
+  powerups.doublePoints -= 1;
+  powerups.doublePointsActive = true;
+  updatePowerupUI();
+  showMessage(`${getCurrentPlayerName()} activated Double Points!`, "success");
+};
 
 answerButtons.forEach((btn, idx) => {
   btn.onclick = () => handleAnswerClick(idx);
@@ -550,5 +684,6 @@ document.getElementById("historyBtn").onclick = () => {
 };
 
 resultCard.classList.add("hidden");
+updateBotPersonalityLabel();
 updateHeader();
 generateQuestion();

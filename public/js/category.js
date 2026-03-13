@@ -1,80 +1,97 @@
 const state = window.DamonState;
-const config = state.getBattleConfig();
-const messageBox = document.getElementById("messageBox");
-const tiles = document.querySelectorAll(".category-tile");
-const difficultyCard = document.getElementById("difficultyCard");
-const difficultyButtons = document.querySelectorAll(".difficulty-btn");
 
 if (window.DamonAudio) {
   window.DamonAudio.playMenuMusic();
 }
 
+const config = state.getBattleConfig();
+const messageBox = document.getElementById("messageBox");
+const categoryTiles = document.querySelectorAll(".category-tile");
+const difficultyBtns = document.querySelectorAll(".difficulty-btn");
+const personalityBtns = document.querySelectorAll(".personality-btn");
+const enterArenaBtn = document.getElementById("enterArenaBtn");
+const pcBotSettingsCard = document.getElementById("pcBotSettingsCard");
+
 if (!config) {
   window.location.href = "home.html";
 }
 
-const settings = state.getSettings() || state.getDefaultSettings();
-
-let selectedCategory = settings.defaultCategory || "math";
-let selectedDifficulty = settings.defaultDifficulty || "easy";
+let selectedCategory = "math";
+let selectedDifficulty = (config.botDifficulty || "easy");
+let selectedPersonality = (config.botPersonality || "slowThinker");
 
 function showMessage(text, type) {
   messageBox.textContent = text;
   messageBox.className = `message-box ${type}`;
 }
 
-function applyInitialSelections() {
-  tiles.forEach(tile => {
-    if (tile.dataset.category === selectedCategory) {
-      tile.classList.add("active");
-    } else {
-      tile.classList.remove("active");
-    }
-  });
-
-  difficultyButtons.forEach(btn => {
-    if (btn.dataset.difficulty === selectedDifficulty) {
-      btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
-    }
-  });
+function refreshBotPanel() {
+  if (config.mode === "pc") {
+    pcBotSettingsCard.classList.remove("hidden");
+  } else {
+    pcBotSettingsCard.classList.add("hidden");
+  }
 }
 
-tiles.forEach(tile => {
-  tile.addEventListener("click", () => {
-    tiles.forEach(t => t.classList.remove("active"));
+categoryTiles.forEach((tile) => {
+  tile.onclick = () => {
+    categoryTiles.forEach((item) => item.classList.remove("active"));
     tile.classList.add("active");
     selectedCategory = tile.dataset.category;
-  });
+  };
 });
 
-difficultyButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    difficultyButtons.forEach(b => b.classList.remove("active"));
+difficultyBtns.forEach((btn) => {
+  if (btn.dataset.difficulty === selectedDifficulty) {
+    btn.classList.add("active");
+  } else {
+    btn.classList.remove("active");
+  }
+
+  btn.onclick = () => {
+    difficultyBtns.forEach((item) => item.classList.remove("active"));
     btn.classList.add("active");
     selectedDifficulty = btn.dataset.difficulty;
-  });
+  };
 });
 
-if (config.mode !== "pc") {
-  difficultyCard.classList.add("hidden");
-}
+personalityBtns.forEach((btn) => {
+  if (btn.dataset.personality === selectedPersonality) {
+    btn.classList.add("active");
+  } else {
+    btn.classList.remove("active");
+  }
 
-document.getElementById("startGameBtn").onclick = () => {
-  config.category = selectedCategory;
-  config.botDifficulty = config.mode === "pc" ? selectedDifficulty : null;
+  btn.onclick = () => {
+    personalityBtns.forEach((item) => item.classList.remove("active"));
+    btn.classList.add("active");
+    selectedPersonality = btn.dataset.personality;
+  };
+});
 
-  state.setBattleConfig(config);
-  showMessage(`Category selected: ${selectedCategory}`, "success");
+enterArenaBtn.onclick = () => {
+  if (!config) {
+    showMessage("Battle configuration missing.", "error");
+    return;
+  }
 
-  setTimeout(() => {
-    if (window.DamonFX) {
-      window.DamonFX.navigate("game.html");
-    } else {
-      window.location.href = "game.html";
-    }
-  }, 250);
+  const updatedConfig = {
+    ...config,
+    category: selectedCategory
+  };
+
+  if (updatedConfig.mode === "pc") {
+    updatedConfig.botDifficulty = selectedDifficulty;
+    updatedConfig.botPersonality = selectedPersonality;
+  }
+
+  state.setBattleConfig(updatedConfig);
+
+  if (window.DamonFX) {
+    window.DamonFX.navigate("game.html");
+  } else {
+    window.location.href = "game.html";
+  }
 };
 
-applyInitialSelections();
+refreshBotPanel();
