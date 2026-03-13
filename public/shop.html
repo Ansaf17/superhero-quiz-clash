@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAMON - Shop</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <div>
+        <h1 style="margin:0;">DAMON Shop</h1>
+        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Buy powerups and unlock new avatars.</p>
+      </div>
+      <div class="top-bar-actions">
+        <a class="card" href="./profile.html">Profile</a>
+        <a class="card" href="./home.html">Back Home</a>
+      </div>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <section class="card shop-balance-card">
+      <div class="shop-balance-layout">
+        <div class="shop-balance-icon">🪙</div>
+        <div>
+          <h2 style="margin:0;">Your Coins</h2>
+          <p id="shopCoinsText" class="shop-coins-text">0 Coins</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:20px;">
+      <h2 style="margin-top:0;">Powerups</h2>
+      <div id="shopPowerupGrid" class="shop-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0;">Avatar Unlocks</h2>
+      <div id="shopAvatarGrid" class="shop-grid"></div>
+    </section>
+  </div>
+
+  <script src="./js/app-state.js"></script>
+  <script src="./js/global-ui.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/shop.js"></script>
+</body>
+</html>

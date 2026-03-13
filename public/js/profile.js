@@ -19,6 +19,7 @@ document.getElementById("profileRankTitle").textContent = currentUser.rankTitle;
 document.getElementById("profileLeaderboardTier").textContent = currentUser.leaderboardTier;
 document.getElementById("profileWinStreak").textContent = currentUser.winStreak;
 document.getElementById("profileBestWinStreak").textContent = currentUser.bestWinStreak;
+document.getElementById("profileCoinsText").textContent = `${currentUser.coins} Coins`;
 
 document.getElementById("profileXpProgressText").textContent = `${xpState.xpIntoLevel} / ${xpState.xpNeededForNextLevel}`;
 
@@ -41,3 +42,16 @@ inventoryGrid.innerHTML = `
   <div class="inventory-item">⏱ +5 Time <strong>${currentUser.powerupInventory.extraTime}</strong></div>
   <div class="inventory-item">💥 Double Points <strong>${currentUser.powerupInventory.doublePoints}</strong></div>
 `;
+
+const ownedAvatarGrid = document.getElementById("profileAvatarCollection");
+ownedAvatarGrid.innerHTML = currentUser.ownedAvatars
+  .map((avatar) => {
+    const equipped = currentUser.avatar === avatar;
+    return `
+      <div class="owned-avatar-card ${equipped ? "owned-avatar-equipped" : ""}">
+        <div class="owned-avatar-icon">${avatar}</div>
+        <p>${equipped ? "Equipped" : "Unlocked"}</p>
+      </div>
+    `;
+  })
+  .join("");

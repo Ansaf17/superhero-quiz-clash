@@ -14,9 +14,14 @@ window.DamonState = {
       level: Number(user.level || 1),
       rankTitle: user.rankTitle || "Rookie",
       leaderboardTier: user.leaderboardTier || "Bronze",
+      coins: Number(user.coins || 0),
       winStreak: Number(user.winStreak || 0),
       bestWinStreak: Number(user.bestWinStreak || 0),
       achievements: Array.isArray(user.achievements) ? user.achievements : [],
+      ownedAvatars:
+        Array.isArray(user.ownedAvatars) && user.ownedAvatars.length
+          ? user.ownedAvatars
+          : ["🦸"],
       powerupInventory: {
         fiftyFifty: Number(user.powerupInventory?.fiftyFifty || 1),
         skip: Number(user.powerupInventory?.skip || 1),
@@ -29,6 +34,10 @@ window.DamonState = {
         wins: 0,
         correctAnswers: 0,
         bananaPlayed: false
+      },
+      loginRewards: user.loginRewards || {
+        lastClaimDate: "",
+        streak: 0
       }
     };
   },
@@ -40,8 +49,10 @@ window.DamonState = {
   },
 
   saveUsers(users) {
-    const normalized = users.map((user) => this.normalizeUser(user));
-    localStorage.setItem("users", JSON.stringify(normalized));
+    localStorage.setItem(
+      "users",
+      JSON.stringify(users.map((user) => this.normalizeUser(user)))
+    );
   },
 
   getCurrentUser() {
@@ -194,17 +205,39 @@ window.DamonState = {
     return map[tier] || "🏅";
   },
 
+  getAvailableAvatars() {
+    return [
+      { avatar: "🦸", price: 0, name: "Hero" },
+      { avatar: "🦹", price: 80, name: "Villain" },
+      { avatar: "⚡", price: 100, name: "Lightning" },
+      { avatar: "🔥", price: 100, name: "Fire" },
+      { avatar: "🛡️", price: 120, name: "Shield" },
+      { avatar: "🌟", price: 140, name: "Star" },
+      { avatar: "💥", price: 150, name: "Blast" },
+      { avatar: "🌪️", price: 160, name: "Storm" },
+      { avatar: "🤖", price: 180, name: "Bot" },
+      { avatar: "🐉", price: 220, name: "Dragon" },
+      { avatar: "👑", price: 260, name: "Crown" },
+      { avatar: "💎", price: 300, name: "Diamond" }
+    ];
+  },
+
+  getShopItems() {
+    return [
+      { id: "fiftyFifty", title: "50/50", type: "powerup", price: 40, amount: 1, icon: "🎯" },
+      { id: "skip", title: "Skip", type: "powerup", price: 45, amount: 1, icon: "⏭" },
+      { id: "extraTime", title: "+5 Time", type: "powerup", price: 35, amount: 1, icon: "⏱" },
+      { id: "doublePoints", title: "Double Points", type: "powerup", price: 60, amount: 1, icon: "💥" }
+    ];
+  },
+
   calculateXpGain(score, winner, username) {
     const correctAnswerXp = Math.floor(score / 10) * 10;
     let outcomeXp = 0;
 
-    if (winner === "draw") {
-      outcomeXp = 10;
-    } else if (winner === username) {
-      outcomeXp = 25;
-    } else {
-      outcomeXp = 5;
-    }
+    if (winner === "draw") outcomeXp = 10;
+    else if (winner === username) outcomeXp = 25;
+    else outcomeXp = 5;
 
     return correctAnswerXp + outcomeXp;
   },
@@ -247,7 +280,6 @@ window.DamonState = {
 
   resetDailyProgressIfNeeded(user) {
     const today = this.getTodayString();
-
     if (!user.dailyProgress || user.dailyProgress.date !== today) {
       user.dailyProgress = {
         date: today,
@@ -315,13 +347,9 @@ window.DamonState = {
     return defs.map((challenge) => {
       let completed = false;
 
-      if (challenge.id === "daily_win_1") {
-        completed = user.dailyProgress.wins >= 1;
-      } else if (challenge.id === "daily_correct_5") {
-        completed = user.dailyProgress.correctAnswers >= 5;
-      } else if (challenge.id === "daily_banana_1") {
-        completed = user.dailyProgress.bananaPlayed === true;
-      }
+      if (challenge.id === "daily_win_1") completed = user.dailyProgress.wins >= 1;
+      else if (challenge.id === "daily_correct_5") completed = user.dailyProgress.correctAnswers >= 5;
+      else if (challenge.id === "daily_banana_1") completed = user.dailyProgress.bananaPlayed === true;
 
       return { ...challenge, completed };
     });
@@ -333,13 +361,8 @@ window.DamonState = {
     user.dailyProgress.matchesPlayed += 1;
     user.dailyProgress.correctAnswers += correctAnswers;
 
-    if (won) {
-      user.dailyProgress.wins += 1;
-    }
-
-    if (category === "banana") {
-      user.dailyProgress.bananaPlayed = true;
-    }
+    if (won) user.dailyProgress.wins += 1;
+    if (category === "banana") user.dailyProgress.bananaPlayed = true;
 
     return this.getDailyChallengeStatuses(user);
   },
@@ -375,15 +398,142 @@ window.DamonState = {
     return rewards;
   },
 
+  rewardCoins(user, won, score) {
+    const scoreCoins = Math.floor(score / 10) * 5;
+    const resultCoins = won ? 25 : 10;
+    const total = scoreCoins + resultCoins;
+    user.coins += total;
+    return total;
+  },
+
+  claimDailyLoginReward(username) {
+    const users = this.getUsers();
+    const user = users.find((u) => u.username === username);
+
+    if (!user) {
+      return { success: false, message: "User not found." };
+    }
+
+    const today = this.getTodayString();
+
+    if (user.loginRewards.lastClaimDate === today) {
+      return {
+        success: false,
+        alreadyClaimed: true,
+        streak: user.loginRewards.streak,
+        rewardCoins: 0,
+        rewardPowerup: null
+      };
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = yesterday.toISOString().split("T")[0];
+
+    if (user.loginRewards.lastClaimDate === yesterdayString) {
+      user.loginRewards.streak += 1;
+    } else {
+      user.loginRewards.streak = 1;
+    }
+
+    user.loginRewards.lastClaimDate = today;
+
+    const rewardCoins = 20 + (user.loginRewards.streak - 1) * 5;
+    user.coins += rewardCoins;
+
+    let rewardPowerup = null;
+    if (user.loginRewards.streak % 3 === 0) {
+      user.powerupInventory.extraTime += 1;
+      rewardPowerup = "+5 Time";
+    }
+
+    this.saveUsers(users);
+    this.setCurrentUser(user);
+
+    return {
+      success: true,
+      alreadyClaimed: false,
+      streak: user.loginRewards.streak,
+      rewardCoins,
+      rewardPowerup
+    };
+  },
+
+  buyShopItem(username, itemId) {
+    const users = this.getUsers();
+    const user = users.find((u) => u.username === username);
+    const item = this.getShopItems().find((shopItem) => shopItem.id === itemId);
+
+    if (!user || !item) {
+      return { success: false, message: "Invalid purchase." };
+    }
+
+    if (user.coins < item.price) {
+      return { success: false, message: "Not enough coins." };
+    }
+
+    user.coins -= item.price;
+
+    if (item.id === "fiftyFifty") user.powerupInventory.fiftyFifty += item.amount;
+    else if (item.id === "skip") user.powerupInventory.skip += item.amount;
+    else if (item.id === "extraTime") user.powerupInventory.extraTime += item.amount;
+    else if (item.id === "doublePoints") user.powerupInventory.doublePoints += item.amount;
+
+    this.saveUsers(users);
+    this.setCurrentUser(user);
+
+    return { success: true, item, user };
+  },
+
+  unlockAvatar(username, avatarValue) {
+    const users = this.getUsers();
+    const user = users.find((u) => u.username === username);
+    const avatarItem = this.getAvailableAvatars().find((item) => item.avatar === avatarValue);
+
+    if (!user || !avatarItem) {
+      return { success: false, message: "Invalid avatar." };
+    }
+
+    if (user.ownedAvatars.includes(avatarValue)) {
+      return { success: false, message: "Avatar already unlocked." };
+    }
+
+    if (user.coins < avatarItem.price) {
+      return { success: false, message: "Not enough coins." };
+    }
+
+    user.coins -= avatarItem.price;
+    user.ownedAvatars.push(avatarValue);
+
+    this.saveUsers(users);
+    this.setCurrentUser(user);
+
+    return { success: true, avatarItem, user };
+  },
+
+  equipAvatar(username, avatarValue) {
+    const users = this.getUsers();
+    const user = users.find((u) => u.username === username);
+
+    if (!user) return { success: false, message: "User not found." };
+    if (!user.ownedAvatars.includes(avatarValue)) {
+      return { success: false, message: "Avatar is not unlocked." };
+    }
+
+    user.avatar = avatarValue;
+    this.saveUsers(users);
+    this.setCurrentUser(user);
+
+    return { success: true, user };
+  },
+
   saveUserStats(player1Username, player2Username, player1Score, player2Score, winner, category, mode, extra = {}) {
     const users = this.getUsers();
 
     const player1 = users.find((u) => u.username === player1Username);
     const player2 = users.find((u) => u.username === player2Username);
 
-    if (!player1 || !player2) {
-      return null;
-    }
+    if (!player1 || !player2) return null;
 
     const player1CorrectAnswers = Number(extra.player1CorrectAnswers || 0);
     const player2CorrectAnswers = Number(extra.player2CorrectAnswers || 0);
@@ -420,6 +570,9 @@ window.DamonState = {
     const player1Rewards = this.rewardPowerups(player1, winner === player1.username);
     const player2Rewards = this.rewardPowerups(player2, winner === player2.username);
 
+    const player1CoinReward = this.rewardCoins(player1, winner === player1.username, player1Score);
+    const player2CoinReward = this.rewardCoins(player2, winner === player2.username, player2Score);
+
     this.saveUsers(users);
 
     const currentUser = this.getCurrentUser();
@@ -443,6 +596,8 @@ window.DamonState = {
       player2XpGain,
       player1CorrectAnswers,
       player2CorrectAnswers,
+      player1CoinReward,
+      player2CoinReward,
       date: new Date().toLocaleString()
     });
     this.saveMatches(matches);
@@ -465,11 +620,8 @@ window.DamonState = {
     h2h[key][`${player1.username}Points`] += player1Score;
     h2h[key][`${player2.username}Points`] += player2Score;
 
-    if (winner === player1.username) {
-      h2h[key][player1.username] += 1;
-    } else if (winner === player2.username) {
-      h2h[key][player2.username] += 1;
-    }
+    if (winner === player1.username) h2h[key][player1.username] += 1;
+    else if (winner === player2.username) h2h[key][player2.username] += 1;
 
     this.saveH2H(h2h);
 
@@ -481,7 +633,9 @@ window.DamonState = {
       player1Daily,
       player2Daily,
       player1Rewards,
-      player2Rewards
+      player2Rewards,
+      player1CoinReward,
+      player2CoinReward
     };
   },
 
@@ -489,20 +643,15 @@ window.DamonState = {
     const users = this.getUsers();
     const player = users.find((u) => u.username === username);
 
-    if (!player) {
-      return null;
-    }
+    if (!player) return null;
 
     const correctAnswers = Number(extra.correctAnswers || 0);
 
     player.totalPoints += playerScore;
     player.matchesPlayed += 1;
 
-    if (winner === player.username) {
-      player.totalWins += 1;
-    } else if (winner !== "draw") {
-      player.totalLosses += 1;
-    }
+    if (winner === player.username) player.totalWins += 1;
+    else if (winner !== "draw") player.totalLosses += 1;
 
     this.updateWinStreak(player, winner);
 
@@ -511,6 +660,7 @@ window.DamonState = {
     const achievements = this.unlockAchievements(player);
     const daily = this.updateDailyProgress(player, category, correctAnswers, winner === player.username);
     const rewards = this.rewardPowerups(player, winner === player.username);
+    const coinReward = this.rewardCoins(player, winner === player.username, playerScore);
 
     this.saveUsers(users);
     this.setCurrentUser(player);
@@ -528,6 +678,8 @@ window.DamonState = {
       player2XpGain: 0,
       player1CorrectAnswers: correctAnswers,
       player2CorrectAnswers: 0,
+      player1CoinReward: coinReward,
+      player2CoinReward: 0,
       difficulty: extra.difficulty || "easy",
       personality: extra.personality || "slowThinker",
       date: new Date().toLocaleString()
@@ -538,7 +690,8 @@ window.DamonState = {
       progress,
       achievements,
       daily,
-      rewards
+      rewards,
+      coinReward
     };
   }
 };

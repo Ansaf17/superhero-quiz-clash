@@ -16,6 +16,7 @@
       <div class="top-bar-actions">
         <a class="card" href="./stats.html">Stats</a>
         <a class="card" href="./achievements.html">Achievements</a>
+        <a class="card" href="./shop.html">Shop</a>
         <a class="card" href="./settings.html">Settings</a>
         <a class="card" href="./home.html">Back Home</a>
       </div>
@@ -38,6 +39,16 @@
         </div>
         <div class="xp-bar-track">
           <div id="profileXpBar" class="xp-bar-fill" style="width:0%;"></div>
+        </div>
+      </section>
+
+      <section class="card coins-card" style="margin-bottom:20px;">
+        <div class="shop-balance-layout">
+          <div class="shop-balance-icon">🪙</div>
+          <div>
+            <h3 style="margin:0;">Coins</h3>
+            <p id="profileCoinsText" class="shop-coins-text">0 Coins</p>
+          </div>
         </div>
       </section>
 
@@ -96,6 +107,11 @@
       <section class="card inventory-card" style="margin-top:20px;">
         <h3 style="margin-top:0;">Powerup Inventory</h3>
         <div id="profileInventoryGrid" class="inventory-grid"></div>
+      </section>
+
+      <section class="card inventory-card" style="margin-top:20px;">
+        <h3 style="margin-top:0;">Owned Avatars</h3>
+        <div id="profileAvatarCollection" class="owned-avatar-grid"></div>
       </section>
     </section>
   </div>

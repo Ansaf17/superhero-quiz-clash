@@ -1,14 +1,11 @@
 const state = window.DamonState;
 
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
-
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const registerBtn = document.getElementById("registerBtn");
 const pcBtn = document.getElementById("pcBtn");
 const pvpBtn = document.getElementById("pvpBtn");
+const claimDailyBtn = document.getElementById("claimDailyBtn");
 
 const profileToggleBtn = document.getElementById("profileToggleBtn");
 const profileDropdown = document.getElementById("profileDropdown");
@@ -23,6 +20,8 @@ const registerArea = document.getElementById("registerArea");
 
 const miniAvatar = document.getElementById("miniAvatar");
 const miniUsername = document.getElementById("miniUsername");
+const miniCoinsText = document.getElementById("miniCoinsText");
+const dailyRewardBox = document.getElementById("dailyRewardBox");
 
 const avatarOptions = document.querySelectorAll(".avatar-option");
 const messageBox = document.getElementById("messageBox");
@@ -48,11 +47,29 @@ function closeDropdown() {
 }
 
 function toggleDropdown() {
-  if (dropdownOpen) {
-    closeDropdown();
-  } else {
-    openDropdown();
+  if (dropdownOpen) closeDropdown();
+  else openDropdown();
+}
+
+function refreshDailyRewardUI(user) {
+  if (!user) {
+    dailyRewardBox.innerHTML = "";
+    return;
   }
+
+  const today = state.getTodayString();
+  const alreadyClaimed = user.loginRewards?.lastClaimDate === today;
+  const streak = user.loginRewards?.streak || 0;
+
+  dailyRewardBox.innerHTML = `
+    <div class="daily-login-status">
+      <strong>Daily Reward</strong>
+      <p>Streak: ${streak} day${streak === 1 ? "" : "s"}</p>
+      <p>${alreadyClaimed ? "Already claimed today" : "Ready to claim today"}</p>
+    </div>
+  `;
+
+  claimDailyBtn.disabled = alreadyClaimed;
 }
 
 function refreshSessionUI() {
@@ -63,11 +80,14 @@ function refreshSessionUI() {
     loggedInPanel.classList.remove("hidden");
     miniAvatar.textContent = currentUser.avatar;
     miniUsername.textContent = `${currentUser.username} • ${currentUser.rankTitle}`;
+    miniCoinsText.textContent = `${currentUser.coins} Coins`;
     profileToggleAvatar.textContent = currentUser.avatar;
+    refreshDailyRewardUI(currentUser);
   } else {
     loggedOutPanel.classList.remove("hidden");
     loggedInPanel.classList.add("hidden");
     profileToggleAvatar.textContent = "👤";
+    refreshDailyRewardUI(null);
   }
 }
 
@@ -129,12 +149,27 @@ registerBtn.onclick = () => {
     level: 1,
     rankTitle: "Rookie",
     leaderboardTier: "Bronze",
+    coins: 100,
+    winStreak: 0,
+    bestWinStreak: 0,
     achievements: [],
+    ownedAvatars: ["🦸", selectedAvatar],
+    powerupInventory: {
+      fiftyFifty: 1,
+      skip: 1,
+      extraTime: 1,
+      doublePoints: 1
+    },
     dailyProgress: {
-      correctToday: 0,
-      matchesToday: 0,
-      winsToday: 0,
-      lastUpdated: new Date().toISOString().split("T")[0]
+      date: new Date().toISOString().split("T")[0],
+      matchesPlayed: 0,
+      wins: 0,
+      correctAnswers: 0,
+      bananaPlayed: false
+    },
+    loginRewards: {
+      lastClaimDate: "",
+      streak: 0
     }
   });
 
@@ -174,6 +209,27 @@ logoutBtn.onclick = () => {
   refreshSessionUI();
   closeDropdown();
   showMessage("Logged out successfully.", "success");
+};
+
+claimDailyBtn.onclick = () => {
+  const currentUser = state.getCurrentUser();
+
+  if (!currentUser) {
+    showMessage("Log in first.", "error");
+    return;
+  }
+
+  const result = state.claimDailyLoginReward(currentUser.username);
+
+  if (!result.success && result.alreadyClaimed) {
+    refreshSessionUI();
+    showMessage("Daily reward already claimed today.", "error");
+    return;
+  }
+
+  refreshSessionUI();
+  const powerupText = result.rewardPowerup ? ` + ${result.rewardPowerup}` : "";
+  showMessage(`Claimed daily reward: +${result.rewardCoins} coins${powerupText}`, "success");
 };
 
 pcBtn.onclick = () => {
