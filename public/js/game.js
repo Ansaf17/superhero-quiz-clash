@@ -29,8 +29,11 @@ const resultMetaText = document.getElementById("resultMetaText");
 const progressSummary = document.getElementById("progressSummary");
 const unlockedAchievements = document.getElementById("unlockedAchievements");
 const dailyChallengeStatus = document.getElementById("dailyChallengeStatus");
+const powerupRewardsBox = document.getElementById("powerupRewardsBox");
 const streakBanner = document.getElementById("streakBanner");
 const botPersonalityText = document.getElementById("botPersonalityText");
+const achievementPopupStack = document.getElementById("achievementPopupStack");
+const confettiContainer = document.getElementById("confettiContainer");
 
 const powerup5050Btn = document.getElementById("powerup5050Btn");
 const powerupSkipBtn = document.getElementById("powerupSkipBtn");
@@ -61,21 +64,33 @@ let player1CorrectAnswers = 0;
 let player2CorrectAnswers = 0;
 let removedIndexes = [];
 
+const currentUser = state.getCurrentUser();
+const freshUsers = state.getUsers();
+const freshPlayer1 = freshUsers.find((u) => u.username === config.player1.username);
+
 let player1Powerups = {
-  fiftyFifty: 1,
-  skip: 1,
-  extraTime: 1,
-  doublePoints: 1,
+  fiftyFifty: Number(freshPlayer1?.powerupInventory?.fiftyFifty || 1),
+  skip: Number(freshPlayer1?.powerupInventory?.skip || 1),
+  extraTime: Number(freshPlayer1?.powerupInventory?.extraTime || 1),
+  doublePoints: Number(freshPlayer1?.powerupInventory?.doublePoints || 1),
   doublePointsActive: false
 };
 
-let player2Powerups = {
-  fiftyFifty: 1,
-  skip: 1,
-  extraTime: 1,
-  doublePoints: 1,
-  doublePointsActive: false
-};
+let player2Powerups = config.mode === "pc" && config.player2.isBot
+  ? {
+      fiftyFifty: 1,
+      skip: 1,
+      extraTime: 1,
+      doublePoints: 1,
+      doublePointsActive: false
+    }
+  : {
+      fiftyFifty: 1,
+      skip: 1,
+      extraTime: 1,
+      doublePoints: 1,
+      doublePointsActive: false
+    };
 
 function showMessage(text, type) {
   messageBox.textContent = text;
@@ -91,6 +106,50 @@ function showStreakBanner(text) {
     streakBanner.classList.remove("streak-banner-show");
     streakBanner.classList.add("hidden");
   }, 1400);
+}
+
+function showAchievementPopup(title, description) {
+  const popup = document.createElement("div");
+  popup.className = "achievement-popup";
+  popup.innerHTML = `
+    <div class="achievement-popup-icon">🏆</div>
+    <div>
+      <strong>${title}</strong>
+      <p>${description}</p>
+    </div>
+  `;
+  achievementPopupStack.appendChild(popup);
+
+  requestAnimationFrame(() => {
+    popup.classList.add("achievement-popup-show");
+  });
+
+  setTimeout(() => {
+    popup.classList.remove("achievement-popup-show");
+    popup.classList.add("achievement-popup-hide");
+
+    setTimeout(() => {
+      popup.remove();
+    }, 300);
+  }, 2600);
+}
+
+function launchConfetti() {
+  confettiContainer.innerHTML = "";
+
+  for (let i = 0; i < 36; i += 1) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.animationDelay = `${Math.random() * 0.5}s`;
+    piece.style.background = ["#facc15", "#38bdf8", "#a855f7", "#22c55e", "#fb7185"][Math.floor(Math.random() * 5)];
+    piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+    confettiContainer.appendChild(piece);
+  }
+
+  setTimeout(() => {
+    confettiContainer.innerHTML = "";
+  }, 3000);
 }
 
 function getCurrentPowerupSet() {
@@ -474,6 +533,15 @@ function renderProgressCard(title, progress) {
       <p><strong>Level:</strong> ${progress.oldLevel} → ${progress.newLevel}${progress.leveledUp ? " 🎉" : ""}</p>
       <p><strong>Rank Title:</strong> ${progress.oldRankTitle} → ${progress.newRankTitle}${progress.rankChanged ? " ✨" : ""}</p>
       <p><strong>Tier:</strong> ${progress.oldTier} → ${progress.newTier}${progress.tierChanged ? " 🏅" : ""}</p>
+      <div class="xp-bar-card">
+        <div class="xp-bar-header">
+          <span>XP Progress</span>
+          <span>${progress.xpIntoLevel}/${progress.xpNeededForNextLevel}</span>
+        </div>
+        <div class="xp-bar-track">
+          <div class="xp-bar-fill" style="width: 0%;" data-target-width="${progress.xpPercent.toFixed(2)}%"></div>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -511,9 +579,48 @@ function renderDailyStatus(title, items) {
   `;
 }
 
+function renderRewards(title, rewards) {
+  return `
+    <div class="reward-player-card">
+      <h4>${title}</h4>
+      ${
+        rewards && rewards.length
+          ? rewards.map((reward) => `<div class="reward-chip">🎁 ${reward}</div>`).join("")
+          : `<div class="mini-info-card">No powerup rewards earned.</div>`
+      }
+    </div>
+  `;
+}
+
+function animateXpBars() {
+  const fills = document.querySelectorAll(".xp-bar-fill");
+  fills.forEach((fill, index) => {
+    const target = fill.dataset.targetWidth || "0%";
+    setTimeout(() => {
+      fill.style.width = target;
+    }, 250 + index * 180);
+  });
+}
+
+function spendPersistentPowerupInventory() {
+  const users = state.getUsers();
+  const player = users.find((u) => u.username === config.player1.username);
+
+  if (!player) return;
+
+  player.powerupInventory.fiftyFifty = Math.max(0, player.powerupInventory.fiftyFifty - (freshPlayer1.powerupInventory.fiftyFifty - player1Powerups.fiftyFifty));
+  player.powerupInventory.skip = Math.max(0, player.powerupInventory.skip - (freshPlayer1.powerupInventory.skip - player1Powerups.skip));
+  player.powerupInventory.extraTime = Math.max(0, player.powerupInventory.extraTime - (freshPlayer1.powerupInventory.extraTime - player1Powerups.extraTime));
+  player.powerupInventory.doublePoints = Math.max(0, player.powerupInventory.doublePoints - (freshPlayer1.powerupInventory.doublePoints - player1Powerups.doublePoints));
+
+  state.saveUsers(users);
+  state.setCurrentUser(player);
+}
+
 function finishMatch() {
   stopTimer();
   stopBotThinking();
+  spendPersistentPowerupInventory();
 
   let winner = "draw";
   let resultText = "🤝 The battle ended in a draw!";
@@ -534,6 +641,7 @@ function finishMatch() {
   progressSummary.innerHTML = "";
   unlockedAchievements.innerHTML = "";
   dailyChallengeStatus.innerHTML = "";
+  powerupRewardsBox.innerHTML = "";
 
   if (!config.player2.isBot) {
     const result = state.saveUserStats(
@@ -577,6 +685,16 @@ function finishMatch() {
           ${renderDailyStatus(config.player2.username, result.player2Daily)}
         </div>
       `;
+
+      powerupRewardsBox.innerHTML = `
+        <div class="daily-result-grid">
+          ${renderRewards(config.player1.username, result.player1Rewards)}
+          ${renderRewards(config.player2.username, result.player2Rewards)}
+        </div>
+      `;
+
+      result.player1Achievements.forEach((item) => showAchievementPopup(item.title, item.description));
+      result.player2Achievements.forEach((item) => showAchievementPopup(item.title, item.description));
     }
   } else {
     const single = state.saveSinglePlayerStats(
@@ -608,12 +726,23 @@ function finishMatch() {
           ${renderDailyStatus(config.player1.username, single.daily)}
         </div>
       `;
+
+      powerupRewardsBox.innerHTML = `
+        <div class="daily-result-grid">
+          ${renderRewards(config.player1.username, single.rewards)}
+        </div>
+      `;
+
+      single.achievements.forEach((item) => showAchievementPopup(item.title, item.description));
     }
   }
 
   resultMetaText.innerHTML = progressSummaryText;
   resultCard.classList.remove("hidden");
   showMessage("Match completed successfully.", "success");
+
+  animateXpBars();
+  launchConfetti();
 
   if (window.DamonAudio) {
     window.DamonAudio.playVictory();

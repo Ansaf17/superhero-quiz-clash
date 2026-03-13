@@ -1,9 +1,5 @@
 const state = window.DamonState;
 
-if (window.DamonAudio) {
-  window.DamonAudio.playMenuMusic();
-}
-
 const leaderboardList = document.getElementById("leaderboardList");
 const historyList = document.getElementById("historyList");
 const h2hList = document.getElementById("h2hList");
@@ -39,6 +35,23 @@ function getSortedUsers() {
   return users;
 }
 
+function renderXpBar(user) {
+  const xpState = state.getXpIntoCurrentLevel(user.xp);
+  const percent = (xpState.xpIntoLevel / xpState.xpNeededForNextLevel) * 100;
+
+  return `
+    <div class="xp-bar-card compact-xp-bar">
+      <div class="xp-bar-header">
+        <span>XP</span>
+        <span>${xpState.xpIntoLevel}/${xpState.xpNeededForNextLevel}</span>
+      </div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" style="width:${percent}%;"></div>
+      </div>
+    </div>
+  `;
+}
+
 function renderPodium(users) {
   podiumWrap.innerHTML = "";
 
@@ -66,9 +79,13 @@ function renderPodium(users) {
       <div class="podium-medal">${getMedalByRank(visualRank)}</div>
       <div class="podium-avatar">${user.avatar}</div>
       <h3>${user.username}</h3>
-      <p>${user.leaderboardTier} • ${user.rankTitle}</p>
+      <div class="leaderboard-badges">
+        <span class="rank-badge">${state.getTierEmoji(user.leaderboardTier)} ${user.leaderboardTier}</span>
+        <span class="title-badge">⭐ ${user.rankTitle}</span>
+      </div>
       <p>Wins: ${user.totalWins}</p>
       <p>XP: ${user.xp}</p>
+      ${renderXpBar(user)}
       <div class="podium-block podium-block-${visualRank}">#${visualRank}</div>
     `;
 
@@ -100,13 +117,17 @@ function renderLeaderboard() {
         <div style="font-size:1.5rem;">${user.avatar}</div>
       </div>
 
-      <p><strong>Tier:</strong> ${user.leaderboardTier}</p>
-      <p><strong>Rank Title:</strong> ${user.rankTitle}</p>
-      <p><strong>Level:</strong> ${user.level}</p>
-      <p><strong>XP:</strong> ${user.xp}</p>
+      <div class="leaderboard-badges" style="margin-top:10px;">
+        <span class="rank-badge">${state.getTierEmoji(user.leaderboardTier)} ${user.leaderboardTier}</span>
+        <span class="title-badge">⭐ ${user.rankTitle}</span>
+        <span class="level-badge">LV ${user.level}</span>
+      </div>
+
       <p><strong>Wins:</strong> ${user.totalWins}</p>
       <p><strong>Points:</strong> ${user.totalPoints}</p>
       <p><strong>Matches Played:</strong> ${user.matchesPlayed}</p>
+      <p><strong>XP:</strong> ${user.xp}</p>
+      ${renderXpBar(user)}
     `;
     leaderboardList.appendChild(item);
   });
@@ -204,21 +225,6 @@ function renderH2H() {
       <p>${nameB} Total Points: ${record[`${nameB}Points`] || 0}</p>
     `;
 
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "secondary";
-    btn.style.marginTop = "10px";
-    btn.textContent = "View Details";
-    btn.onclick = () => {
-      const target = `h2h.html?key=${encodeURIComponent(key)}`;
-      if (window.DamonFX) {
-        window.DamonFX.navigate(target);
-      } else {
-        window.location.href = target;
-      }
-    };
-
-    item.appendChild(btn);
     h2hList.appendChild(item);
   });
 }

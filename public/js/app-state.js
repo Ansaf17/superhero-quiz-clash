@@ -17,6 +17,12 @@ window.DamonState = {
       winStreak: Number(user.winStreak || 0),
       bestWinStreak: Number(user.bestWinStreak || 0),
       achievements: Array.isArray(user.achievements) ? user.achievements : [],
+      powerupInventory: {
+        fiftyFifty: Number(user.powerupInventory?.fiftyFifty || 1),
+        skip: Number(user.powerupInventory?.skip || 1),
+        extraTime: Number(user.powerupInventory?.extraTime || 1),
+        doublePoints: Number(user.powerupInventory?.doublePoints || 1)
+      },
       dailyProgress: user.dailyProgress || {
         date: today,
         matchesPlayed: 0,
@@ -141,6 +147,24 @@ window.DamonState = {
     return level;
   },
 
+  getXpIntoCurrentLevel(xp) {
+    let level = 1;
+    let requiredForNext = 100;
+    let remainingXp = xp;
+
+    while (remainingXp >= requiredForNext) {
+      remainingXp -= requiredForNext;
+      level += 1;
+      requiredForNext = level * 100;
+    }
+
+    return {
+      level,
+      xpIntoLevel: remainingXp,
+      xpNeededForNextLevel: requiredForNext
+    };
+  },
+
   getRankTitle(level) {
     if (level >= 9) return "Legend";
     if (level >= 7) return "Master";
@@ -156,6 +180,18 @@ window.DamonState = {
     if (wins >= 6) return "Gold";
     if (wins >= 3) return "Silver";
     return "Bronze";
+  },
+
+  getTierEmoji(tier) {
+    const map = {
+      Bronze: "🟤",
+      Silver: "⚪",
+      Gold: "🟡",
+      Diamond: "💎",
+      Master: "🟣",
+      Legend: "👑"
+    };
+    return map[tier] || "🏅";
   },
 
   calculateXpGain(score, winner, username) {
@@ -184,6 +220,8 @@ window.DamonState = {
     user.rankTitle = this.getRankTitle(user.level);
     user.leaderboardTier = this.getLeaderboardTier(user.totalWins);
 
+    const xpState = this.getXpIntoCurrentLevel(user.xp);
+
     return {
       xpGain,
       oldXp,
@@ -196,7 +234,10 @@ window.DamonState = {
       rankChanged: oldRankTitle !== user.rankTitle,
       oldTier,
       newTier: user.leaderboardTier,
-      tierChanged: oldTier !== user.leaderboardTier
+      tierChanged: oldTier !== user.leaderboardTier,
+      xpIntoLevel: xpState.xpIntoLevel,
+      xpNeededForNextLevel: xpState.xpNeededForNextLevel,
+      xpPercent: Math.max(0, Math.min(100, (xpState.xpIntoLevel / xpState.xpNeededForNextLevel) * 100))
     };
   },
 
@@ -220,26 +261,10 @@ window.DamonState = {
 
   getAchievementDefinitions() {
     return [
-      {
-        id: "first_win",
-        title: "First Win",
-        description: "Win your first match."
-      },
-      {
-        id: "ten_wins",
-        title: "10 Wins",
-        description: "Reach 10 total wins."
-      },
-      {
-        id: "hundred_points",
-        title: "100 Points",
-        description: "Reach 100 total points."
-      },
-      {
-        id: "five_win_streak",
-        title: "5 Win Streak",
-        description: "Win 5 matches in a row."
-      }
+      { id: "first_win", title: "First Win", description: "Win your first match." },
+      { id: "ten_wins", title: "10 Wins", description: "Reach 10 total wins." },
+      { id: "hundred_points", title: "100 Points", description: "Reach 100 total points." },
+      { id: "five_win_streak", title: "5 Win Streak", description: "Win 5 matches in a row." }
     ];
   },
 
@@ -276,21 +301,9 @@ window.DamonState = {
 
   getDailyChallengeDefinitions() {
     return [
-      {
-        id: "daily_win_1",
-        title: "Daily Challenger",
-        description: "Win 1 match today."
-      },
-      {
-        id: "daily_correct_5",
-        title: "Sharp Mind",
-        description: "Answer 5 questions correctly today."
-      },
-      {
-        id: "daily_banana_1",
-        title: "Banana Trouble",
-        description: "Play 1 Banana API match today."
-      }
+      { id: "daily_win_1", title: "Daily Challenger", description: "Win 1 match today." },
+      { id: "daily_correct_5", title: "Sharp Mind", description: "Answer 5 questions correctly today." },
+      { id: "daily_banana_1", title: "Banana Trouble", description: "Play 1 Banana API match today." }
     ];
   },
 
@@ -310,10 +323,7 @@ window.DamonState = {
         completed = user.dailyProgress.bananaPlayed === true;
       }
 
-      return {
-        ...challenge,
-        completed
-      };
+      return { ...challenge, completed };
     });
   },
 
@@ -343,6 +353,26 @@ window.DamonState = {
     } else if (winner !== "draw") {
       user.winStreak = 0;
     }
+  },
+
+  rewardPowerups(user, won) {
+    const rewards = [];
+
+    if (won) {
+      user.powerupInventory.fiftyFifty += 1;
+      user.powerupInventory.skip += 1;
+      rewards.push("50/50", "Skip");
+    } else {
+      user.powerupInventory.extraTime += 1;
+      rewards.push("+5 Time");
+    }
+
+    if (user.totalWins > 0 && user.totalWins % 3 === 0) {
+      user.powerupInventory.doublePoints += 1;
+      rewards.push("Double Points");
+    }
+
+    return rewards;
   },
 
   saveUserStats(player1Username, player2Username, player1Score, player2Score, winner, category, mode, extra = {}) {
@@ -386,6 +416,9 @@ window.DamonState = {
 
     const player1Daily = this.updateDailyProgress(player1, category, player1CorrectAnswers, winner === player1.username);
     const player2Daily = this.updateDailyProgress(player2, category, player2CorrectAnswers, winner === player2.username);
+
+    const player1Rewards = this.rewardPowerups(player1, winner === player1.username);
+    const player2Rewards = this.rewardPowerups(player2, winner === player2.username);
 
     this.saveUsers(users);
 
@@ -446,7 +479,9 @@ window.DamonState = {
       player1Achievements,
       player2Achievements,
       player1Daily,
-      player2Daily
+      player2Daily,
+      player1Rewards,
+      player2Rewards
     };
   },
 
@@ -475,6 +510,7 @@ window.DamonState = {
     const progress = this.applyProgress(player, xpGain);
     const achievements = this.unlockAchievements(player);
     const daily = this.updateDailyProgress(player, category, correctAnswers, winner === player.username);
+    const rewards = this.rewardPowerups(player, winner === player.username);
 
     this.saveUsers(users);
     this.setCurrentUser(player);
@@ -501,7 +537,8 @@ window.DamonState = {
     return {
       progress,
       achievements,
-      daily
+      daily,
+      rewards
     };
   }
 };
