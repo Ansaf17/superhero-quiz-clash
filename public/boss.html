@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAMON - Boss Battle</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <div>
+        <h1 style="margin:0;">Boss Battle</h1>
+        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Choose a boss and category, then enter the arena.</p>
+      </div>
+      <div class="top-bar-actions">
+        <a class="card" href="./home.html">Back Home</a>
+      </div>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <section class="card" style="margin-bottom:20px;">
+      <h2 style="margin-top:0;">Choose Boss</h2>
+      <div id="bossGrid" class="boss-grid"></div>
+    </section>
+
+    <section class="card" style="margin-bottom:20px;">
+      <h2 style="margin-top:0;">Choose Category</h2>
+      <div class="grid-2 category-grid">
+        <button class="card category-tile active" type="button" data-category="math">
+          <h3>➗ Maths</h3>
+          <p>Fast calculation rounds</p>
+        </button>
+
+        <button class="card category-tile" type="button" data-category="banana">
+          <h3>🍌 Banana API</h3>
+          <p>Visual banana puzzle questions</p>
+        </button>
+
+        <button class="card category-tile" type="button" data-category="general">
+          <h3>🌍 General Knowledge</h3>
+          <p>Open trivia questions</p>
+        </button>
+
+        <button class="card category-tile" type="button" data-category="programming">
+          <h3>💻 Programming</h3>
+          <p>Computer science questions</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="card arena-enter-card">
+      <button id="startBossBattleBtn" type="button">Start Boss Battle</button>
+    </section>
+  </div>
+
+  <script src="./js/app-state.js"></script>
+  <script src="./js/global-ui.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/boss.js"></script>
+</body>
+</html>

@@ -5,6 +5,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 const registerBtn = document.getElementById("registerBtn");
 const pcBtn = document.getElementById("pcBtn");
 const pvpBtn = document.getElementById("pvpBtn");
+const bossBtn = document.getElementById("bossBtn");
 const claimDailyBtn = document.getElementById("claimDailyBtn");
 
 const profileToggleBtn = document.getElementById("profileToggleBtn");
@@ -262,6 +263,17 @@ pvpBtn.onclick = () => {
   }
 
   window.location.href = "lobby.html";
+};
+
+bossBtn.onclick = () => {
+  const currentUser = state.getCurrentUser();
+
+  if (!currentUser) {
+    showMessage("Log in first to continue.", "error");
+    return;
+  }
+
+  window.location.href = "boss.html";
 };
 
 refreshSessionUI();

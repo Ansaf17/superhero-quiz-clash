@@ -1973,3 +1973,46 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+.boss-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.boss-card {
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.boss-card:hover {
+  transform: translateY(-4px);
+}
+
+.boss-card-active {
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.boss-card-avatar {
+  font-size: 2.6rem;
+  margin-bottom: 10px;
+}
+
+.boss-banner {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  text-align: center;
+  font-weight: 800;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  color: #fecaca;
+}
+
+@media (max-width: 900px) {
+  .boss-grid {
+    grid-template-columns: 1fr;
+  }
+}

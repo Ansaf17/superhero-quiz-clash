@@ -38,6 +38,11 @@ window.DamonState = {
       loginRewards: user.loginRewards || {
         lastClaimDate: "",
         streak: 0
+      },
+      bossStats: user.bossStats || {
+        victories: 0,
+        defeats: 0,
+        bossesDefeated: []
       }
     };
   },
@@ -231,6 +236,41 @@ window.DamonState = {
     ];
   },
 
+  getBossProfiles() {
+    return [
+      {
+        id: "ironTitan",
+        name: "Iron Titan",
+        avatar: "🛡️",
+        hp: 60,
+        description: "Slow but durable boss with heavy HP.",
+        rewardCoins: 120,
+        rewardXp: 80,
+        rewardPowerup: "fiftyFifty"
+      },
+      {
+        id: "shadowBrain",
+        name: "Shadow Brain",
+        avatar: "🧠",
+        hp: 50,
+        description: "Highly accurate boss with tricky pressure.",
+        rewardCoins: 140,
+        rewardXp: 100,
+        rewardPowerup: "doublePoints"
+      },
+      {
+        id: "chaosHydra",
+        name: "Chaos Hydra",
+        avatar: "🐉",
+        hp: 70,
+        description: "Unpredictable boss with strong endurance.",
+        rewardCoins: 180,
+        rewardXp: 130,
+        rewardPowerup: "skip"
+      }
+    ];
+  },
+
   calculateXpGain(score, winner, username) {
     const correctAnswerXp = Math.floor(score / 10) * 10;
     let outcomeXp = 0;
@@ -296,7 +336,8 @@ window.DamonState = {
       { id: "first_win", title: "First Win", description: "Win your first match." },
       { id: "ten_wins", title: "10 Wins", description: "Reach 10 total wins." },
       { id: "hundred_points", title: "100 Points", description: "Reach 100 total points." },
-      { id: "five_win_streak", title: "5 Win Streak", description: "Win 5 matches in a row." }
+      { id: "five_win_streak", title: "5 Win Streak", description: "Win 5 matches in a row." },
+      { id: "first_boss_win", title: "Boss Slayer", description: "Defeat your first boss." }
     ];
   },
 
@@ -318,7 +359,8 @@ window.DamonState = {
       { id: "first_win", condition: user.totalWins >= 1 },
       { id: "ten_wins", condition: user.totalWins >= 10 },
       { id: "hundred_points", condition: user.totalPoints >= 100 },
-      { id: "five_win_streak", condition: user.winStreak >= 5 }
+      { id: "five_win_streak", condition: user.winStreak >= 5 },
+      { id: "first_boss_win", condition: user.bossStats?.victories >= 1 }
     ];
 
     checks.forEach((check) => {
@@ -464,13 +506,8 @@ window.DamonState = {
     const user = users.find((u) => u.username === username);
     const item = this.getShopItems().find((shopItem) => shopItem.id === itemId);
 
-    if (!user || !item) {
-      return { success: false, message: "Invalid purchase." };
-    }
-
-    if (user.coins < item.price) {
-      return { success: false, message: "Not enough coins." };
-    }
+    if (!user || !item) return { success: false, message: "Invalid purchase." };
+    if (user.coins < item.price) return { success: false, message: "Not enough coins." };
 
     user.coins -= item.price;
 
@@ -490,17 +527,9 @@ window.DamonState = {
     const user = users.find((u) => u.username === username);
     const avatarItem = this.getAvailableAvatars().find((item) => item.avatar === avatarValue);
 
-    if (!user || !avatarItem) {
-      return { success: false, message: "Invalid avatar." };
-    }
-
-    if (user.ownedAvatars.includes(avatarValue)) {
-      return { success: false, message: "Avatar already unlocked." };
-    }
-
-    if (user.coins < avatarItem.price) {
-      return { success: false, message: "Not enough coins." };
-    }
+    if (!user || !avatarItem) return { success: false, message: "Invalid avatar." };
+    if (user.ownedAvatars.includes(avatarValue)) return { success: false, message: "Avatar already unlocked." };
+    if (user.coins < avatarItem.price) return { success: false, message: "Not enough coins." };
 
     user.coins -= avatarItem.price;
     user.ownedAvatars.push(avatarValue);
@@ -527,161 +556,77 @@ window.DamonState = {
     return { success: true, user };
   },
 
-  saveUserStats(player1Username, player2Username, player1Score, player2Score, winner, category, mode, extra = {}) {
+  saveBossBattleStats(username, bossProfile, playerScore, bossScore, won, category, correctAnswers) {
     const users = this.getUsers();
+    const user = users.find((u) => u.username === username);
 
-    const player1 = users.find((u) => u.username === player1Username);
-    const player2 = users.find((u) => u.username === player2Username);
+    if (!user) return null;
 
-    if (!player1 || !player2) return null;
+    user.totalPoints += playerScore;
+    user.matchesPlayed += 1;
 
-    const player1CorrectAnswers = Number(extra.player1CorrectAnswers || 0);
-    const player2CorrectAnswers = Number(extra.player2CorrectAnswers || 0);
-
-    player1.totalPoints += player1Score;
-    player2.totalPoints += player2Score;
-
-    player1.matchesPlayed += 1;
-    player2.matchesPlayed += 1;
-
-    if (winner === player1.username) {
-      player1.totalWins += 1;
-      player2.totalLosses += 1;
-    } else if (winner === player2.username) {
-      player2.totalWins += 1;
-      player1.totalLosses += 1;
+    if (won) {
+      user.totalWins += 1;
+      user.bossStats.victories += 1;
+      if (!user.bossStats.bossesDefeated.includes(bossProfile.id)) {
+        user.bossStats.bossesDefeated.push(bossProfile.id);
+      }
+    } else {
+      user.totalLosses += 1;
+      user.bossStats.defeats += 1;
     }
 
-    this.updateWinStreak(player1, winner);
-    this.updateWinStreak(player2, winner);
+    this.updateWinStreak(user, won ? user.username : bossProfile.name);
 
-    const player1XpGain = this.calculateXpGain(player1Score, winner, player1.username);
-    const player2XpGain = this.calculateXpGain(player2Score, winner, player2.username);
+    const scoreXp = this.calculateXpGain(playerScore, won ? user.username : bossProfile.name, user.username);
+    const bossBonusXp = won ? bossProfile.rewardXp : Math.floor(bossProfile.rewardXp / 3);
+    const totalXpGain = scoreXp + bossBonusXp;
 
-    const player1Progress = this.applyProgress(player1, player1XpGain);
-    const player2Progress = this.applyProgress(player2, player2XpGain);
+    const progress = this.applyProgress(user, totalXpGain);
+    const achievements = this.unlockAchievements(user);
+    const daily = this.updateDailyProgress(user, category, correctAnswers, won);
 
-    const player1Achievements = this.unlockAchievements(player1);
-    const player2Achievements = this.unlockAchievements(player2);
+    let coinReward = this.rewardCoins(user, won, playerScore);
+    const rewards = [];
 
-    const player1Daily = this.updateDailyProgress(player1, category, player1CorrectAnswers, winner === player1.username);
-    const player2Daily = this.updateDailyProgress(player2, category, player2CorrectAnswers, winner === player2.username);
+    if (won) {
+      user.coins += bossProfile.rewardCoins;
+      coinReward += bossProfile.rewardCoins;
 
-    const player1Rewards = this.rewardPowerups(player1, winner === player1.username);
-    const player2Rewards = this.rewardPowerups(player2, winner === player2.username);
-
-    const player1CoinReward = this.rewardCoins(player1, winner === player1.username, player1Score);
-    const player2CoinReward = this.rewardCoins(player2, winner === player2.username, player2Score);
-
-    this.saveUsers(users);
-
-    const currentUser = this.getCurrentUser();
-    if (currentUser) {
-      const updatedCurrentUser = users.find((u) => u.username === currentUser.username);
-      if (updatedCurrentUser) {
-        this.setCurrentUser(updatedCurrentUser);
+      if (bossProfile.rewardPowerup === "fiftyFifty") {
+        user.powerupInventory.fiftyFifty += 1;
+        rewards.push("50/50");
+      } else if (bossProfile.rewardPowerup === "skip") {
+        user.powerupInventory.skip += 1;
+        rewards.push("Skip");
+      } else if (bossProfile.rewardPowerup === "extraTime") {
+        user.powerupInventory.extraTime += 1;
+        rewards.push("+5 Time");
+      } else if (bossProfile.rewardPowerup === "doublePoints") {
+        user.powerupInventory.doublePoints += 1;
+        rewards.push("Double Points");
       }
     }
 
-    const matches = this.getMatches();
-    matches.push({
-      player1: player1.username,
-      player2: player2.username,
-      player1Score,
-      player2Score,
-      winner,
-      category,
-      mode,
-      player1XpGain,
-      player2XpGain,
-      player1CorrectAnswers,
-      player2CorrectAnswers,
-      player1CoinReward,
-      player2CoinReward,
-      date: new Date().toLocaleString()
-    });
-    this.saveMatches(matches);
-
-    const h2h = this.getH2H();
-    const names = [player1.username, player2.username].sort();
-    const key = `${names[0]}__${names[1]}`;
-
-    if (!h2h[key]) {
-      h2h[key] = {
-        matches: 0,
-        [player1.username]: 0,
-        [player2.username]: 0,
-        [`${player1.username}Points`]: 0,
-        [`${player2.username}Points`]: 0
-      };
-    }
-
-    h2h[key].matches += 1;
-    h2h[key][`${player1.username}Points`] += player1Score;
-    h2h[key][`${player2.username}Points`] += player2Score;
-
-    if (winner === player1.username) h2h[key][player1.username] += 1;
-    else if (winner === player2.username) h2h[key][player2.username] += 1;
-
-    this.saveH2H(h2h);
-
-    return {
-      player1Progress,
-      player2Progress,
-      player1Achievements,
-      player2Achievements,
-      player1Daily,
-      player2Daily,
-      player1Rewards,
-      player2Rewards,
-      player1CoinReward,
-      player2CoinReward
-    };
-  },
-
-  saveSinglePlayerStats(username, opponentName, playerScore, opponentScore, winner, category, mode, extra = {}) {
-    const users = this.getUsers();
-    const player = users.find((u) => u.username === username);
-
-    if (!player) return null;
-
-    const correctAnswers = Number(extra.correctAnswers || 0);
-
-    player.totalPoints += playerScore;
-    player.matchesPlayed += 1;
-
-    if (winner === player.username) player.totalWins += 1;
-    else if (winner !== "draw") player.totalLosses += 1;
-
-    this.updateWinStreak(player, winner);
-
-    const xpGain = this.calculateXpGain(playerScore, winner, player.username);
-    const progress = this.applyProgress(player, xpGain);
-    const achievements = this.unlockAchievements(player);
-    const daily = this.updateDailyProgress(player, category, correctAnswers, winner === player.username);
-    const rewards = this.rewardPowerups(player, winner === player.username);
-    const coinReward = this.rewardCoins(player, winner === player.username, playerScore);
-
     this.saveUsers(users);
-    this.setCurrentUser(player);
+    this.setCurrentUser(user);
 
     const matches = this.getMatches();
     matches.push({
       player1: username,
-      player2: opponentName,
+      player2: bossProfile.name,
       player1Score: playerScore,
-      player2Score: opponentScore,
-      winner,
+      player2Score: bossScore,
+      winner: won ? username : bossProfile.name,
       category,
-      mode,
-      player1XpGain: xpGain,
+      mode: "boss",
+      bossId: bossProfile.id,
+      player1XpGain: totalXpGain,
       player2XpGain: 0,
       player1CorrectAnswers: correctAnswers,
       player2CorrectAnswers: 0,
       player1CoinReward: coinReward,
       player2CoinReward: 0,
-      difficulty: extra.difficulty || "easy",
-      personality: extra.personality || "slowThinker",
       date: new Date().toLocaleString()
     });
     this.saveMatches(matches);
@@ -691,7 +636,8 @@ window.DamonState = {
       achievements,
       daily,
       rewards,
-      coinReward
+      coinReward,
+      bossBonusXp
     };
   }
 };

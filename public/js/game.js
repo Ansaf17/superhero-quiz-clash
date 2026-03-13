@@ -34,6 +34,9 @@ const streakBanner = document.getElementById("streakBanner");
 const botPersonalityText = document.getElementById("botPersonalityText");
 const achievementPopupStack = document.getElementById("achievementPopupStack");
 const confettiContainer = document.getElementById("confettiContainer");
+const bossBanner = document.getElementById("bossBanner");
+const bossHpRow = document.getElementById("bossHpRow");
+const bossHpText = document.getElementById("bossHpText");
 
 const powerup5050Btn = document.getElementById("powerup5050Btn");
 const powerupSkipBtn = document.getElementById("powerupSkipBtn");
@@ -45,7 +48,7 @@ const powerupSkipCount = document.getElementById("powerupSkipCount");
 const powerupTimeCount = document.getElementById("powerupTimeCount");
 const powerupDoubleCount = document.getElementById("powerupDoubleCount");
 
-const totalRounds = 5;
+const totalRounds = config.mode === "boss" ? 7 : 5;
 const turnTimeLimit = Number(settings.turnTimer || 10);
 
 let player1Score = 0;
@@ -64,7 +67,8 @@ let player1CorrectAnswers = 0;
 let player2CorrectAnswers = 0;
 let removedIndexes = [];
 
-const currentUser = state.getCurrentUser();
+let bossHp = config.mode === "boss" ? Number(config.bossProfile?.hp || 50) : 0;
+
 const freshUsers = state.getUsers();
 const freshPlayer1 = freshUsers.find((u) => u.username === config.player1.username);
 
@@ -76,21 +80,22 @@ let player1Powerups = {
   doublePointsActive: false
 };
 
-let player2Powerups = config.mode === "pc" && config.player2.isBot
-  ? {
-      fiftyFifty: 1,
-      skip: 1,
-      extraTime: 1,
-      doublePoints: 1,
-      doublePointsActive: false
-    }
-  : {
-      fiftyFifty: 1,
-      skip: 1,
-      extraTime: 1,
-      doublePoints: 1,
-      doublePointsActive: false
-    };
+let player2Powerups =
+  config.mode === "pc" || config.mode === "boss"
+    ? {
+        fiftyFifty: 1,
+        skip: 1,
+        extraTime: 1,
+        doublePoints: 1,
+        doublePointsActive: false
+      }
+    : {
+        fiftyFifty: 1,
+        skip: 1,
+        extraTime: 1,
+        doublePoints: 1,
+        doublePointsActive: false
+      };
 
 function showMessage(text, type) {
   messageBox.textContent = text;
@@ -127,10 +132,7 @@ function showAchievementPopup(title, description) {
   setTimeout(() => {
     popup.classList.remove("achievement-popup-show");
     popup.classList.add("achievement-popup-hide");
-
-    setTimeout(() => {
-      popup.remove();
-    }, 300);
+    setTimeout(() => popup.remove(), 300);
   }, 2600);
 }
 
@@ -160,6 +162,18 @@ function getCurrentPlayerName() {
   return currentTurn === "player1" ? config.player1.username : config.player2.username;
 }
 
+function updateBossUI() {
+  if (config.mode === "boss") {
+    bossBanner.classList.remove("hidden");
+    bossHpRow.classList.remove("hidden");
+    bossBanner.textContent = `👹 Boss Battle: ${config.bossProfile.name}`;
+    bossHpText.textContent = bossHp;
+  } else {
+    bossBanner.classList.add("hidden");
+    bossHpRow.classList.add("hidden");
+  }
+}
+
 function updatePowerupUI() {
   const powerups = getCurrentPowerupSet();
 
@@ -179,7 +193,7 @@ function updatePowerupUI() {
     powerupDoubleBtn.classList.remove("active");
   }
 
-  if (config.mode === "pc" && config.player2.isBot && currentTurn === "player2") {
+  if ((config.mode === "pc" && currentTurn === "player2") || (config.mode === "boss" && currentTurn === "player2")) {
     powerup5050Btn.disabled = true;
     powerupSkipBtn.disabled = true;
     powerupTimeBtn.disabled = true;
@@ -199,6 +213,7 @@ function updateHeader() {
   roundNumber.textContent = currentRound;
   turnIndicator.textContent = `Turn: ${currentTurn === "player1" ? config.player1.username : config.player2.username}`;
   updatePowerupUI();
+  updateBossUI();
 }
 
 function stopTimer() {
@@ -233,7 +248,6 @@ function startTimer() {
 
 function resetAnswers() {
   removedIndexes = [];
-
   answerButtons.forEach((btn) => {
     btn.classList.remove("correct", "wrong", "faded");
     btn.disabled = false;
@@ -274,19 +288,16 @@ function applyStreakBonus(playerKey) {
   }
 
   if (bonus > 0) {
-    if (playerKey === "player1") {
-      player1Score += bonus;
-    } else {
-      player2Score += bonus;
-    }
+    if (playerKey === "player1") player1Score += bonus;
+    else player2Score += bonus;
 
     showStreakBanner(`🔥 ${username} earned a +${bonus} streak bonus!`);
   }
 }
 
 async function generateMathQuestion() {
-  const a = Math.floor(Math.random() * 10) + 1;
-  const b = Math.floor(Math.random() * 10) + 1;
+  const a = Math.floor(Math.random() * 12) + 1;
+  const b = Math.floor(Math.random() * 12) + 1;
   const ops = ["+", "-", "*"];
   const op = ops[Math.floor(Math.random() * ops.length)];
 
@@ -387,6 +398,16 @@ async function generateQuestion() {
 }
 
 function getBotProfile() {
+  if (config.mode === "boss") {
+    if (config.bossProfile.id === "ironTitan") {
+      return { accuracy: 0.7, minDelay: 2200, maxDelay: 3500 };
+    }
+    if (config.bossProfile.id === "shadowBrain") {
+      return { accuracy: 0.85, minDelay: 1200, maxDelay: 2200 };
+    }
+    return { accuracy: 0.78, minDelay: 1500, maxDelay: 2800 };
+  }
+
   const personality = config.botPersonality || "slowThinker";
   const difficulty = config.botDifficulty || "easy";
 
@@ -430,7 +451,7 @@ function getBotProfile() {
   };
 }
 
-function updateBotPersonalityLabel() {
+function updateSpecialLabel() {
   if (config.mode === "pc" && config.player2.isBot) {
     const labels = {
       slowThinker: "🐢 Bot Personality: Slow Thinker",
@@ -441,6 +462,9 @@ function updateBotPersonalityLabel() {
 
     botPersonalityText.classList.remove("hidden");
     botPersonalityText.textContent = labels[config.botPersonality || "slowThinker"];
+  } else if (config.mode === "boss") {
+    botPersonalityText.classList.remove("hidden");
+    botPersonalityText.textContent = `👹 Boss Profile: ${config.bossProfile.name}`;
   } else {
     botPersonalityText.classList.add("hidden");
   }
@@ -460,26 +484,26 @@ function getBotChoiceIndex() {
   return wrongIndexes[Math.floor(Math.random() * wrongIndexes.length)];
 }
 
-function maybeUseBotPowerup() {
+function maybeUseEnemyPowerup() {
   const powerups = player2Powerups;
   const roll = Math.random();
 
   if (powerups.doublePoints > 0 && !powerups.doublePointsActive && roll < 0.12) {
     powerups.doublePoints -= 1;
     powerups.doublePointsActive = true;
-    showStreakBanner(`🤖 Damon Bot activated Double Points!`);
+    showStreakBanner(`${config.player2.username} activated Double Points!`);
     return;
   }
 
-  if (powerups.extraTime > 0 && timeLeft <= 4 && roll < 0.24) {
+  if (powerups.extraTime > 0 && timeLeft <= 4 && roll < 0.2) {
     powerups.extraTime -= 1;
     timeLeft += 5;
     timerText.textContent = `Time Left: ${timeLeft}s`;
-    showStreakBanner(`🤖 Damon Bot used +5 Time!`);
+    showStreakBanner(`${config.player2.username} used +5 Time!`);
     return;
   }
 
-  if (powerups.fiftyFifty > 0 && roll < 0.18) {
+  if (powerups.fiftyFifty > 0 && roll < 0.15) {
     powerups.fiftyFifty -= 1;
 
     const wrongIndexes = [0, 1, 2, 3].filter((index) => index !== correctIndex && !removedIndexes.includes(index));
@@ -491,38 +515,31 @@ function maybeUseBotPowerup() {
       removedIndexes.push(idx);
     });
 
-    showStreakBanner(`🤖 Damon Bot used 50/50!`);
+    showStreakBanner(`${config.player2.username} used 50/50!`);
   }
 }
 
-function triggerBotTurn() {
-  if (!(config.mode === "pc" && config.player2.isBot && currentTurn === "player2")) {
+function triggerEnemyTurn() {
+  if (!((config.mode === "pc" && currentTurn === "player2") || (config.mode === "boss" && currentTurn === "player2"))) {
     return;
   }
 
-  maybeUseBotPowerup();
+  maybeUseEnemyPowerup();
   updatePowerupUI();
 
   const profile = getBotProfile();
   const delay = profile.minDelay + Math.floor(Math.random() * (profile.maxDelay - profile.minDelay + 1));
 
   botThinkingTimeout = setTimeout(() => {
-    const botPick = getBotChoiceIndex();
-    handleAnswerClick(botPick);
+    const pick = getBotChoiceIndex();
+    handleAnswerClick(pick);
   }, delay);
 }
 
 function getResultBadge(winner) {
   if (winner === "draw") return "🤝";
-
-  if (winner === config.player1.username) {
-    if (player1Score >= 40) return "🏆";
-    if (player1Score >= 30) return "🥇";
-    if (player1Score >= 20) return "🥈";
-    return "🥉";
-  }
-
-  return "💥";
+  if (winner === config.player1.username) return config.mode === "boss" ? "👑" : "🏆";
+  return config.mode === "boss" ? "💀" : "💥";
 }
 
 function renderProgressCard(title, progress) {
@@ -539,7 +556,7 @@ function renderProgressCard(title, progress) {
           <span>${progress.xpIntoLevel}/${progress.xpNeededForNextLevel}</span>
         </div>
         <div class="xp-bar-track">
-          <div class="xp-bar-fill" style="width: 0%;" data-target-width="${progress.xpPercent.toFixed(2)}%"></div>
+          <div class="xp-bar-fill" style="width:0%;" data-target-width="${progress.xpPercent.toFixed(2)}%"></div>
         </div>
       </div>
     </div>
@@ -579,14 +596,16 @@ function renderDailyStatus(title, items) {
   `;
 }
 
-function renderRewards(title, rewards) {
+function renderRewards(title, rewards, coinReward, extraText = "") {
   return `
     <div class="reward-player-card">
       <h4>${title}</h4>
+      <div class="reward-chip">🪙 ${coinReward} Coins</div>
+      ${extraText ? `<div class="reward-chip">✨ ${extraText}</div>` : ""}
       ${
         rewards && rewards.length
           ? rewards.map((reward) => `<div class="reward-chip">🎁 ${reward}</div>`).join("")
-          : `<div class="mini-info-card">No powerup rewards earned.</div>`
+          : `<div class="mini-info-card">No extra powerup rewards earned.</div>`
       }
     </div>
   `;
@@ -605,13 +624,24 @@ function animateXpBars() {
 function spendPersistentPowerupInventory() {
   const users = state.getUsers();
   const player = users.find((u) => u.username === config.player1.username);
+  if (!player || !freshPlayer1) return;
 
-  if (!player) return;
-
-  player.powerupInventory.fiftyFifty = Math.max(0, player.powerupInventory.fiftyFifty - (freshPlayer1.powerupInventory.fiftyFifty - player1Powerups.fiftyFifty));
-  player.powerupInventory.skip = Math.max(0, player.powerupInventory.skip - (freshPlayer1.powerupInventory.skip - player1Powerups.skip));
-  player.powerupInventory.extraTime = Math.max(0, player.powerupInventory.extraTime - (freshPlayer1.powerupInventory.extraTime - player1Powerups.extraTime));
-  player.powerupInventory.doublePoints = Math.max(0, player.powerupInventory.doublePoints - (freshPlayer1.powerupInventory.doublePoints - player1Powerups.doublePoints));
+  player.powerupInventory.fiftyFifty = Math.max(
+    0,
+    player.powerupInventory.fiftyFifty - (freshPlayer1.powerupInventory.fiftyFifty - player1Powerups.fiftyFifty)
+  );
+  player.powerupInventory.skip = Math.max(
+    0,
+    player.powerupInventory.skip - (freshPlayer1.powerupInventory.skip - player1Powerups.skip)
+  );
+  player.powerupInventory.extraTime = Math.max(
+    0,
+    player.powerupInventory.extraTime - (freshPlayer1.powerupInventory.extraTime - player1Powerups.extraTime)
+  );
+  player.powerupInventory.doublePoints = Math.max(
+    0,
+    player.powerupInventory.doublePoints - (freshPlayer1.powerupInventory.doublePoints - player1Powerups.doublePoints)
+  );
 
   state.saveUsers(users);
   state.setCurrentUser(player);
@@ -625,131 +655,85 @@ function finishMatch() {
   let winner = "draw";
   let resultText = "🤝 The battle ended in a draw!";
 
-  if (player1Score > player2Score) {
-    winner = config.player1.username;
-    resultText = `🏆 ${config.player1.username} wins the battle!`;
-  } else if (player2Score > player1Score) {
-    winner = config.player2.username;
-    resultText = `🏆 ${config.player2.username} wins the battle!`;
+  if (config.mode === "boss") {
+    if (bossHp <= 0) {
+      winner = config.player1.username;
+      resultText = `👑 ${config.player1.username} defeated ${config.bossProfile.name}!`;
+    } else {
+      winner = config.player2.username;
+      resultText = `💀 ${config.bossProfile.name} has won the battle!`;
+    }
+  } else {
+    if (player1Score > player2Score) {
+      winner = config.player1.username;
+      resultText = `🏆 ${config.player1.username} wins the battle!`;
+    } else if (player2Score > player1Score) {
+      winner = config.player2.username;
+      resultText = `🏆 ${config.player2.username} wins the battle!`;
+    }
   }
 
   resultBadge.textContent = getResultBadge(winner);
   winnerText.textContent = resultText;
   finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
 
-  let progressSummaryText = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
   progressSummary.innerHTML = "";
   unlockedAchievements.innerHTML = "";
   dailyChallengeStatus.innerHTML = "";
   powerupRewardsBox.innerHTML = "";
 
-  if (!config.player2.isBot) {
-    const result = state.saveUserStats(
+  if (config.mode === "boss") {
+    const won = winner === config.player1.username;
+    const bossResult = state.saveBossBattleStats(
       config.player1.username,
-      config.player2.username,
+      config.bossProfile,
       player1Score,
       player2Score,
-      winner,
+      won,
       config.category,
-      config.mode,
-      {
-        player1CorrectAnswers,
-        player2CorrectAnswers
-      }
+      player1CorrectAnswers
     );
 
-    if (result) {
+    if (bossResult) {
       progressSummary.innerHTML = `
         <div class="progress-grid">
-          ${renderProgressCard(config.player1.username, result.player1Progress)}
-          ${renderProgressCard(config.player2.username, result.player2Progress)}
+          ${renderProgressCard(config.player1.username, bossResult.progress)}
         </div>
       `;
 
-      unlockedAchievements.innerHTML = `
-        <div class="unlock-grid">
-          <div>
-            <h4>${config.player1.username}</h4>
-            ${renderAchievements(result.player1Achievements)}
-          </div>
-          <div>
-            <h4>${config.player2.username}</h4>
-            ${renderAchievements(result.player2Achievements)}
-          </div>
-        </div>
-      `;
+      unlockedAchievements.innerHTML = renderAchievements(bossResult.achievements);
 
       dailyChallengeStatus.innerHTML = `
         <div class="daily-result-grid">
-          ${renderDailyStatus(config.player1.username, result.player1Daily)}
-          ${renderDailyStatus(config.player2.username, result.player2Daily)}
+          ${renderDailyStatus(config.player1.username, bossResult.daily)}
         </div>
       `;
 
       powerupRewardsBox.innerHTML = `
         <div class="daily-result-grid">
-          ${renderRewards(config.player1.username, result.player1Rewards)}
-          ${renderRewards(config.player2.username, result.player2Rewards)}
+          ${renderRewards(
+            config.player1.username,
+            bossResult.rewards,
+            bossResult.coinReward,
+            won ? `${bossResult.bossBonusXp} Boss XP Bonus` : `${bossResult.bossBonusXp} Consolation Boss XP`
+          )}
         </div>
       `;
 
-      result.player1Achievements.forEach((item) => showAchievementPopup(item.title, item.description));
-      result.player2Achievements.forEach((item) => showAchievementPopup(item.title, item.description));
+      bossResult.achievements.forEach((item) => showAchievementPopup(item.title, item.description));
     }
+
+    resultMetaText.textContent = `Category: ${config.category} | Mode: boss | Boss: ${config.bossProfile.name}`;
   } else {
-    const single = state.saveSinglePlayerStats(
-      config.player1.username,
-      config.player2.username,
-      player1Score,
-      player2Score,
-      winner,
-      config.category,
-      config.mode,
-      {
-        correctAnswers: player1CorrectAnswers,
-        difficulty: config.botDifficulty || "easy",
-        personality: config.botPersonality || "slowThinker"
-      }
-    );
-
-    if (single) {
-      progressSummary.innerHTML = `
-        <div class="progress-grid">
-          ${renderProgressCard(config.player1.username, single.progress)}
-        </div>
-      `;
-
-      unlockedAchievements.innerHTML = renderAchievements(single.achievements);
-
-      dailyChallengeStatus.innerHTML = `
-        <div class="daily-result-grid">
-          ${renderDailyStatus(config.player1.username, single.daily)}
-        </div>
-      `;
-
-      powerupRewardsBox.innerHTML = `
-        <div class="daily-result-grid">
-          ${renderRewards(config.player1.username, single.rewards)}
-        </div>
-      `;
-
-      single.achievements.forEach((item) => showAchievementPopup(item.title, item.description));
-    }
+    resultMetaText.textContent = `Category: ${config.category} | Mode: ${config.mode} | Timer: ${turnTimeLimit}s`;
   }
 
-  resultMetaText.innerHTML = progressSummaryText;
   resultCard.classList.remove("hidden");
-  showMessage("Match completed successfully.", "success");
-
   animateXpBars();
   launchConfetti();
 
   if (window.DamonAudio) {
     window.DamonAudio.playVictory();
-  }
-
-  if (window.DamonFX && winner !== "draw") {
-    window.DamonFX.playWin();
   }
 }
 
@@ -758,13 +742,39 @@ async function nextTurn() {
   turnLocked = false;
   stopBotThinking();
 
+  if (config.mode === "boss") {
+    if (bossHp <= 0) {
+      finishMatch();
+      return;
+    }
+
+    if (currentTurn === "player1") {
+      currentTurn = "player2";
+      updateHeader();
+      await generateQuestion();
+      triggerEnemyTurn();
+      return;
+    }
+
+    if (currentRound === totalRounds) {
+      finishMatch();
+      return;
+    }
+
+    currentTurn = "player1";
+    currentRound += 1;
+    updateHeader();
+    await generateQuestion();
+    return;
+  }
+
   if (currentTurn === "player1") {
     currentTurn = "player2";
     updateHeader();
     await generateQuestion();
 
-    if (config.mode === "pc" && config.player2.isBot) {
-      triggerBotTurn();
+    if (config.mode === "pc") {
+      triggerEnemyTurn();
     }
 
     return;
@@ -782,11 +792,8 @@ async function nextTurn() {
 }
 
 function resetCurrentPlayerStreak() {
-  if (currentTurn === "player1") {
-    player1Streak = 0;
-  } else {
-    player2Streak = 0;
-  }
+  if (currentTurn === "player1") player1Streak = 0;
+  else player2Streak = 0;
 }
 
 function handleTimeUp() {
@@ -836,6 +843,12 @@ function handleAnswerClick(index) {
       applyStreakBonus("player1");
       player2Streak = 0;
       player1Powerups.doublePointsActive = false;
+
+      if (config.mode === "boss") {
+        const damage = awardedPoints === 20 ? 20 : 10;
+        bossHp = Math.max(0, bossHp - damage);
+        showStreakBanner(`⚔️ ${config.player1.username} dealt ${damage} damage to ${config.bossProfile.name}!`);
+      }
     } else {
       player2Score += awardedPoints;
       player2Streak += 1;
@@ -871,6 +884,11 @@ function handleAnswerClick(index) {
   answerButtons.forEach((btn) => {
     btn.disabled = true;
   });
+
+  if (config.mode === "boss" && bossHp <= 0) {
+    setTimeout(() => finishMatch(), 1200);
+    return;
+  }
 
   setTimeout(() => nextTurn(), 1200);
 }
@@ -945,30 +963,26 @@ answerButtons.forEach((btn, idx) => {
 });
 
 document.getElementById("sameCategoryRematchBtn").onclick = () => {
-  if (window.DamonFX) {
-    window.DamonFX.navigate("game.html");
-  } else {
-    window.location.href = "game.html";
+  if (config.mode === "boss") {
+    window.location.href = "boss.html";
+    return;
   }
+  window.location.href = "game.html";
 };
 
 document.getElementById("newCategoryBtn").onclick = () => {
-  if (window.DamonFX) {
-    window.DamonFX.navigate("category.html");
-  } else {
-    window.location.href = "category.html";
+  if (config.mode === "boss") {
+    window.location.href = "boss.html";
+    return;
   }
+  window.location.href = "category.html";
 };
 
 document.getElementById("historyBtn").onclick = () => {
-  if (window.DamonFX) {
-    window.DamonFX.navigate("leaderboard.html");
-  } else {
-    window.location.href = "leaderboard.html";
-  }
+  window.location.href = "leaderboard.html";
 };
 
 resultCard.classList.add("hidden");
-updateBotPersonalityLabel();
+updateSpecialLabel();
 updateHeader();
 generateQuestion();
