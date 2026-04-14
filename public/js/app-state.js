@@ -555,7 +555,106 @@ window.DamonState = {
 
     return { success: true, user };
   },
+  saveSinglePlayerStats(
+  p1Name,
+  p2Name,
+  p1Score,
+  p2Score,
+  winner,
+  category,
+  mode,
+  extra = {}
+) {
+  const users = this.getUsers();
 
+  const p1 = users.find(u => u.username === p1Name);
+  const p2 = users.find(u => u.username === p2Name);
+
+  if (!p1) return null;
+
+  // -------------------------
+  // BASIC STAT UPDATE
+  // -------------------------
+  p1.totalPoints += p1Score;
+  p1.matchesPlayed += 1;
+
+  if (winner === p1Name) p1.totalWins += 1;
+  else if (winner !== "draw") p1.totalLosses += 1;
+
+  // -------------------------
+  // XP SYSTEM (FIXED)
+  // -------------------------
+  const xpGain = this.calculateXpGain(p1Score, winner, p1Name);
+
+  const progress = this.applyProgress(p1, xpGain);
+
+  // -------------------------
+  // STREAK SYSTEM
+  // -------------------------
+  this.updateWinStreak(p1, winner);
+
+  // -------------------------
+  // ACHIEVEMENTS
+  // -------------------------
+  const achievements = this.unlockAchievements(p1);
+
+  // -------------------------
+  // DAILY PROGRESS
+  // -------------------------
+  const daily = this.updateDailyProgress(
+    p1,
+    category,
+    extra.correctAnswers || 0,
+    winner === p1Name
+  );
+
+  // -------------------------
+  // REWARDS
+  // -------------------------
+  const rewards = this.rewardPowerups(p1, winner === p1Name);
+  const coinReward = this.rewardCoins(p1, winner === p1Name, p1Score);
+
+  // -------------------------
+  // SAVE USERS
+  // -------------------------
+  this.saveUsers(users);
+  this.setCurrentUser(p1);
+
+  // -------------------------
+  // SAVE MATCH HISTORY (FIX 🔴)
+  // -------------------------
+  const matches = this.getMatches();
+
+  matches.push({
+    player1: p1Name,
+    player2: p2Name,
+    player1Score: p1Score,
+    player2Score: p2Score,
+    winner,
+    category,
+    mode,
+    player1XpGain: xpGain,
+    player2XpGain: 0,
+    player1CorrectAnswers: extra.correctAnswers || 0,
+    player2CorrectAnswers: 0,
+    player1CoinReward: coinReward,
+    player2CoinReward: 0,
+    date: new Date().toLocaleString()
+  });
+
+  this.saveMatches(matches);
+
+  // -------------------------
+  // RETURN DATA (CRITICAL 🔴)
+  // -------------------------
+  return {
+    progress,
+    achievements,
+    daily,
+    rewards,
+    coinReward
+  };
+},
   saveBossBattleStats(username, bossProfile, playerScore, bossScore, won, category, correctAnswers) {
     const users = this.getUsers();
     const user = users.find((u) => u.username === username);
