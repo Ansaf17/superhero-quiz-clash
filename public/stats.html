@@ -1,121 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>DAMON Analytics</title>
-
-<link rel="stylesheet" href="./styles/main.css">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAMON Analytics</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+<body data-page="stats">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-<body>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Analytics Dashboard</p>
+    </aside>
 
-<div class="page">
+    <main class="page-content">
+      <div class="premium-topbar">
+        <div>
+          <p class="eyebrow">PERFORMANCE INSIGHTS</p>
+          <h1 class="page-heading">Analytics Dashboard</h1>
+          <p class="page-copy">Track your performance trends, game modes, strongest category, and recent match activity.</p>
+        </div>
+        <div class="premium-actions">
+          <a class="nav-chip" href="./profile.html">Profile</a>
+          <a class="nav-chip" href="./settings.html">Settings</a>
+          <a class="nav-chip primary" href="./home.html">Home</a>
+        </div>
+      </div>
 
-<div class="top-bar">
+      <section class="content-panel dashboard-hero-card">
+        <div class="dashboard-hero-layout">
+          <div id="statsAvatar" class="dashboard-hero-avatar">🦸</div>
+          <div>
+            <h2 id="statsUsername">Player</h2>
+            <p id="statsSummaryText">Stats summary</p>
+          </div>
+        </div>
+      </section>
 
-<div>
-<h1>Analytics Dashboard</h1>
-<p class="subtitle">Performance analytics and statistics</p>
-</div>
+      <section class="dashboard-kpi-grid">
+        <div class="card dashboard-kpi-card">
+          <span class="dashboard-kpi-label">Total Points</span>
+          <h3 id="statsPoints">0</h3>
+        </div>
 
-<div class="top-bar-actions">
-<a class="card" href="profile.html">Profile</a>
-<a class="card" href="settings.html">Settings</a>
-<a class="card" href="home.html">Home</a>
-</div>
+        <div class="card dashboard-kpi-card">
+          <span class="dashboard-kpi-label">Total Wins</span>
+          <h3 id="statsWins">0</h3>
+        </div>
 
-</div>
+        <div class="card dashboard-kpi-card">
+          <span class="dashboard-kpi-label">Total Losses</span>
+          <h3 id="statsLosses">0</h3>
+        </div>
 
-<section class="card dashboard-hero-card">
+        <div class="card dashboard-kpi-card">
+          <span class="dashboard-kpi-label">Matches Played</span>
+          <h3 id="statsMatches">0</h3>
+        </div>
 
-<div class="dashboard-hero-layout">
+        <div class="card dashboard-kpi-card">
+          <span class="dashboard-kpi-label">Win Rate</span>
+          <h3 id="statsWinRate">0%</h3>
+        </div>
 
-<div id="statsAvatar" class="dashboard-hero-avatar">🦸</div>
+        <div class="card dashboard-kpi-card">
+          <span class="dashboard-kpi-label">Best Category</span>
+          <h3 id="statsBestCategory">-</h3>
+        </div>
+      </section>
 
-<div>
-<h2 id="statsUsername">Player</h2>
-<p id="statsSummaryText">Stats summary</p>
-</div>
+      <section class="grid-2" style="margin-top:20px;">
+        <div class="content-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">CATEGORY SPREAD</p>
+              <h2 class="section-heading">Category Distribution</h2>
+            </div>
+          </div>
+          <canvas id="categoryChart"></canvas>
+        </div>
 
-</div>
+        <div class="content-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">PLAY STYLE</p>
+              <h2 class="section-heading">Game Mode Distribution</h2>
+            </div>
+          </div>
+          <canvas id="modeChart"></canvas>
+        </div>
+      </section>
 
-</section>
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">RECENT ACTIVITY</p>
+            <h2 class="section-heading">Recent Matches</h2>
+          </div>
+        </div>
+        <div id="recentMatches"></div>
+      </section>
+    </main>
+  </div>
 
-<section class="dashboard-kpi-grid">
-
-<div class="card dashboard-kpi-card">
-<span>Total Points</span>
-<h3 id="statsPoints">0</h3>
-</div>
-
-<div class="card dashboard-kpi-card">
-<span>Total Wins</span>
-<h3 id="statsWins">0</h3>
-</div>
-
-<div class="card dashboard-kpi-card">
-<span>Total Losses</span>
-<h3 id="statsLosses">0</h3>
-</div>
-
-<div class="card dashboard-kpi-card">
-<span>Matches Played</span>
-<h3 id="statsMatches">0</h3>
-</div>
-
-<div class="card dashboard-kpi-card">
-<span>Win Rate</span>
-<h3 id="statsWinRate">0%</h3>
-</div>
-
-<div class="card dashboard-kpi-card">
-<span>Best Category</span>
-<h3 id="statsBestCategory">-</h3>
-</div>
-
-</section>
-
-<section class="grid-2">
-
-<div class="card">
-
-<h2>Category Distribution</h2>
-
-<canvas id="categoryChart"></canvas>
-
-</div>
-
-<div class="card">
-
-<h2>Game Mode Distribution</h2>
-
-<canvas id="modeChart"></canvas>
-
-</div>
-
-</section>
-
-<section class="card">
-
-<h2>Recent Matches</h2>
-
-<div id="recentMatches"></div>
-
-</section>
-
-</div>
-
-<script src="./js/app-state.js"></script>
-<script src="./js/global-ui.js"></script>
-<script src="/js/theme.js"></script>
-<script src="/js/audio.js"></script>
-<script src="./js/stats.js"></script>
-
+  <script src="./js/app-state.js"></script>
+  <script src="./js/global-ui.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/stats.js"></script>
 </body>
 </html>

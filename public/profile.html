@@ -6,114 +6,130 @@
   <title>DAMON - Profile</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">Player Profile</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Your DAMON account overview</p>
-      </div>
-      <div class="top-bar-actions">
-        <a class="card" href="./stats.html">Stats</a>
-        <a class="card" href="./achievements.html">Achievements</a>
-        <a class="card" href="./shop.html">Shop</a>
-        <a class="card" href="./settings.html">Settings</a>
-        <a class="card" href="./home.html">Back Home</a>
-      </div>
-    </div>
+<body data-page="profile">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-    <section class="card profile-page-card">
-      <div class="profile-page-header">
-        <div class="profile-page-avatar" id="profileAvatar">🦸</div>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Player Identity</p>
+    </aside>
+
+    <main class="page-content">
+      <div class="premium-topbar">
         <div>
-          <h2 id="profileUsername" style="margin:0 0 8px;">Username</h2>
-          <div id="profileBadgeRow" class="profile-badge-row"></div>
-          <p style="margin:10px 0 0; color:#cbd5e1;">Your personal DAMON progression</p>
+          <p class="eyebrow">PLAYER OVERVIEW</p>
+          <h1 class="page-heading">Player Profile</h1>
+          <p class="page-copy">Your DAMON account overview, level progression, inventory, and avatar collection.</p>
+        </div>
+        <div class="premium-actions">
+          <a class="nav-chip" href="./stats.html">Stats</a>
+          <a class="nav-chip" href="./achievements.html">Achievements</a>
+          <a class="nav-chip" href="./shop.html">Shop</a>
+          <a class="nav-chip" href="./settings.html">Settings</a>
+          <a class="nav-chip primary" href="./home.html">Back Home</a>
         </div>
       </div>
 
-      <section class="card xp-progress-card" style="margin-bottom:20px;">
-        <div class="xp-bar-header">
-          <span>XP Progress</span>
-          <span id="profileXpProgressText">0 / 100</span>
-        </div>
-        <div class="xp-bar-track">
-          <div id="profileXpBar" class="xp-bar-fill" style="width:0%;"></div>
-        </div>
-      </section>
-
-      <section class="card coins-card" style="margin-bottom:20px;">
-        <div class="shop-balance-layout">
-          <div class="shop-balance-icon">🪙</div>
+      <section class="content-panel profile-page-card">
+        <div class="profile-page-header">
+          <div class="profile-page-avatar" id="profileAvatar">🦸</div>
           <div>
-            <h3 style="margin:0;">Coins</h3>
-            <p id="profileCoinsText" class="shop-coins-text">0 Coins</p>
+            <h2 id="profileUsername" style="margin:0 0 8px;">Username</h2>
+            <div id="profileBadgeRow" class="profile-badge-row"></div>
+            <p style="margin:10px 0 0; color:#cbd5e1;">Your personal DAMON progression</p>
           </div>
         </div>
+
+        <section class="card xp-progress-card" style="margin-bottom:20px;">
+          <div class="xp-bar-header">
+            <span>XP Progress</span>
+            <span id="profileXpProgressText">0 / 100</span>
+          </div>
+          <div class="xp-bar-track">
+            <div id="profileXpBar" class="xp-bar-fill" style="width:0%;"></div>
+          </div>
+        </section>
+
+        <section class="card coins-card" style="margin-bottom:20px;">
+          <div class="shop-balance-layout">
+            <div class="shop-balance-icon">🪙</div>
+            <div>
+              <h3 style="margin:0;">Coins</h3>
+              <p id="profileCoinsText" class="shop-coins-text">0 Coins</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="grid-2 profile-stats-grid">
+          <div class="profile-stat-box">
+            <h3>Total Points</h3>
+            <p id="profilePoints">0</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Total Wins</h3>
+            <p id="profileWins">0</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Total Losses</h3>
+            <p id="profileLosses">0</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Matches Played</h3>
+            <p id="profileMatches">0</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>XP</h3>
+            <p id="profileXp">0</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Level</h3>
+            <p id="profileLevel">1</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Rank Title</h3>
+            <p id="profileRankTitle">Rookie</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Leaderboard Tier</h3>
+            <p id="profileLeaderboardTier">Bronze</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Current Win Streak</h3>
+            <p id="profileWinStreak">0</p>
+          </div>
+
+          <div class="profile-stat-box">
+            <h3>Best Win Streak</h3>
+            <p id="profileBestWinStreak">0</p>
+          </div>
+        </div>
+
+        <section class="card inventory-card" style="margin-top:20px;">
+          <h3 style="margin-top:0;">Powerup Inventory</h3>
+          <div id="profileInventoryGrid" class="inventory-grid"></div>
+        </section>
+
+        <section class="card inventory-card" style="margin-top:20px;">
+          <h3 style="margin-top:0;">Owned Avatars</h3>
+          <div id="profileAvatarCollection" class="owned-avatar-grid"></div>
+        </section>
       </section>
-
-      <div class="grid-2 profile-stats-grid">
-        <div class="profile-stat-box">
-          <h3>Total Points</h3>
-          <p id="profilePoints">0</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Total Wins</h3>
-          <p id="profileWins">0</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Total Losses</h3>
-          <p id="profileLosses">0</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Matches Played</h3>
-          <p id="profileMatches">0</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>XP</h3>
-          <p id="profileXp">0</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Level</h3>
-          <p id="profileLevel">1</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Rank Title</h3>
-          <p id="profileRankTitle">Rookie</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Leaderboard Tier</h3>
-          <p id="profileLeaderboardTier">Bronze</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Current Win Streak</h3>
-          <p id="profileWinStreak">0</p>
-        </div>
-
-        <div class="profile-stat-box">
-          <h3>Best Win Streak</h3>
-          <p id="profileBestWinStreak">0</p>
-        </div>
-      </div>
-
-      <section class="card inventory-card" style="margin-top:20px;">
-        <h3 style="margin-top:0;">Powerup Inventory</h3>
-        <div id="profileInventoryGrid" class="inventory-grid"></div>
-      </section>
-
-      <section class="card inventory-card" style="margin-top:20px;">
-        <h3 style="margin-top:0;">Owned Avatars</h3>
-        <div id="profileAvatarCollection" class="owned-avatar-grid"></div>
-      </section>
-    </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>

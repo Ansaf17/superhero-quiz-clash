@@ -6,55 +6,81 @@
   <title>DAMON - Tournament</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">Tournament Bracket</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Win the semi-final, then conquer the final.</p>
-      </div>
-      <div class="top-bar-actions">
-        <a class="card" href="./home.html">Back Home</a>
-      </div>
-    </div>
+<body data-page="tournament">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-    <div id="messageBox" class="message-box"></div>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Tournament Mode</p>
+    </aside>
 
-    <section class="card" style="margin-bottom:20px;">
-      <h2 style="margin-top:0;">Tournament Setup</h2>
-
-      <div class="grid-2">
+    <main class="page-content">
+      <div class="premium-topbar">
         <div>
-          <label for="tournamentCategory">Category</label>
-          <select id="tournamentCategory">
-            <option value="math">Maths</option>
-            <option value="banana">Banana API</option>
-            <option value="general">General Knowledge</option>
-            <option value="programming">Programming</option>
-          </select>
+          <p class="eyebrow">ELIMINATION MODE</p>
+          <h1 class="page-heading">Tournament Bracket</h1>
+          <p class="page-copy">Win your semi-final, survive the final, and become the DAMON tournament champion.</p>
         </div>
-
-        <div>
-          <label for="tournamentDifficulty">Difficulty</label>
-          <select id="tournamentDifficulty">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
+        <div class="premium-actions">
+          <a class="nav-chip primary" href="./home.html">Back Home</a>
         </div>
       </div>
 
-      <div class="settings-actions">
-        <button id="startTournamentBtn" type="button">Start New Tournament</button>
-        <button id="continueTournamentBtn" class="secondary" type="button">Continue Tournament</button>
-        <button id="resetTournamentBtn" class="secondary" type="button">Reset Tournament</button>
-      </div>
-    </section>
+      <div id="messageBox" class="message-box"></div>
 
-    <section class="card">
-      <h2 style="margin-top:0;">Bracket</h2>
-      <div id="tournamentBracket" class="tournament-bracket"></div>
-    </section>
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">SETUP</p>
+            <h2 class="section-heading">Tournament Setup</h2>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label for="tournamentCategory">Category</label>
+            <select id="tournamentCategory">
+              <option value="math">Maths</option>
+              <option value="banana">Banana API</option>
+              <option value="general">General Knowledge</option>
+              <option value="programming">Programming</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="tournamentDifficulty">Difficulty</label>
+            <select id="tournamentDifficulty">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button id="startTournamentBtn" type="button">Start New Tournament</button>
+          <button id="continueTournamentBtn" class="secondary" type="button">Continue Tournament</button>
+          <button id="resetTournamentBtn" class="secondary" type="button">Reset Tournament</button>
+        </div>
+      </section>
+
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">BRACKET VIEW</p>
+            <h2 class="section-heading">Bracket</h2>
+          </div>
+        </div>
+        <div id="tournamentBracket" class="tournament-bracket"></div>
+      </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>
