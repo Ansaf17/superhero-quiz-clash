@@ -6,95 +6,117 @@
   <title>DAMON - Settings</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">Settings</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Manage your DAMON preferences</p>
-      </div>
-      <div class="top-bar-actions">
-        <a class="card" href="./stats.html">Dashboard</a>
-        <a class="card" href="./achievements.html">Achievements</a>
-        <a class="card" href="./home.html">Back Home</a>
-      </div>
-    </div>
+<body data-page="settings">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-    <div id="messageBox" class="message-box"></div>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">System Settings</p>
+    </aside>
 
-    <section class="card settings-card polished-settings-card">
-      <div class="settings-header">
+    <main class="page-content">
+      <div class="premium-topbar">
         <div>
-          <h2 style="margin:0;">Game Preferences</h2>
-          <p style="margin:8px 0 0; color:#cbd5e1;">Customize how DAMON plays and feels for you.</p>
+          <p class="eyebrow">CONTROL PANEL</p>
+          <h1 class="page-heading">Settings</h1>
+          <p class="page-copy">Manage themes, sound, difficulty defaults, and local DAMON data controls.</p>
         </div>
-        <div class="settings-icon-box">⚙️</div>
-      </div>
-
-      <div class="grid-2 settings-grid">
-        <div class="settings-option-box">
-          <label for="soundEnabled">Music</label>
-          <select id="soundEnabled">
-            <option value="true">On</option>
-            <option value="false">Off</option>
-          </select>
-        </div>
-
-        <div class="settings-option-box">
-          <label for="themeSelect">Theme</label>
-          <select id="themeSelect">
-            <option value="dark">Dark</option>
-            <option value="neon">Neon</option>
-            <option value="light">Light</option>
-          </select>
-        </div>
-
-        <div class="settings-option-box">
-          <label for="defaultDifficulty">Default Bot Difficulty</label>
-          <select id="defaultDifficulty">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
-
-        <div class="settings-option-box">
-          <label for="defaultCategory">Default Category</label>
-          <select id="defaultCategory">
-            <option value="math">Maths</option>
-            <option value="banana">Banana API</option>
-            <option value="general">General Knowledge</option>
-            <option value="programming">Programming</option>
-          </select>
-        </div>
-
-        <div class="settings-option-box">
-          <label for="turnTimer">Turn Timer</label>
-          <select id="turnTimer">
-            <option value="5">5 seconds</option>
-            <option value="10">10 seconds</option>
-            <option value="15">15 seconds</option>
-            <option value="20">20 seconds</option>
-          </select>
+        <div class="premium-actions">
+          <a class="nav-chip" href="./stats.html">Dashboard</a>
+          <a class="nav-chip" href="./achievements.html">Achievements</a>
+          <a class="nav-chip primary" href="./home.html">Back Home</a>
         </div>
       </div>
 
-      <div class="settings-actions">
-        <button id="saveSettingsBtn" type="button">Save Settings</button>
-        <button id="resetSettingsBtn" class="secondary" type="button">Reset to Defaults</button>
-      </div>
-    </section>
+      <div id="messageBox" class="message-box"></div>
 
-    <section class="card settings-card danger-card">
-      <h2>Data Controls</h2>
-      <p style="color:#cbd5e1;">These affect your local browser data only.</p>
+      <section class="content-panel settings-card polished-settings-card">
+        <div class="settings-header">
+          <div>
+            <p class="eyebrow">GAME PREFERENCES</p>
+            <h2 style="margin:0;">Game Preferences</h2>
+            <p style="margin:8px 0 0; color:#cbd5e1;">Customize how DAMON plays and feels for you.</p>
+          </div>
+          <div class="settings-icon-box">⚙️</div>
+        </div>
 
-      <div class="settings-actions">
-        <button id="clearBattleConfigBtn" class="secondary" type="button">Clear Current Battle</button>
-        <button id="clearMatchHistoryBtn" class="secondary" type="button">Clear Match History</button>
-        <button id="clearAllDataBtn" type="button">Reset All Data</button>
-      </div>
-    </section>
+        <div class="grid-2 settings-grid">
+          <div class="settings-option-box">
+            <label for="soundEnabled">Music</label>
+            <select id="soundEnabled">
+              <option value="true">On</option>
+              <option value="false">Off</option>
+            </select>
+          </div>
+
+          <div class="settings-option-box">
+            <label for="themeSelect">Theme</label>
+            <select id="themeSelect">
+              <option value="dark">Dark</option>
+              <option value="neon">Neon</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+
+          <div class="settings-option-box">
+            <label for="defaultDifficulty">Default Bot Difficulty</label>
+            <select id="defaultDifficulty">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <div class="settings-option-box">
+            <label for="defaultCategory">Default Category</label>
+            <select id="defaultCategory">
+              <option value="math">Maths</option>
+              <option value="banana">Banana API</option>
+              <option value="general">General Knowledge</option>
+              <option value="programming">Programming</option>
+            </select>
+          </div>
+
+          <div class="settings-option-box">
+            <label for="turnTimer">Turn Timer</label>
+            <select id="turnTimer">
+              <option value="5">5 seconds</option>
+              <option value="10">10 seconds</option>
+              <option value="15">15 seconds</option>
+              <option value="20">20 seconds</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button id="saveSettingsBtn" type="button">Save Settings</button>
+          <button id="resetSettingsBtn" class="secondary" type="button">Reset to Defaults</button>
+        </div>
+      </section>
+
+      <section class="content-panel settings-card danger-card">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">LOCAL DATA</p>
+            <h2 class="section-heading">Data Controls</h2>
+            <p style="color:#cbd5e1;">These actions affect your browser-stored DAMON data only.</p>
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button id="clearBattleConfigBtn" class="secondary" type="button">Clear Current Battle</button>
+          <button id="clearMatchHistoryBtn" class="secondary" type="button">Clear Match History</button>
+          <button id="clearAllDataBtn" type="button">Reset All Data</button>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>

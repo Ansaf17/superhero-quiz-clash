@@ -6,40 +6,66 @@
   <title>DAMON - Shop</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">DAMON Shop</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Buy powerups and unlock new avatars.</p>
-      </div>
-      <div class="top-bar-actions">
-        <a class="card" href="./profile.html">Profile</a>
-        <a class="card" href="./home.html">Back Home</a>
-      </div>
-    </div>
+<body data-page="shop">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-    <div id="messageBox" class="message-box"></div>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Shop Terminal</p>
+    </aside>
 
-    <section class="card shop-balance-card">
-      <div class="shop-balance-layout">
-        <div class="shop-balance-icon">🪙</div>
+    <main class="page-content">
+      <div class="premium-topbar">
         <div>
-          <h2 style="margin:0;">Your Coins</h2>
-          <p id="shopCoinsText" class="shop-coins-text">0 Coins</p>
+          <p class="eyebrow">UPGRADES & COSMETICS</p>
+          <h1 class="page-heading">DAMON Shop</h1>
+          <p class="page-copy">Spend coins on powerups, strengthen your loadout, and unlock new avatar styles.</p>
+        </div>
+        <div class="premium-actions">
+          <a class="nav-chip" href="./profile.html">Profile</a>
+          <a class="nav-chip primary" href="./home.html">Back Home</a>
         </div>
       </div>
-    </section>
 
-    <section class="card" style="margin-bottom:20px;">
-      <h2 style="margin-top:0;">Powerups</h2>
-      <div id="shopPowerupGrid" class="shop-grid"></div>
-    </section>
+      <div id="messageBox" class="message-box"></div>
 
-    <section class="card">
-      <h2 style="margin-top:0;">Avatar Unlocks</h2>
-      <div id="shopAvatarGrid" class="shop-grid"></div>
-    </section>
+      <section class="content-panel shop-balance-card">
+        <div class="shop-balance-layout">
+          <div class="shop-balance-icon">🪙</div>
+          <div>
+            <h2 style="margin:0;">Your Coins</h2>
+            <p id="shopCoinsText" class="shop-coins-text">0 Coins</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">BATTLE TOOLS</p>
+            <h2 class="section-heading">Powerups</h2>
+          </div>
+        </div>
+        <div id="shopPowerupGrid" class="shop-grid"></div>
+      </section>
+
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">COSMETICS</p>
+            <h2 class="section-heading">Avatar Unlocks</h2>
+          </div>
+        </div>
+        <div id="shopAvatarGrid" class="shop-grid"></div>
+      </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>

@@ -1,5 +1,9 @@
 const state = window.DamonState;
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const leaderboardList = document.getElementById("leaderboardList");
 const historyList = document.getElementById("historyList");
 const h2hList = document.getElementById("h2hList");
@@ -157,7 +161,7 @@ function renderHistory() {
     userMatches = userMatches.filter((match) => match.mode === selectedMode);
   }
 
-  userMatches.reverse();
+  userMatches = [...userMatches].reverse();
 
   if (userMatches.length === 0) {
     historyList.innerHTML = `<div class="history-item">No match history found for these filters.</div>`;
@@ -223,6 +227,7 @@ function renderH2H() {
       <p>${nameB} Wins: ${record[nameB] || 0}</p>
       <p>${nameA} Total Points: ${record[`${nameA}Points`] || 0}</p>
       <p>${nameB} Total Points: ${record[`${nameB}Points`] || 0}</p>
+      <p><a href="h2h.html?key=${encodeURIComponent(key)}">View Details</a></p>
     `;
 
     h2hList.appendChild(item);

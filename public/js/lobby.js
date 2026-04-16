@@ -45,7 +45,7 @@ document.getElementById("confirmPlayer2Btn").onclick = () => {
   }
 
   const users = state.getUsers();
-  const matched = users.find(u => u.username === username && u.password === password);
+  const matched = users.find((u) => u.username === username && u.password === password);
 
   if (!matched) {
     showMessage("Player 2 login failed.", "error");
@@ -71,9 +71,5 @@ continueBtn.onclick = () => {
     player2
   });
 
-  if (window.DamonFX) {
-    window.DamonFX.navigate("category.html");
-  } else {
-    window.location.href = "category.html";
-  }
+  window.location.href = "category.html";
 };

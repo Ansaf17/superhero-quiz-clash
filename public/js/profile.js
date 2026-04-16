@@ -5,6 +5,10 @@ if (!currentUser) {
   window.location.href = "home.html";
 }
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const xpState = state.getXpIntoCurrentLevel(currentUser.xp);
 
 document.getElementById("profileAvatar").textContent = currentUser.avatar;

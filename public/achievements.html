@@ -6,38 +6,73 @@
   <title>DAMON - Achievements</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">Achievements & Daily Challenges</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Track your milestones and today’s goals.</p>
-      </div>
-      <div class="top-bar-actions">
-        <a class="card" href="./profile.html">Profile</a>
-        <a class="card" href="./home.html">Back Home</a>
-      </div>
-    </div>
+<body data-page="achievements">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-    <section class="card achievement-summary-card">
-      <div class="achievement-summary-layout">
-        <div class="achievement-summary-avatar" id="achievementAvatar">🦸</div>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Achievement Vault</p>
+    </aside>
+
+    <main class="page-content">
+      <div class="premium-topbar">
         <div>
-          <h2 id="achievementUsername" style="margin:0;">Player</h2>
-          <p id="achievementSummaryText" style="margin:6px 0 0;">Summary loading...</p>
+          <p class="eyebrow">PLAYER PROGRESSION</p>
+          <h1 class="page-heading">Achievements & Daily Challenges</h1>
+          <p class="page-copy">Track milestones, monitor today’s goals, and keep climbing the DAMON ladder.</p>
+        </div>
+
+        <div class="premium-actions">
+          <a class="nav-chip" href="./profile.html">Profile</a>
+          <a class="nav-chip primary" href="./home.html">Back Home</a>
         </div>
       </div>
-    </section>
 
-    <section class="card" style="margin-bottom:20px;">
-      <h2 style="margin-top:0;">Daily Challenges</h2>
-      <div id="dailyChallengeGrid" class="daily-challenge-grid"></div>
-    </section>
+      <section class="hero-panel hero-panel-tight">
+        <div class="hero-panel-copy">
+          <p class="eyebrow">PLAYER SUMMARY</p>
+          <h2 class="section-heading">Your progress at a glance</h2>
+          <p class="section-copy">Unlocked badges, challenge streaks, and growth status in one place.</p>
+        </div>
 
-    <section class="card">
-      <h2 style="margin-top:0;">Achievements</h2>
-      <div id="achievementGrid" class="achievement-grid"></div>
-    </section>
+        <div class="summary-spotlight-card">
+          <div class="achievement-summary-layout">
+            <div class="achievement-summary-avatar" id="achievementAvatar">🦸</div>
+            <div>
+              <h2 id="achievementUsername" style="margin:0;">Player</h2>
+              <p id="achievementSummaryText" style="margin:8px 0 0;">Summary loading...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">TODAY</p>
+            <h2 class="section-heading">Daily Challenges</h2>
+          </div>
+        </div>
+        <div id="dailyChallengeGrid" class="daily-challenge-grid"></div>
+      </section>
+
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">COLLECTION</p>
+            <h2 class="section-heading">Achievements</h2>
+          </div>
+        </div>
+        <div id="achievementGrid" class="achievement-grid"></div>
+      </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>

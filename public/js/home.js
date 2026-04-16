@@ -1,5 +1,9 @@
 const state = window.DamonState;
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const registerBtn = document.getElementById("registerBtn");
@@ -155,7 +159,7 @@ registerBtn.onclick = () => {
     winStreak: 0,
     bestWinStreak: 0,
     achievements: [],
-    ownedAvatars: ["🦸", selectedAvatar],
+    ownedAvatars: [...new Set(["🦸", selectedAvatar])],
     powerupInventory: {
       fiftyFifty: 1,
       skip: 1,
@@ -172,6 +176,11 @@ registerBtn.onclick = () => {
     loginRewards: {
       lastClaimDate: "",
       streak: 0
+    },
+    bossStats: {
+      victories: 0,
+      defeats: 0,
+      bossesDefeated: []
     }
   });
 

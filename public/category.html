@@ -6,99 +6,136 @@
   <title>DAMON - Categories</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">Choose Category</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Select the battle setup before entering the arena.</p>
-      </div>
-      <div class="top-bar-actions">
-        <a class="card" href="./home.html">Back Home</a>
-      </div>
-    </div>
+<body data-page="category">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-    <div id="messageBox" class="message-box"></div>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Arena Configuration</p>
+    </aside>
 
-    <section class="card" style="margin-bottom:20px;">
-      <h2 style="margin-top:0;">Question Categories</h2>
+    <main class="page-content">
+      <div class="premium-topbar">
+        <div>
+          <p class="eyebrow">PRE-BATTLE SETUP</p>
+          <h1 class="page-heading">Choose Category</h1>
+          <p class="page-copy">Select your question set and configure the AI battle style before you enter the arena.</p>
+        </div>
 
-      <div class="grid-2 category-grid">
-        <button class="card category-tile active" type="button" data-category="math">
-          <h3>➗ Maths</h3>
-          <p>Fast calculation rounds</p>
-        </button>
-
-        <button class="card category-tile" type="button" data-category="banana">
-          <h3>🍌 Banana API</h3>
-          <p>Visual banana puzzle questions</p>
-        </button>
-
-        <button class="card category-tile" type="button" data-category="general">
-          <h3>🌍 General Knowledge</h3>
-          <p>Open trivia questions</p>
-        </button>
-
-        <button class="card category-tile" type="button" data-category="programming">
-          <h3>💻 Programming</h3>
-          <p>Computer science questions</p>
-        </button>
-      </div>
-    </section>
-
-    <section class="card hidden" id="pcBotSettingsCard" style="margin-bottom:20px;">
-      <h2 style="margin-top:0;">Bot Setup</h2>
-      <p style="margin-top:0;">These apply only to Player vs PC mode.</p>
-
-      <div style="margin-top:18px;">
-        <h3 style="margin-bottom:10px;">Difficulty</h3>
-        <div class="difficulty-grid" id="difficultyGrid">
-          <button class="difficulty-btn active" type="button" data-difficulty="easy">
-            Easy
-            <span>More mistakes, slower answers</span>
-          </button>
-
-          <button class="difficulty-btn" type="button" data-difficulty="medium">
-            Medium
-            <span>Balanced play style</span>
-          </button>
-
-          <button class="difficulty-btn" type="button" data-difficulty="hard">
-            Hard
-            <span>Faster and more accurate</span>
-          </button>
+        <div class="premium-actions">
+          <a class="nav-chip primary" href="./home.html">Back Home</a>
         </div>
       </div>
 
-      <div style="margin-top:22px;">
-        <h3 style="margin-bottom:10px;">Bot Personality</h3>
-        <div class="personality-grid" id="personalityGrid">
-          <button class="personality-btn active" type="button" data-personality="slowThinker">
-            🐢 Slow Thinker
-            <span>Patient and steady</span>
+      <div id="messageBox" class="message-box"></div>
+
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">QUESTION SET</p>
+            <h2 class="section-heading">Question Categories</h2>
+          </div>
+        </div>
+
+        <div class="grid-2 category-grid">
+          <button class="card category-tile active" type="button" data-category="math">
+            <span class="tile-glow"></span>
+            <h3>➗ Maths</h3>
+            <p>Fast calculation rounds</p>
           </button>
 
-          <button class="personality-btn" type="button" data-personality="speedDemon">
-            ⚡ Speed Demon
-            <span>Fast but risky</span>
+          <button class="card category-tile" type="button" data-category="banana">
+            <span class="tile-glow"></span>
+            <h3>🍌 Banana API</h3>
+            <p>Visual banana puzzle questions</p>
           </button>
 
-          <button class="personality-btn" type="button" data-personality="trollBot">
-            😈 Troll Bot
-            <span>Unpredictable chaos</span>
+          <button class="card category-tile" type="button" data-category="general">
+            <span class="tile-glow"></span>
+            <h3>🌍 General Knowledge</h3>
+            <p>Open trivia questions</p>
           </button>
 
-          <button class="personality-btn" type="button" data-personality="geniusBot">
-            🧠 Genius Bot
-            <span>Fast and sharp</span>
+          <button class="card category-tile" type="button" data-category="programming">
+            <span class="tile-glow"></span>
+            <h3>💻 Programming</h3>
+            <p>Computer science questions</p>
           </button>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="card arena-enter-card">
-      <button id="enterArenaBtn" type="button">Enter Arena</button>
-    </section>
+      <section class="content-panel hidden" id="pcBotSettingsCard">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">AI CONFIGURATION</p>
+            <h2 class="section-heading">Bot Setup</h2>
+            <p class="section-copy">These settings only apply in Player vs PC mode.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <h3 class="mini-section-title">Difficulty</h3>
+          <div class="difficulty-grid" id="difficultyGrid">
+            <button class="difficulty-btn active" type="button" data-difficulty="easy">
+              Easy
+              <span>More mistakes, slower answers</span>
+            </button>
+
+            <button class="difficulty-btn" type="button" data-difficulty="medium">
+              Medium
+              <span>Balanced play style</span>
+            </button>
+
+            <button class="difficulty-btn" type="button" data-difficulty="hard">
+              Hard
+              <span>Faster and more accurate</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top:22px;">
+          <h3 class="mini-section-title">Bot Personality</h3>
+          <div class="personality-grid" id="personalityGrid">
+            <button class="personality-btn active" type="button" data-personality="slowThinker">
+              🐢 Slow Thinker
+              <span>Patient and steady</span>
+            </button>
+
+            <button class="personality-btn" type="button" data-personality="speedDemon">
+              ⚡ Speed Demon
+              <span>Fast but risky</span>
+            </button>
+
+            <button class="personality-btn" type="button" data-personality="trollBot">
+              😈 Troll Bot
+              <span>Unpredictable chaos</span>
+            </button>
+
+            <button class="personality-btn" type="button" data-personality="geniusBot">
+              🧠 Genius Bot
+              <span>Fast and sharp</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="hero-panel hero-panel-center">
+        <div class="hero-panel-copy center-copy">
+          <p class="eyebrow">READY</p>
+          <h2 class="section-heading">Enter Arena</h2>
+        </div>
+        <div class="arena-enter-card premium-center-button">
+          <button id="enterArenaBtn" type="button">Enter Arena</button>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>

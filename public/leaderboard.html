@@ -6,67 +6,101 @@
   <title>DAMON - Leaderboard</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="top-bar">
-      <div>
-        <h1 style="margin:0;">Leaderboard</h1>
-        <p class="subtitle" style="text-align:left; margin:6px 0 0;">Top players, progress, and match history</p>
-      </div>
-      <a class="card" href="./home.html">Back Home</a>
-    </div>
+<body data-page="leaderboard">
+  <div class="site-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+  </div>
 
-    <section class="card podium-card" style="margin-bottom:20px;">
-      <h2 style="margin-top:0;">Top 3 Podium</h2>
-      <div id="podiumWrap" class="podium-wrap"></div>
-    </section>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Global Rankings</p>
+    </aside>
 
-    <section class="card" style="margin-bottom:20px;">
-      <div class="leaderboard-toolbar">
-        <h2 style="margin:0;">Player Rankings</h2>
-
-        <div class="leaderboard-filters">
-          <select id="leaderboardSort">
-            <option value="wins">Sort by Wins</option>
-            <option value="points">Sort by Points</option>
-            <option value="xp">Sort by XP</option>
-            <option value="level">Sort by Level</option>
-            <option value="matches">Sort by Matches Played</option>
-          </select>
+    <main class="page-content">
+      <div class="premium-topbar">
+        <div>
+          <p class="eyebrow">PLAYER RANKINGS</p>
+          <h1 class="page-heading">Leaderboard</h1>
+          <p class="page-copy">Top players, XP growth, match results, and rivalry data across the DAMON arena.</p>
+        </div>
+        <div class="premium-actions">
+          <a class="nav-chip primary" href="./home.html">Back Home</a>
         </div>
       </div>
 
-      <div id="leaderboardList" class="leaderboard-list"></div>
-    </section>
-
-    <section class="card" style="margin-bottom:20px;">
-      <div class="leaderboard-toolbar">
-        <h2 style="margin:0;">Your Match History</h2>
-
-        <div class="leaderboard-filters">
-          <select id="historyCategoryFilter">
-            <option value="all">All Categories</option>
-            <option value="math">Maths</option>
-            <option value="banana">Banana API</option>
-            <option value="general">General Knowledge</option>
-            <option value="programming">Programming</option>
-          </select>
-
-          <select id="historyModeFilter">
-            <option value="all">All Modes</option>
-            <option value="pvp">PVP</option>
-            <option value="pc">Player vs PC</option>
-          </select>
+      <section class="content-panel podium-card">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">TOP PLAYERS</p>
+            <h2 class="section-heading">Top 3 Podium</h2>
+          </div>
         </div>
-      </div>
+        <div id="podiumWrap" class="podium-wrap"></div>
+      </section>
 
-      <div id="historyList" class="history-list"></div>
-    </section>
+      <section class="content-panel">
+        <div class="leaderboard-toolbar">
+          <div>
+            <p class="eyebrow">GLOBAL BOARD</p>
+            <h2 class="section-heading" style="margin-bottom:0;">Player Rankings</h2>
+          </div>
 
-    <section class="card">
-      <h2>Head-to-Head Records</h2>
-      <div id="h2hList" class="h2h-list"></div>
-    </section>
+          <div class="leaderboard-filters">
+            <select id="leaderboardSort">
+              <option value="wins">Sort by Wins</option>
+              <option value="points">Sort by Points</option>
+              <option value="xp">Sort by XP</option>
+              <option value="level">Sort by Level</option>
+              <option value="matches">Sort by Matches Played</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="leaderboardList" class="leaderboard-list"></div>
+      </section>
+
+      <section class="content-panel">
+        <div class="leaderboard-toolbar">
+          <div>
+            <p class="eyebrow">PERSONAL LOG</p>
+            <h2 class="section-heading" style="margin-bottom:0;">Your Match History</h2>
+          </div>
+
+          <div class="leaderboard-filters">
+            <select id="historyCategoryFilter">
+              <option value="all">All Categories</option>
+              <option value="math">Maths</option>
+              <option value="banana">Banana API</option>
+              <option value="general">General Knowledge</option>
+              <option value="programming">Programming</option>
+            </select>
+
+            <select id="historyModeFilter">
+              <option value="all">All Modes</option>
+              <option value="pvp">PVP</option>
+              <option value="pc">Player vs PC</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="historyList" class="history-list"></div>
+      </section>
+
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">RIVALRY TRACKER</p>
+            <h2 class="section-heading">Head-to-Head Records</h2>
+          </div>
+        </div>
+        <div id="h2hList" class="h2h-list"></div>
+      </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>

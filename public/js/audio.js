@@ -40,6 +40,11 @@ class DamonAudioManager {
     this.battleAudio.pause();
   }
 
+  stopAllMusic() {
+    this.pauseAllMusic();
+    this.currentMode = null;
+  }
+
   playMenuMusic() {
     if (!isSoundEnabled()) return;
     if (this.currentMode === "menu") return;
@@ -99,8 +104,7 @@ class DamonAudioManager {
     localStorage.setItem(SOUND_KEY, String(enabled));
 
     if (!enabled) {
-      this.pauseAllMusic();
-      this.currentMode = null;
+      this.stopAllMusic();
       return;
     }
 
