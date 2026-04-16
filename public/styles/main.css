@@ -2368,3 +2368,62 @@ strong {
     font-size: 0.8rem;
   }
 }
+
+/* LETTER REVEAL */
+.refined-splash-word span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  animation: letterReveal 0.6s ease forwards;
+}
+
+.refined-splash-word span:nth-child(1) { animation-delay: 0.2s; }
+.refined-splash-word span:nth-child(2) { animation-delay: 0.35s; }
+.refined-splash-word span:nth-child(3) { animation-delay: 0.5s; }
+.refined-splash-word span:nth-child(4) { animation-delay: 0.65s; }
+.refined-splash-word span:nth-child(5) { animation-delay: 0.8s; }
+
+@keyframes letterReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* LOGO GLOW PULSE */
+.splash-frame {
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.05),
+      0 0 20px rgba(56,189,248,0.15);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.08),
+      0 0 50px rgba(56,189,248,0.35);
+  }
+}
+
+/* D LETTER GLOW */
+.splash-d {
+  animation: dGlow 2s ease-in-out infinite;
+}
+
+@keyframes dGlow {
+  0%, 100% {
+    text-shadow: 0 0 12px rgba(56,189,248,0.15);
+  }
+  50% {
+    text-shadow: 0 0 35px rgba(56,189,248,0.45);
+  }
+}
