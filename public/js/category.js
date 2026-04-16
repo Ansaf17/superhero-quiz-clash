@@ -16,9 +16,9 @@ if (!config) {
   window.location.href = "home.html";
 }
 
-let selectedCategory = "math";
-let selectedDifficulty = (config.botDifficulty || "easy");
-let selectedPersonality = (config.botPersonality || "slowThinker");
+let selectedCategory = config.category || "math";
+let selectedDifficulty = config.botDifficulty || "easy";
+let selectedPersonality = config.botPersonality || "slowThinker";
 
 function showMessage(text, type) {
   messageBox.textContent = text;
@@ -34,6 +34,10 @@ function refreshBotPanel() {
 }
 
 categoryTiles.forEach((tile) => {
+  if (tile.dataset.category === selectedCategory) {
+    tile.classList.add("active");
+  }
+
   tile.onclick = () => {
     categoryTiles.forEach((item) => item.classList.remove("active"));
     tile.classList.add("active");
@@ -86,12 +90,7 @@ enterArenaBtn.onclick = () => {
   }
 
   state.setBattleConfig(updatedConfig);
-
-  if (window.DamonFX) {
-    window.DamonFX.navigate("game.html");
-  } else {
-    window.location.href = "game.html";
-  }
+  window.location.href = "game.html";
 };
 
 refreshBotPanel();

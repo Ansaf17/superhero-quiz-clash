@@ -5,6 +5,10 @@ if (!config) {
   window.location.href = "home.html";
 }
 
+if (window.DamonAudio) {
+  window.DamonAudio.playBattleMusic();
+}
+
 const settings = state.getSettings ? (state.getSettings() || state.getDefaultSettings()) : { turnTimer: 10 };
 
 const messageBox = document.getElementById("messageBox");
@@ -735,60 +739,12 @@ function applyTournamentChampionBonus() {
   };
 }
 
-function saveMatchHistoryFallback(winner) {
-  if (!state.getMatches || !state.saveMatches) return;
-
-  const matches = state.getMatches() || [];
-  matches.push({
-    player1: config.player1.username,
-    player2: config.player2.username,
-    player1Score,
-    player2Score,
-    winner,
-    category: config.category || "math",
-    mode: config.mode,
-    stage: config.stage || "",
-    difficulty: config.botDifficulty || "",
-    date: new Date().toLocaleString()
-  });
-  state.saveMatches(matches);
-}
-
-function restoreFullResultUI(result, titleText) {
-  progressSummary.innerHTML = `
-    <div class="progress-grid">
-      ${renderProgressCard(titleText, result.progress)}
-    </div>
-  `;
-
-  unlockedAchievements.innerHTML = renderAchievements(result.achievements);
-
-  dailyChallengeStatus.innerHTML = `
-    <div class="daily-result-grid">
-      ${renderDailyStatus(titleText, result.daily)}
-    </div>
-  `;
-
-  powerupRewardsBox.innerHTML = `
-    <div class="daily-result-grid">
-      ${renderRewards(titleText, result.rewards, result.coinReward)}
-    </div>
-  `;
-
-  if (result.achievements) {
-    result.achievements.forEach((item) => {
-      showAchievementPopup(item.title, item.description);
-    });
-  }
-}
-
-function buildEmergencyResult(winner) {
-  const xpGain = player1CorrectAnswers * 10 + (winner === config.player1.username ? 25 : 0);
+function renderEmergencyResult() {
   return {
     progress: {
-      xpGain,
+      xpGain: 0,
       oldXp: 0,
-      newXp: xpGain,
+      newXp: 0,
       oldLevel: 1,
       newLevel: 1,
       leveledUp: false,
@@ -798,21 +754,53 @@ function buildEmergencyResult(winner) {
       oldTier: "Bronze",
       newTier: "Bronze",
       tierChanged: false,
-      xpIntoLevel: xpGain % 100,
+      xpIntoLevel: 0,
       xpNeededForNextLevel: 100,
-      xpPercent: xpGain % 100
+      xpPercent: 0
     },
     achievements: [],
     rewards: [],
-    daily: [
-      {
-        title: "Match Played",
-        description: "Your match completed successfully.",
-        completed: true
-      }
-    ],
-    coinReward: Math.max(10, Math.floor(player1Score / 2))
+    daily: [],
+    coinReward: 0
   };
+}
+
+function restoreFullResultUI(result, titleText) {
+  const safeResult = result || renderEmergencyResult();
+
+  if (progressSummary) {
+    progressSummary.innerHTML = `
+      <div class="progress-grid">
+        ${renderProgressCard(titleText, safeResult.progress)}
+      </div>
+    `;
+  }
+
+  if (unlockedAchievements) {
+    unlockedAchievements.innerHTML = renderAchievements(safeResult.achievements);
+  }
+
+  if (dailyChallengeStatus) {
+    dailyChallengeStatus.innerHTML = `
+      <div class="daily-result-grid">
+        ${renderDailyStatus(titleText, safeResult.daily)}
+      </div>
+    `;
+  }
+
+  if (powerupRewardsBox) {
+    powerupRewardsBox.innerHTML = `
+      <div class="daily-result-grid">
+        ${renderRewards(titleText, safeResult.rewards, safeResult.coinReward)}
+      </div>
+    `;
+  }
+
+  if (safeResult.achievements) {
+    safeResult.achievements.forEach((item) => {
+      showAchievementPopup(item.title, item.description);
+    });
+  }
 }
 
 function finishMatch() {
@@ -849,18 +837,11 @@ function finishMatch() {
       finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
     }
 
-    if (progressSummary) progressSummary.innerHTML = "";
-    if (unlockedAchievements) unlockedAchievements.innerHTML = "";
-    if (dailyChallengeStatus) dailyChallengeStatus.innerHTML = "";
-    if (powerupRewardsBox) powerupRewardsBox.innerHTML = "";
-
-    saveMatchHistoryFallback(winner);
-
     let result = null;
 
     if (config.mode === "boss" && typeof state.saveBossBattleStats === "function") {
       const won = winner === config.player1.username;
-      const bossResult = state.saveBossBattleStats(
+      result = state.saveBossBattleStats(
         config.player1.username,
         config.bossProfile,
         player1Score,
@@ -870,62 +851,22 @@ function finishMatch() {
         player1CorrectAnswers
       );
 
-      if (bossResult) {
-        progressSummary.innerHTML = `
-          <div class="progress-grid">
-            ${renderProgressCard(config.player1.username, bossResult.progress)}
-          </div>
-        `;
-        unlockedAchievements.innerHTML = renderAchievements(bossResult.achievements);
-        dailyChallengeStatus.innerHTML = `
-          <div class="daily-result-grid">
-            ${renderDailyStatus(config.player1.username, bossResult.daily)}
-          </div>
-        `;
-        powerupRewardsBox.innerHTML = `
-          <div class="daily-result-grid">
-            ${renderRewards(
-              config.player1.username,
-              bossResult.rewards,
-              bossResult.coinReward,
-              won ? `${bossResult.bossBonusXp} Boss XP Bonus` : `${bossResult.bossBonusXp} Consolation Boss XP`
-            )}
-          </div>
-        `;
-
-        if (bossResult.achievements) {
-          bossResult.achievements.forEach((item) => {
-            showAchievementPopup(item.title, item.description);
-          });
-        }
-      } else {
-        restoreFullResultUI(buildEmergencyResult(winner), config.player1.username);
-      }
-
       if (resultMetaText) {
         resultMetaText.textContent = `Category: ${config.category || "math"} | Mode: boss | Boss: ${config.bossProfile.name}`;
       }
-    } else {
-      if (typeof state.saveSinglePlayerStats === "function") {
-        result = state.saveSinglePlayerStats(
-          config.player1.username,
-          config.player2.username,
-          player1Score,
-          player2Score,
-          winner,
-          config.category || "math",
-          config.mode,
-          {
-            correctAnswers: player1CorrectAnswers
-          }
-        );
-      }
-
-      if (!result) {
-        result = buildEmergencyResult(winner);
-      }
-
-      restoreFullResultUI(result, config.player1.username);
+    } else if (typeof state.saveSinglePlayerStats === "function") {
+      result = state.saveSinglePlayerStats(
+        config.player1.username,
+        config.player2.username,
+        player1Score,
+        player2Score,
+        winner,
+        config.category || "math",
+        config.mode,
+        {
+          correctAnswers: player1CorrectAnswers
+        }
+      );
 
       if (config.mode === "tournament") {
         const tournament = updateTournamentAfterMatch(winner);
@@ -958,6 +899,8 @@ function finishMatch() {
       }
     }
 
+    restoreFullResultUI(result, config.player1.username);
+
     if (resultCard) resultCard.classList.remove("hidden");
     animateXpBars();
     launchConfetti();
@@ -974,8 +917,7 @@ function finishMatch() {
       finalScoreText.textContent = `Final Score: ${config.player1.username} ${player1Score} - ${player2Score} ${config.player2.username}`;
     }
 
-    const emergency = buildEmergencyResult("draw");
-    restoreFullResultUI(emergency, config.player1.username);
+    restoreFullResultUI(renderEmergencyResult(), config.player1.username);
 
     if (resultMetaText) resultMetaText.textContent = "Emergency Result Mode";
     if (resultCard) resultCard.classList.remove("hidden");

@@ -47,6 +47,7 @@ if (!key || !h2h[key]) {
     </div>
   `;
 }
+
 if (window.DamonAudio) {
   window.DamonAudio.playMenuMusic();
 }

@@ -5,6 +5,10 @@ if (!currentUser) {
   window.location.href = "home.html";
 }
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const messageBox = document.getElementById("messageBox");
 const tournamentCategory = document.getElementById("tournamentCategory");
 const tournamentDifficulty = document.getElementById("tournamentDifficulty");
@@ -85,7 +89,6 @@ function simulateBotMatch(botA, botB, difficulty) {
 
 function buildTournamentState(category, difficulty) {
   const bots = pickTournamentBots();
-
   const semi2 = simulateBotMatch(bots[1], bots[2], difficulty);
 
   return {

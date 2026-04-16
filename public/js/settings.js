@@ -1,6 +1,10 @@
 const state = window.DamonState;
 const messageBox = document.getElementById("messageBox");
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const soundEnabled = document.getElementById("soundEnabled");
 const defaultDifficulty = document.getElementById("defaultDifficulty");
 const defaultCategory = document.getElementById("defaultCategory");
@@ -84,6 +88,7 @@ resetSettingsBtn.onclick = () => {
 clearBattleConfigBtn.onclick = () => {
   state.clearBattleConfig();
   state.clearPvpDraft();
+  localStorage.removeItem("damonTournament");
   showMessage("Current battle data cleared.", "success");
 };
 
@@ -104,6 +109,7 @@ clearAllDataBtn.onclick = () => {
   localStorage.removeItem("damon_theme");
   localStorage.removeItem("damon_sound_enabled");
   localStorage.removeItem("damon_menu_time");
+  localStorage.removeItem("damonTournament");
 
   if (window.DamonAudio) {
     window.DamonAudio.stopAllMusic();

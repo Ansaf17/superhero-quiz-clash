@@ -20,7 +20,7 @@ window.DamonState = {
       achievements: Array.isArray(user.achievements) ? user.achievements : [],
       ownedAvatars:
         Array.isArray(user.ownedAvatars) && user.ownedAvatars.length
-          ? user.ownedAvatars
+          ? [...new Set(user.ownedAvatars)]
           : ["🦸"],
       powerupInventory: {
         fiftyFifty: Number(user.powerupInventory?.fiftyFifty || 1),
@@ -210,110 +210,6 @@ window.DamonState = {
     return map[tier] || "🏅";
   },
 
-  getAvailableAvatars() {
-    return [
-      { avatar: "🦸", price: 0, name: "Hero" },
-      { avatar: "🦹", price: 80, name: "Villain" },
-      { avatar: "⚡", price: 100, name: "Lightning" },
-      { avatar: "🔥", price: 100, name: "Fire" },
-      { avatar: "🛡️", price: 120, name: "Shield" },
-      { avatar: "🌟", price: 140, name: "Star" },
-      { avatar: "💥", price: 150, name: "Blast" },
-      { avatar: "🌪️", price: 160, name: "Storm" },
-      { avatar: "🤖", price: 180, name: "Bot" },
-      { avatar: "🐉", price: 220, name: "Dragon" },
-      { avatar: "👑", price: 260, name: "Crown" },
-      { avatar: "💎", price: 300, name: "Diamond" }
-    ];
-  },
-
-  getShopItems() {
-    return [
-      { id: "fiftyFifty", title: "50/50", type: "powerup", price: 40, amount: 1, icon: "🎯" },
-      { id: "skip", title: "Skip", type: "powerup", price: 45, amount: 1, icon: "⏭" },
-      { id: "extraTime", title: "+5 Time", type: "powerup", price: 35, amount: 1, icon: "⏱" },
-      { id: "doublePoints", title: "Double Points", type: "powerup", price: 60, amount: 1, icon: "💥" }
-    ];
-  },
-
-  getBossProfiles() {
-    return [
-      {
-        id: "ironTitan",
-        name: "Iron Titan",
-        avatar: "🛡️",
-        hp: 60,
-        description: "Slow but durable boss with heavy HP.",
-        rewardCoins: 120,
-        rewardXp: 80,
-        rewardPowerup: "fiftyFifty"
-      },
-      {
-        id: "shadowBrain",
-        name: "Shadow Brain",
-        avatar: "🧠",
-        hp: 50,
-        description: "Highly accurate boss with tricky pressure.",
-        rewardCoins: 140,
-        rewardXp: 100,
-        rewardPowerup: "doublePoints"
-      },
-      {
-        id: "chaosHydra",
-        name: "Chaos Hydra",
-        avatar: "🐉",
-        hp: 70,
-        description: "Unpredictable boss with strong endurance.",
-        rewardCoins: 180,
-        rewardXp: 130,
-        rewardPowerup: "skip"
-      }
-    ];
-  },
-
-  calculateXpGain(score, winner, username) {
-    const correctAnswerXp = Math.floor(score / 10) * 10;
-    let outcomeXp = 0;
-
-    if (winner === "draw") outcomeXp = 10;
-    else if (winner === username) outcomeXp = 25;
-    else outcomeXp = 5;
-
-    return correctAnswerXp + outcomeXp;
-  },
-
-  applyProgress(user, xpGain) {
-    const oldLevel = user.level;
-    const oldRankTitle = user.rankTitle;
-    const oldTier = user.leaderboardTier;
-    const oldXp = user.xp;
-
-    user.xp += xpGain;
-    user.level = this.getLevelFromXp(user.xp);
-    user.rankTitle = this.getRankTitle(user.level);
-    user.leaderboardTier = this.getLeaderboardTier(user.totalWins);
-
-    const xpState = this.getXpIntoCurrentLevel(user.xp);
-
-    return {
-      xpGain,
-      oldXp,
-      newXp: user.xp,
-      oldLevel,
-      newLevel: user.level,
-      leveledUp: user.level > oldLevel,
-      oldRankTitle,
-      newRankTitle: user.rankTitle,
-      rankChanged: oldRankTitle !== user.rankTitle,
-      oldTier,
-      newTier: user.leaderboardTier,
-      tierChanged: oldTier !== user.leaderboardTier,
-      xpIntoLevel: xpState.xpIntoLevel,
-      xpNeededForNextLevel: xpState.xpNeededForNextLevel,
-      xpPercent: Math.max(0, Math.min(100, (xpState.xpIntoLevel / xpState.xpNeededForNextLevel) * 100))
-    };
-  },
-
   getTodayString() {
     return new Date().toISOString().split("T")[0];
   },
@@ -359,7 +255,7 @@ window.DamonState = {
       { id: "first_win", condition: user.totalWins >= 1 },
       { id: "ten_wins", condition: user.totalWins >= 10 },
       { id: "hundred_points", condition: user.totalPoints >= 100 },
-      { id: "five_win_streak", condition: user.winStreak >= 5 },
+      { id: "five_win_streak", condition: user.bestWinStreak >= 5 },
       { id: "first_boss_win", condition: user.bossStats?.victories >= 1 }
     ];
 
@@ -420,6 +316,49 @@ window.DamonState = {
     }
   },
 
+  calculateXpGain(score, winner, username) {
+    const correctAnswerXp = Math.floor(score / 10) * 10;
+    let outcomeXp = 0;
+
+    if (winner === "draw") outcomeXp = 10;
+    else if (winner === username) outcomeXp = 25;
+    else outcomeXp = 5;
+
+    return correctAnswerXp + outcomeXp;
+  },
+
+  applyProgress(user, xpGain) {
+    const oldLevel = user.level;
+    const oldRankTitle = user.rankTitle;
+    const oldTier = user.leaderboardTier;
+    const oldXp = user.xp;
+
+    user.xp += xpGain;
+    user.level = this.getLevelFromXp(user.xp);
+    user.rankTitle = this.getRankTitle(user.level);
+    user.leaderboardTier = this.getLeaderboardTier(user.totalWins);
+
+    const xpState = this.getXpIntoCurrentLevel(user.xp);
+
+    return {
+      xpGain,
+      oldXp,
+      newXp: user.xp,
+      oldLevel,
+      newLevel: user.level,
+      leveledUp: user.level > oldLevel,
+      oldRankTitle,
+      newRankTitle: user.rankTitle,
+      rankChanged: oldRankTitle !== user.rankTitle,
+      oldTier,
+      newTier: user.leaderboardTier,
+      tierChanged: oldTier !== user.leaderboardTier,
+      xpIntoLevel: xpState.xpIntoLevel,
+      xpNeededForNextLevel: xpState.xpNeededForNextLevel,
+      xpPercent: Math.max(0, Math.min(100, (xpState.xpIntoLevel / xpState.xpNeededForNextLevel) * 100))
+    };
+  },
+
   rewardPowerups(user, won) {
     const rewards = [];
 
@@ -446,6 +385,67 @@ window.DamonState = {
     const total = scoreCoins + resultCoins;
     user.coins += total;
     return total;
+  },
+
+  getAvailableAvatars() {
+    return [
+      { avatar: "🦸", price: 0, name: "Hero" },
+      { avatar: "🦹", price: 80, name: "Villain" },
+      { avatar: "⚡", price: 100, name: "Lightning" },
+      { avatar: "🔥", price: 100, name: "Fire" },
+      { avatar: "🛡️", price: 120, name: "Shield" },
+      { avatar: "🌟", price: 140, name: "Star" },
+      { avatar: "💥", price: 150, name: "Blast" },
+      { avatar: "🌪️", price: 160, name: "Storm" },
+      { avatar: "🤖", price: 180, name: "Bot" },
+      { avatar: "🐉", price: 220, name: "Dragon" },
+      { avatar: "👑", price: 260, name: "Crown" },
+      { avatar: "💎", price: 300, name: "Diamond" }
+    ];
+  },
+
+  getShopItems() {
+    return [
+      { id: "fiftyFifty", title: "50/50", type: "powerup", price: 40, amount: 1, icon: "🎯" },
+      { id: "skip", title: "Skip", type: "powerup", price: 45, amount: 1, icon: "⏭" },
+      { id: "extraTime", title: "+5 Time", type: "powerup", price: 35, amount: 1, icon: "⏱" },
+      { id: "doublePoints", title: "Double Points", type: "powerup", price: 60, amount: 1, icon: "💥" }
+    ];
+  },
+
+  getBossProfiles() {
+    return [
+      {
+        id: "ironTitan",
+        name: "Iron Titan",
+        avatar: "🛡️",
+        hp: 60,
+        description: "Slow but durable boss with heavy HP.",
+        rewardCoins: 120,
+        rewardXp: 80,
+        rewardPowerup: "fiftyFifty"
+      },
+      {
+        id: "shadowBrain",
+        name: "Shadow Brain",
+        avatar: "🧠",
+        hp: 50,
+        description: "Highly accurate boss with tricky pressure.",
+        rewardCoins: 140,
+        rewardXp: 100,
+        rewardPowerup: "doublePoints"
+      },
+      {
+        id: "chaosHydra",
+        name: "Chaos Hydra",
+        avatar: "🐉",
+        hp: 70,
+        description: "Unpredictable boss with strong endurance.",
+        rewardCoins: 180,
+        rewardXp: 130,
+        rewardPowerup: "skip"
+      }
+    ];
   },
 
   claimDailyLoginReward(username) {
@@ -555,187 +555,95 @@ window.DamonState = {
 
     return { success: true, user };
   },
+
   saveSinglePlayerStats(
-  p1Name,
-  p2Name,
-  p1Score,
-  p2Score,
-  winner,
-  category,
-  mode,
-  extra = {}
-) {
-  const users = this.getUsers();
-  const p1 = users.find((u) => u.username === p1Name);
+    p1Name,
+    p2Name,
+    p1Score,
+    p2Score,
+    winner,
+    category,
+    mode,
+    extra = {}
+  ) {
+    const users = this.getUsers();
+    const p1 = users.find((u) => u.username === p1Name);
 
-  if (!p1) return null;
+    if (!p1) return null;
 
-  if (typeof p1.totalPoints !== "number") p1.totalPoints = 0;
-  if (typeof p1.totalWins !== "number") p1.totalWins = 0;
-  if (typeof p1.totalLosses !== "number") p1.totalLosses = 0;
-  if (typeof p1.matchesPlayed !== "number") p1.matchesPlayed = 0;
-  if (typeof p1.xp !== "number") p1.xp = 0;
-  if (typeof p1.level !== "number") p1.level = 1;
-  if (typeof p1.coins !== "number") p1.coins = 0;
-  if (!p1.rankTitle) p1.rankTitle = "Rookie";
-  if (!p1.leaderboardTier) p1.leaderboardTier = "Bronze";
-  if (typeof p1.winStreak !== "number") p1.winStreak = 0;
-  if (typeof p1.bestWinStreak !== "number") p1.bestWinStreak = 0;
-  if (!Array.isArray(p1.achievements)) p1.achievements = [];
-  if (!p1.dailyProgress || typeof p1.dailyProgress !== "object") {
-    p1.dailyProgress = {
-      date: new Date().toISOString().split("T")[0],
-      matchesPlayed: 0,
-      wins: 0,
-      correctAnswers: 0,
-      bananaPlayed: false
-    };
-  }
+    const correctAnswers = Number(extra.correctAnswers || 0);
 
-  const oldXp = p1.xp;
-  const oldLevel = p1.level;
-  const oldRankTitle = p1.rankTitle;
-  const oldTier = p1.leaderboardTier;
+    p1.totalPoints += p1Score;
+    p1.matchesPlayed += 1;
 
-  const correctAnswers = Number(extra.correctAnswers || 0);
-
-  let xpGain = 10;
-  xpGain += Math.floor(p1Score / 10);
-  if (winner === p1Name) xpGain += 20;
-  if (correctAnswers >= 4) xpGain += 10;
-  if (mode === "boss" && winner === p1Name) xpGain += 25;
-  if (mode === "tournament" && winner === p1Name) xpGain += 15;
-
-  const coinReward = Math.max(10, Math.floor(p1Score / 2) + (winner === p1Name ? 10 : 0));
-
-  p1.totalPoints += p1Score;
-  p1.matchesPlayed += 1;
-  p1.coins += coinReward;
-  p1.xp += xpGain;
-
-  if (winner === p1Name) {
-    p1.totalWins += 1;
-    p1.winStreak += 1;
-    if (p1.winStreak > p1.bestWinStreak) {
-      p1.bestWinStreak = p1.winStreak;
+    if (winner === p1Name) {
+      p1.totalWins += 1;
+    } else if (winner !== "draw") {
+      p1.totalLosses += 1;
     }
-  } else if (winner !== "draw") {
-    p1.totalLosses += 1;
-    p1.winStreak = 0;
-  }
 
-  const getLevelFromXp = this.getLevelFromXp
-    ? this.getLevelFromXp.bind(this)
-    : (xp) => Math.floor(xp / 100) + 1;
+    this.updateWinStreak(p1, winner);
 
-  const getRankTitle = this.getRankTitle
-    ? this.getRankTitle.bind(this)
-    : (level) => {
-        if (level >= 25) return "Legend";
-        if (level >= 18) return "Master";
-        if (level >= 12) return "Champion";
-        if (level >= 6) return "Warrior";
-        return "Rookie";
+    const xpGain = this.calculateXpGain(p1Score, winner, p1Name);
+    const progress = this.applyProgress(p1, xpGain);
+    const achievements = this.unlockAchievements(p1);
+    const daily = this.updateDailyProgress(p1, category, correctAnswers, winner === p1Name);
+    const rewards = this.rewardPowerups(p1, winner === p1Name);
+    const coinReward = this.rewardCoins(p1, winner === p1Name, p1Score);
+
+    this.saveUsers(users);
+    this.setCurrentUser(p1);
+
+    const matches = this.getMatches();
+    matches.push({
+      player1: p1Name,
+      player2: p2Name,
+      player1Score: p1Score,
+      player2Score: p2Score,
+      winner,
+      category,
+      mode,
+      player1XpGain: xpGain,
+      player2XpGain: 0,
+      player1CorrectAnswers: correctAnswers,
+      player2CorrectAnswers: 0,
+      player1CoinReward: coinReward,
+      player2CoinReward: 0,
+      date: new Date().toLocaleString()
+    });
+    this.saveMatches(matches);
+
+    const h2h = this.getH2H();
+    const key = [p1Name, p2Name].sort().join("__");
+
+    if (!h2h[key]) {
+      h2h[key] = {
+        matches: 0,
+        [p1Name]: 0,
+        [p2Name]: 0,
+        [`${p1Name}Points`]: 0,
+        [`${p2Name}Points`]: 0
       };
+    }
 
-  const getLeaderboardTier = this.getLeaderboardTier
-    ? this.getLeaderboardTier.bind(this)
-    : (wins) => {
-        if (wins >= 50) return "Legend";
-        if (wins >= 35) return "Master";
-        if (wins >= 25) return "Diamond";
-        if (wins >= 15) return "Gold";
-        if (wins >= 8) return "Silver";
-        return "Bronze";
-      };
+    h2h[key].matches += 1;
+    h2h[key][`${p1Name}Points`] += p1Score;
+    h2h[key][`${p2Name}Points`] += p2Score;
 
-  p1.level = getLevelFromXp(p1.xp);
-  p1.rankTitle = getRankTitle(p1.level);
-  p1.leaderboardTier = getLeaderboardTier(p1.totalWins);
+    if (winner === p1Name) h2h[key][p1Name] += 1;
+    else if (winner === p2Name) h2h[key][p2Name] += 1;
 
-  const today = new Date().toISOString().split("T")[0];
-  if (p1.dailyProgress.date !== today) {
-    p1.dailyProgress = {
-      date: today,
-      matchesPlayed: 0,
-      wins: 0,
-      correctAnswers: 0,
-      bananaPlayed: false
+    this.saveH2H(h2h);
+
+    return {
+      progress,
+      achievements,
+      daily,
+      rewards,
+      coinReward
     };
-  }
+  },
 
-  p1.dailyProgress.matchesPlayed += 1;
-  p1.dailyProgress.correctAnswers += correctAnswers;
-  if (winner === p1Name) p1.dailyProgress.wins += 1;
-  if (category === "banana") p1.dailyProgress.bananaPlayed = true;
-
-  const achievements = [];
-
-  const ensureAchievement = (title, description) => {
-    const exists = p1.achievements.some((item) => item.title === title);
-    if (!exists) {
-      const item = { title, description };
-      p1.achievements.push(item);
-      achievements.push(item);
-    }
-  };
-
-  if (p1.totalWins >= 1) ensureAchievement("First Win", "Won your first DAMON battle.");
-  if (p1.totalWins >= 10) ensureAchievement("10 Wins", "Reached 10 total wins.");
-  if (p1.totalPoints >= 100) ensureAchievement("100 Points", "Reached 100 total points.");
-  if (p1.bestWinStreak >= 5) ensureAchievement("5 Win Streak", "Achieved a 5 win streak.");
-
-  const rewards = [];
-  if (winner === p1Name) {
-    if (p1.powerupInventory) {
-      p1.powerupInventory.fiftyFifty = Number(p1.powerupInventory.fiftyFifty || 0) + 1;
-      rewards.push("50/50");
-    }
-  }
-
-  this.saveUsers(users);
-  this.setCurrentUser(p1);
-
-  return {
-    progress: {
-      xpGain,
-      oldXp,
-      newXp: p1.xp,
-      oldLevel,
-      newLevel: p1.level,
-      leveledUp: p1.level > oldLevel,
-      oldRankTitle,
-      newRankTitle: p1.rankTitle,
-      rankChanged: oldRankTitle !== p1.rankTitle,
-      oldTier,
-      newTier: p1.leaderboardTier,
-      tierChanged: oldTier !== p1.leaderboardTier,
-      xpIntoLevel: p1.xp % 100,
-      xpNeededForNextLevel: 100,
-      xpPercent: p1.xp % 100
-    },
-    achievements,
-    rewards,
-    daily: [
-      {
-        title: "Matches Today",
-        description: `${p1.dailyProgress.matchesPlayed} match(es) played today.`,
-        completed: p1.dailyProgress.matchesPlayed > 0
-      },
-      {
-        title: "Correct Answers Today",
-        description: `${p1.dailyProgress.correctAnswers} correct answers today.`,
-        completed: p1.dailyProgress.correctAnswers > 0
-      },
-      {
-        title: "Wins Today",
-        description: `${p1.dailyProgress.wins} win(s) today.`,
-        completed: p1.dailyProgress.wins > 0
-      }
-    ],
-    coinReward
-  };
-},
   saveBossBattleStats(username, bossProfile, playerScore, bossScore, won, category, correctAnswers) {
     const users = this.getUsers();
     const user = users.find((u) => u.username === username);
@@ -810,6 +718,28 @@ window.DamonState = {
       date: new Date().toLocaleString()
     });
     this.saveMatches(matches);
+
+    const h2h = this.getH2H();
+    const key = [username, bossProfile.name].sort().join("__");
+
+    if (!h2h[key]) {
+      h2h[key] = {
+        matches: 0,
+        [username]: 0,
+        [bossProfile.name]: 0,
+        [`${username}Points`]: 0,
+        [`${bossProfile.name}Points`]: 0
+      };
+    }
+
+    h2h[key].matches += 1;
+    h2h[key][`${username}Points`] += playerScore;
+    h2h[key][`${bossProfile.name}Points`] += bossScore;
+
+    if (won) h2h[key][username] += 1;
+    else h2h[key][bossProfile.name] += 1;
+
+    this.saveH2H(h2h);
 
     return {
       progress,

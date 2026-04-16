@@ -5,6 +5,10 @@ if (!currentUser) {
   window.location.href = "home.html";
 }
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const achievementAvatar = document.getElementById("achievementAvatar");
 const achievementUsername = document.getElementById("achievementUsername");
 const achievementSummaryText = document.getElementById("achievementSummaryText");

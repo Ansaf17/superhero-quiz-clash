@@ -5,6 +5,10 @@ if (!currentUser) {
   window.location.href = "home.html";
 }
 
+if (window.DamonAudio) {
+  window.DamonAudio.playMenuMusic();
+}
+
 const messageBox = document.getElementById("messageBox");
 const bossGrid = document.getElementById("bossGrid");
 const startBossBattleBtn = document.getElementById("startBossBattleBtn");
