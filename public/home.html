@@ -6,114 +6,170 @@
   <title>DAMON</title>
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
-  <div class="page">
-    <div class="home-topbar">
-      <div></div>
+<body data-page="home">
+  <div class="site-bg home-bg">
+    <div class="site-bg-grid"></div>
+    <div class="site-bg-orb orb-1"></div>
+    <div class="site-bg-orb orb-2"></div>
+    <div class="site-bg-noise"></div>
+    <div class="hero-mesh"></div>
+  </div>
 
-      <div class="profile-menu-wrapper">
-        <button id="profileToggleBtn" class="profile-toggle-btn" type="button">
-          <span id="profileToggleAvatar">👤</span>
-        </button>
+  <div class="page-shell">
+    <aside class="brand-rail">
+      <a href="./home.html" class="brand-mark">DAMON</a>
+      <span class="brand-line"></span>
+      <p class="brand-copy">Battle of Knowledge</p>
+    </aside>
 
-        <div id="profileDropdown" class="profile-dropdown profile-dropdown-hidden">
-          <div id="loggedOutPanel">
-            <h3 style="margin-top:0;">Account</h3>
+    <main class="page-content">
+      <div class="home-topbar premium-homebar">
+        <nav class="floating-nav">
+          <a href="./leaderboard.html">Leaderboard</a>
+          <a href="./achievements.html">Achievements</a>
+          <a href="./shop.html">Shop</a>
+          <a href="./settings.html">Settings</a>
+        </nav>
 
-            <label for="loginUsername">Username</label>
-            <input id="loginUsername" type="text" placeholder="Enter username" />
+        <div class="profile-menu-wrapper">
+          <button id="profileToggleBtn" class="profile-toggle-btn" type="button">
+            <span id="profileToggleAvatar">👤</span>
+          </button>
 
-            <label for="loginPassword">Password</label>
-            <input id="loginPassword" type="password" placeholder="Enter password" />
+          <div id="profileDropdown" class="profile-dropdown profile-dropdown-hidden">
+            <div id="loggedOutPanel">
+              <h3 style="margin-top:0;">Account</h3>
 
-            <div class="compact-auth-actions">
-              <button id="loginBtn" type="button">Login</button>
-              <button id="showRegisterBtn" class="secondary" type="button">Register</button>
+              <label for="loginUsername">Username</label>
+              <input id="loginUsername" type="text" placeholder="Enter username" />
+
+              <label for="loginPassword">Password</label>
+              <input id="loginPassword" type="password" placeholder="Enter password" />
+
+              <div class="compact-auth-actions">
+                <button id="loginBtn" type="button">Login</button>
+                <button id="showRegisterBtn" class="secondary" type="button">Register</button>
+              </div>
+
+              <div id="registerArea" class="hidden" style="margin-top:16px;">
+                <label for="registerUsername">New Username</label>
+                <input id="registerUsername" type="text" placeholder="Enter username" />
+
+                <label for="registerPassword">New Password</label>
+                <input id="registerPassword" type="password" placeholder="Enter password" />
+
+                <p style="margin:10px 0 8px;">Choose Avatar</p>
+                <div class="avatar-grid compact-avatar-grid" id="avatarGrid">
+                  <div class="avatar-option" data-avatar="🦸">🦸</div>
+                  <div class="avatar-option" data-avatar="🦹">🦹</div>
+                  <div class="avatar-option" data-avatar="⚡">⚡</div>
+                  <div class="avatar-option" data-avatar="🔥">🔥</div>
+                </div>
+
+                <div class="compact-auth-actions" style="margin-top:12px;">
+                  <button id="registerBtn" type="button">Create Account</button>
+                  <button id="hideRegisterBtn" class="secondary" type="button">Cancel</button>
+                </div>
+              </div>
             </div>
 
-            <div id="registerArea" class="hidden" style="margin-top:16px;">
-              <label for="registerUsername">New Username</label>
-              <input id="registerUsername" type="text" placeholder="Enter username" />
+            <div id="loggedInPanel" class="hidden">
+              <div class="profile-mini">
+                <div id="miniAvatar" class="profile-mini-avatar">🦸</div>
+                <div>
+                  <strong id="miniUsername">Player</strong>
+                  <p id="miniCoinsText" style="margin:4px 0 0; color:#cbd5e1;">0 Coins</p>
+                </div>
+              </div>
 
-              <label for="registerPassword">New Password</label>
-              <input id="registerPassword" type="password" placeholder="Enter password" />
+              <div id="dailyRewardBox" class="daily-login-box" style="margin-top:14px;"></div>
 
-              <p style="margin:10px 0 8px;">Choose Avatar</p>
-              <div class="avatar-grid compact-avatar-grid" id="avatarGrid">
-                <div class="avatar-option" data-avatar="🦸">🦸</div>
-                <div class="avatar-option" data-avatar="🦹">🦹</div>
-                <div class="avatar-option" data-avatar="⚡">⚡</div>
-                <div class="avatar-option" data-avatar="🔥">🔥</div>
+              <div class="compact-auth-actions" style="margin-top:14px;">
+                <a href="./profile.html" class="button-link">Profile</a>
+                <a href="./shop.html" class="button-link">Shop</a>
+                <a href="./settings.html" class="button-link">Settings</a>
               </div>
 
               <div class="compact-auth-actions" style="margin-top:12px;">
-                <button id="registerBtn" type="button">Create Account</button>
-                <button id="hideRegisterBtn" class="secondary" type="button">Cancel</button>
+                <button id="claimDailyBtn" type="button">Claim Daily Reward</button>
+                <button id="logoutBtn" class="secondary" type="button">Logout</button>
               </div>
-            </div>
-          </div>
-
-          <div id="loggedInPanel" class="hidden">
-            <div class="profile-mini">
-              <div id="miniAvatar" class="profile-mini-avatar">🦸</div>
-              <div>
-                <strong id="miniUsername">Player</strong>
-                <p id="miniCoinsText" style="margin:4px 0 0; color:#cbd5e1;">0 Coins</p>
-              </div>
-            </div>
-
-            <div id="dailyRewardBox" class="daily-login-box" style="margin-top:14px;"></div>
-
-            <div class="compact-auth-actions" style="margin-top:14px;">
-              <a href="./profile.html" class="button-link">Profile</a>
-              <a href="./shop.html" class="button-link">Shop</a>
-              <a href="./settings.html" class="button-link">Settings</a>
-            </div>
-
-            <div class="compact-auth-actions" style="margin-top:12px;">
-              <button id="claimDailyBtn" type="button">Claim Daily Reward</button>
-              <button id="logoutBtn" class="secondary" type="button">Logout</button>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div id="messageBox" class="message-box"></div>
+      <div id="messageBox" class="message-box"></div>
 
-    <div class="home-hero">
-      <h1 class="title">DAMON</h1>
-      <p class="subtitle">Battle of Knowledge</p>
-    </div>
+      <section class="hero-panel home-hero-panel">
+        <div class="hero-panel-copy hero-copy-max">
+          <p class="eyebrow">QUIZ BATTLE PLATFORM</p>
+          <h1 class="hero-title">WE BUILD <span>KNOWLEDGE</span> THAT ENDURES.</h1>
+          <p class="hero-description">
+            Enter DAMON and battle through trivia, logic, programming, boss fights, and tournaments in an immersive competitive arena.
+          </p>
 
-    <div class="grid-3 home-main-grid">
-      <a href="./leaderboard.html">
-        <div class="card hero-button">
-          <h3>Leaderboard</h3>
-          <p>Top players worldwide</p>
+          <div class="hero-cta-row">
+            <a href="./leaderboard.html" class="hero-primary-link">View Leaderboard</a>
+            <button id="pcBtn" class="hero-secondary-link" type="button">Start a Project →</button>
+          </div>
         </div>
-      </a>
 
-      <button id="pvpBtn" class="card hero-button hero-button-clickable" type="button">
-        <h3>Player vs Player</h3>
-        <p>Challenge real opponents</p>
-      </button>
+        <div class="hero-art-card">
+          <div class="hero-logo-frame">
+            <div class="hero-logo-core">D</div>
+          </div>
+          <div class="hero-pixel hero-pixel-1"></div>
+          <div class="hero-pixel hero-pixel-2"></div>
+          <div class="hero-pixel hero-pixel-3"></div>
+          <div class="hero-pixel hero-pixel-4"></div>
+          <div class="hero-pixel hero-pixel-5"></div>
+        </div>
+      </section>
 
-      <button id="pcBtn" class="card hero-button hero-button-clickable" type="button">
-        <h3>Game Lobby</h3>
-        <p>Play against AI</p>
-      </button>
+      <section class="content-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">GAME MODES</p>
+            <h2 class="section-heading">Choose Your Arena</h2>
+          </div>
+        </div>
 
-      <button id="bossBtn" class="card hero-button hero-button-clickable" type="button">
-        <h3>Boss Battle</h3>
-        <p>Fight legendary DAMON bosses</p>
-      </button>
+        <div class="grid-3 home-main-grid">
+          <a href="./leaderboard.html" class="mode-card-link">
+            <div class="card hero-button premium-mode-card">
+              <span class="tile-glow"></span>
+              <h3>Leaderboard</h3>
+              <p>Top players worldwide</p>
+            </div>
+          </a>
 
-      <button id="tournamentBtn" class="card hero-button hero-button-clickable" type="button">
-        <h3>Tournament</h3>
-        <p>Climb the bracket and become champion</p>
-      </button>
-    </div>
+          <button id="pvpBtn" class="card hero-button hero-button-clickable premium-mode-card" type="button">
+            <span class="tile-glow"></span>
+            <h3>Player vs Player</h3>
+            <p>Challenge real opponents</p>
+          </button>
+
+          <button id="pcBtn" class="card hero-button hero-button-clickable premium-mode-card home-mode-button" type="button">
+            <span class="tile-glow"></span>
+            <h3>Game Lobby</h3>
+            <p>Play against AI</p>
+          </button>
+
+          <button id="bossBtn" class="card hero-button hero-button-clickable premium-mode-card" type="button">
+            <span class="tile-glow"></span>
+            <h3>Boss Battle</h3>
+            <p>Fight legendary DAMON bosses</p>
+          </button>
+
+          <button id="tournamentBtn" class="card hero-button hero-button-clickable premium-mode-card" type="button">
+            <span class="tile-glow"></span>
+            <h3>Tournament</h3>
+            <p>Climb the bracket and become champion</p>
+          </button>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="./js/app-state.js"></script>
